@@ -57,186 +57,186 @@ class Transport(Operation):
         """Locations at which the process is balanced"""
         return self.linkages
 
-    def write_production(self, link_times: list[tuple[Linkage, Periods]]):
-        """Write the conversion constraints for the transport"""
+    # def write_production(self, link_times: list[tuple[Linkage, Periods]]):
+    #     """Write the conversion constraints for the transport"""
 
-        def time_checker(res: Resource, loc: Location, time: Periods):
-            """This checks if it is actually necessary
-            to write conversion at denser temporal scales
-            """
-            # This checks whether some other aspect is defined at
-            # a lower temporal scale
+    #     def time_checker(res: Resource, loc: Location, time: Periods):
+    #         """This checks if it is actually necessary
+    #         to write conversion at denser temporal scales
+    #         """
+    #         # This checks whether some other aspect is defined at
+    #         # a lower temporal scale
 
-            if loc not in self.model.balances[res]:
-                # if not defined for that location, check for a lower order location
-                # i.e. location at a lower hierarchy,
-                # e.g. say if loc being passed is a city, and a grb has not been defined for it
-                # then we need to check at a higher order
-                parent = self.space.split(loc)[1]  # get location at one hierarchy above
-                if parent:
-                    # if that indeed exists, then make the parent the loc
-                    # the conversion Balance variables will feature in grb for parent location
-                    loc = parent
+    #         if loc not in self.model.balances[res]:
+    #             # if not defined for that location, check for a lower order location
+    #             # i.e. location at a lower hierarchy,
+    #             # e.g. say if loc being passed is a city, and a grb has not been defined for it
+    #             # then we need to check at a higher order
+    #             parent = self.space.split(loc)[1]  # get location at one hierarchy above
+    #             if parent:
+    #                 # if that indeed exists, then make the parent the loc
+    #                 # the conversion Balance variables will feature in grb for parent location
+    #                 loc = parent
 
-            _ = self.model.balances[res][loc][time]
+    #         _ = self.model.balances[res][loc][time]
 
-            #     self.model.update_balances(resource=res, space=loc, time=time)
+    #         #     self.model.update_balances(resource=res, space=loc, time=time)
 
-            # if time not in self.model.balances[res][loc]:
-            #     self.model.update_balances(resource=res, space=loc, time=time)
-            if res.inv_of:
-                # for inventoried resources, the conversion is written
-                # using the time of the base resource's grb
-                res = res.inv_of
+    #         # if time not in self.model.balances[res][loc]:
+    #         #     self.model.update_balances(resource=res, space=loc, time=time)
+    #         if res.inv_of:
+    #             # for inventoried resources, the conversion is written
+    #             # using the time of the base resource's grb
+    #             res = res.inv_of
 
-            times = list(
-                [
-                    t
-                    for t in self.model.balances[res][loc]
-                    if self.model.balances[res][loc][t]
-                ],
-            )
-            # write the conversion balance at
-            # densest temporal scale in that space
-            if times:
-                return min(times)
+    #         times = list(
+    #             [
+    #                 t
+    #                 for t in self.model.balances[res][loc]
+    #                 if self.model.balances[res][loc][t]
+    #             ],
+    #         )
+    #         # write the conversion balance at
+    #         # densest temporal scale in that space
+    #         if times:
+    #             return min(times)
 
-            return time.horizon
+    #         return time.horizon
 
-        self.production.balancer()
+    #     self.production.balancer()
 
-        if self.production.pwl:
+    #     if self.production.pwl:
 
-            conversion = self.balance[list(self.balance)[0]]
+    #         conversion = self.balance[list(self.balance)[0]]
 
-        else:
-            conversion = self.balance
+    #     else:
+    #         conversion = self.balance
 
-        shipping_conversion, rest_conversion = {self.production.resource: 1}, {
-            k: v for k, v in conversion.items() if k != self.production.resource
-        }
+    #     shipping_conversion, rest_conversion = {self.production.resource: 1}, {
+    #         k: v for k, v in conversion.items() if k != self.production.resource
+    #     }
 
-        for link_time in link_times:
-            link, time = link_time
-            source, sink = link.source, link.sink
+    #     for link_time in link_times:
+    #         link, time = link_time
+    #         source, sink = link.source, link.sink
 
-            # time = link_time[1]
+    #         # time = link_time[1]
 
-            if link in self.linkages:
-                # if the transport is already balanced for the location , Skip
-                continue
+    #         if link in self.linkages:
+    #             # if the transport is already balanced for the location , Skip
+    #             continue
 
-            for res, par in conversion.items():
-                # set, the conversion on the resource
-                setattr(res, self.name, self)
-                # now there are two cases possible
-                # the parameter (par) is positive or negative
-                # if positive, the resource is expend
-                # if negative, the resource is produced
-                # also, the par can be an number or a list of numbers
+    #         for res, par in conversion.items():
+    #             # set, the conversion on the resource
+    #             setattr(res, self.name, self)
+    #             # now there are two cases possible
+    #             # the parameter (par) is positive or negative
+    #             # if positive, the resource is expend
+    #             # if negative, the resource is produced
+    #             # also, the par can be an number or a list of numbers
 
-                # insitu resource (expended and ship_outed within the system)
-                # do not initiate a grb so we need to run a check for that first
-                if res in self.model.balances:
-                    time = time_checker(res, link.source, time)
+    #             # insitu resource (expended and ship_outed within the system)
+    #             # do not initiate a grb so we need to run a check for that first
+    #             if res in self.model.balances:
+    #                 time = time_checker(res, link.source, time)
 
-                    if self.model.balances[res][link][time]:
-                        # if the grb has been defined for that resource at that location and time
-                        _insitu = False
-                    else:
-                        _insitu = True
-                else:
-                    # this implies that the grb needs to be initiated
-                    # by declaring relevant variable
-                    # the relevant variable will be unbounded
-                    _insitu = True
+    #                 if self.model.balances[res][link][time]:
+    #                     # if the grb has been defined for that resource at that location and time
+    #                     _insitu = False
+    #                 else:
+    #                     _insitu = True
+    #             else:
+    #                 # this implies that the grb needs to be initiated
+    #                 # by declaring relevant variable
+    #                 # the relevant variable will be unbounded
+    #                 _insitu = True
 
-                if isinstance(par, (int | float)) and par < 0:
-                    # condition: negative number
-                    eff = -par
+    #             if isinstance(par, (int | float)) and par < 0:
+    #                 # condition: negative number
+    #                 eff = -par
 
-                    if self.lag:
-                        opr = self.operate(link, self.lag.of)
-                        rhs = res.expend(self.operate, link.source, self.lag.of)
-                    else:
-                        opr = self.operate(link, time)
-                        rhs = res.expend(opr, link.source, time)
+    #                 if self.lag:
+    #                     opr = self.operate(link, self.lag.of)
+    #                     rhs = res.expend(self.operate, link.source, self.lag.of)
+    #                 else:
+    #                     opr = self.operate(link, time)
+    #                     rhs = res.expend(opr, link.source, time)
 
-                elif isinstance(par, list) and par[0] < 0:
-                    # condition: list with negative numbers
-                    eff = [-i for i in par]
+    #             elif isinstance(par, list) and par[0] < 0:
+    #                 # condition: list with negative numbers
+    #                 eff = [-i for i in par]
 
-                    if self.lag:
-                        opr = self.operate(link, self.lag.of)
-                        rhs = res.expend(self.operate, link.source, self.lag.of)
-                    else:
-                        opr = self.operate(link, time)
-                        rhs = res.expend(self.operate, link.source, time)
+    #                 if self.lag:
+    #                     opr = self.operate(link, self.lag.of)
+    #                     rhs = res.expend(self.operate, link.source, self.lag.of)
+    #                 else:
+    #                     opr = self.operate(link, time)
+    #                     rhs = res.expend(self.operate, link.source, time)
 
-                else:
-                    # condition: positive number or list of positive numbers
-                    eff = par
+    #             else:
+    #                 # condition: positive number or list of positive numbers
+    #                 eff = par
 
-                    if self.lag:
-                        opr = self.operate(link, self.lag)
-                        rhs_export = self.model.ship_out(
-                            res,
-                            self.operate,
-                            link.source,
-                            self.lag.of,
-                        )
-                        rhs_import = self.model.ship_in(
-                            res,
-                            self.operate,
-                            link.sink,
-                            self.lag,
-                        )
-                    else:
-                        opr = self.operate(link, time)
-                        rhs_export = self.model.ship_out(
-                            res,
-                            self,
-                            link.source,
-                            time_checker(res, link.source, time),
-                        )
-                        rhs_import = self.model.ship_in(
-                            res,
-                            self,
-                            link.sink,
-                            time_checker(res, link.sink, time),
-                        )
+    #                 if self.lag:
+    #                     opr = self.operate(link, self.lag)
+    #                     rhs_export = self.model.ship_out(
+    #                         res,
+    #                         self.operate,
+    #                         link.source,
+    #                         self.lag.of,
+    #                     )
+    #                     rhs_import = self.model.ship_in(
+    #                         res,
+    #                         self.operate,
+    #                         link.sink,
+    #                         self.lag,
+    #                     )
+    #                 else:
+    #                     opr = self.operate(link, time)
+    #                     rhs_export = self.model.ship_out(
+    #                         res,
+    #                         self,
+    #                         link.source,
+    #                         time_checker(res, link.source, time),
+    #                     )
+    #                     rhs_import = self.model.ship_in(
+    #                         res,
+    #                         self,
+    #                         link.sink,
+    #                         time_checker(res, link.sink, time),
+    #                     )
 
-                if _insitu:
-                    res.insitu = True
-                    _ = rhs_export == True
-                    _ = rhs_import == True
+    #             if _insitu:
+    #                 res.insitu = True
+    #                 _ = rhs_export == True
+    #                 _ = rhs_import == True
 
-                if self.production.pwl:
+    #             if self.production.pwl:
 
-                    eff = [conv[res] for conv in self.balance.values()]
+    #                 eff = [conv[res] for conv in self.balance.values()]
 
-                    if eff[0] < 0:
-                        eff = [-i for i in eff]
+    #                 if eff[0] < 0:
+    #                     eff = [-i for i in eff]
 
-                    if not self.production.modes_set:
-                        self.model.operate.bound = None
-                        _ = opr == dict(enumerate(self.balance.keys()))
+    #                 if not self.production.modes_set:
+    #                     self.model.operate.bound = None
+    #                     _ = opr == dict(enumerate(self.balance.keys()))
 
-                        self.model.operate.bound = self.production.model.capacity
+    #                     self.model.operate.bound = self.production.model.capacity
 
-                        modes = self.model.modes[-1]
-                        self.production.modes_set = True
+    #                     modes = self.model.modes[-1]
+    #                     self.production.modes_set = True
 
-                    else:
-                        modes = self.production.modes
-                        modes.bind = self.operate
-                        self.production.modes_set = True
+    #                 else:
+    #                     modes = self.production.modes
+    #                     modes.bind = self.operate
+    #                     self.production.modes_set = True
 
-                    opr = opr(modes)
-                    rhs_export = rhs_export(modes)
-                    rhs_import = rhs_import(modes)
+    #                 opr = opr(modes)
+    #                 rhs_export = rhs_export(modes)
+    #                 rhs_import = rhs_import(modes)
 
-                _ = opr[rhs_export] == eff
-                _ = opr[rhs_import] == eff
+    #             _ = opr[rhs_export] == eff
+    #             _ = opr[rhs_import] == eff
 
-                self.linkages.append(link)
+    #             self.linkages.append(link)
