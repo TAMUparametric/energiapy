@@ -137,9 +137,9 @@ class Periods(_X):
         if self.n is not None:
             return self.of.I[self.n]
 
-        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
-        setattr(self.program, self.name, _index)
-        return _index
+        _I = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
+        setattr(self.program, self.name, _I)
+        return _I
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
