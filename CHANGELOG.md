@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Placed checks to avoid repeated mode constraints 
+- Automatic generation of temporal objects (Periods)
 
 ### New 
 - Handling of time, allows for better mapping
