@@ -20,6 +20,5 @@ energia.library.components
    
       Currency
       Environ
-      TemporalScales
       Unit
    

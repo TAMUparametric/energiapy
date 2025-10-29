@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Literal
 from .._core._dimension import _Dimension
 from ..modeling.indices.domain import Domain
 from ..modeling.variables.control import Control
-from ..modeling.variables.states import Consequence, State, Stream
 
 if TYPE_CHECKING:
     from ..modeling.variables.aspect import Aspect
+    from ..modeling.variables.states import Consequence, State, Stream
     from .space import Space
     from .time import Time
 

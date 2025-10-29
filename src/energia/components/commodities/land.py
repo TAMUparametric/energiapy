@@ -1,25 +1,18 @@
-"""Resource are:
-1. converted by Processes
-2. stored by Storage
-3. transported by Transits
-4. lost by Storage and Transits
-"""
+"""Land"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from energia._core._commodity import _Commodity
-from energia.components.impact.categories import Environ
+from .commodity import Commodity
 
 if TYPE_CHECKING:
-    from ...modeling.constraints.calculate import Calculate
     from ..measure.unit import Unit
 
 
-class Resource(_Commodity):
+class Land(Commodity):
     """
-    A resource, can be a material, chemical, energy, etc.
+    Land used by Operations
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -53,35 +46,6 @@ class Resource(_Commodity):
         citations: str = "",
         **kwargs,
     ):
-        _Commodity.__init__(
+        Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )
-
-        # base resource, if any in conversion
-        self.inv_of: Resource | None = None
-
-    @property
-    def gwp(self) -> Calculate:
-        """Global Warming Potential"""
-        if not hasattr(self.model, "GWP"):
-            self.model.GWP = Environ(label="Global Warming Potential (kg CO2)")
-
-        return self.consume[self.model.GWP.emit]
-
-    @property
-    def htp(self) -> Calculate:
-        """Human Toxicity Potential"""
-        if not hasattr(self.model, "HTP"):
-            self.model.HTP = Environ(label="Human Toxicity Potential (kg 1,4-DB eq.)")
-
-        return self.consume[self.model.HTP.emit]
-
-    @property
-    def price(self) -> Calculate:
-        """Cost of consume"""
-        return self.consume[self.model._cash().spend]
-
-    def __init_subclass__(cls):
-        # the hashing will be inherited by the subclasses
-        cls.__repr__ = Resource.__repr__
-        cls.__hash__ = Resource.__hash__

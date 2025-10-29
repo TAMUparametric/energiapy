@@ -53,7 +53,7 @@ def fetch_nsrdb_data(
 
     if import_all:
         logger.warning(
-            "This is an optional feature. Please install h5pyd, or pip install energiapy[all]",
+            "⚠ This is an optional feature. Please install h5pyd, or pip install energiapy[all] ⚠",
         )
         return None
 

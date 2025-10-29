@@ -11,20 +11,20 @@ from typing import TYPE_CHECKING, Literal, Self, Type
 from dill import dump
 
 from .._core._x import _X
-from ..components.commodity.currency import Currency
-from ..components.commodity.emission import Emission
-from ..components.commodity.land import Land
-from ..components.commodity.material import Material
-from ..components.commodity.resource import Resource
+from ..components.commodities.currency import Currency
+from ..components.commodities.emission import Emission
+from ..components.commodities.land import Land
+from ..components.commodities.material import Material
+from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
 from ..components.measure.unit import Unit
-from ..components.operation.process import Process
-from ..components.operation.storage import Storage
-from ..components.operation.transport import Transport
+from ..components.operations.process import Process
+from ..components.operations.storage import Storage
+from ..components.operations.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
 from ..components.temporal.modes import Modes
@@ -52,7 +52,7 @@ logger.setLevel(logging.INFO)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+formatter = logging.Formatter("%(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
@@ -61,14 +61,14 @@ if TYPE_CHECKING:
     from enum import Enum
     from typing import DefaultDict
 
-    from .._core._commodity import _Commodity
     from .._core._component import _Component
+    from ..components.commodities.commodity import Commodity
     from ..modeling.indices.domain import Domain
     from ..modeling.variables.aspect import Aspect
     from ..modeling.variables.sample import Sample
 
-    GRBType = DefaultDict[
-        _Commodity,
+    BalanceType = DefaultDict[
+        Commodity,
         DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
     ]
 
@@ -120,9 +120,9 @@ class Model:
     :ivar classifiers: List of classifiers for the Model.
     :vartype classifiers: list[Enum]
     :ivar grb: Dictionary which tells you what aspects of resource have GRB {loc: time: []} and {time: loc: []}.
-    :vartype grb: DefaultDict[_Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
+    :vartype grb: DefaultDict[Commodity,DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]]]
     :ivar dispositions: Dictionary which tells you what aspects of what component have been bound at what location and time.
-    :vartype dispositions: dict[Aspect, dict[_Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
+    :vartype dispositions: dict[Aspect, dict[Commodity | Process | Storage | Transport, dict[Location | Linkage, dict[Periods, list[Aspect]]]]]
     :ivar maps: Maps of aspects to domains.
     :vartype maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]]
     :ivar maps_report: Maps of aspects to domains for reporting variables.
@@ -138,6 +138,8 @@ class Model:
     capacitate: bool = False
 
     def __post_init__(self):
+
+        self.reserved_names = []
 
         # what components have been added to the model
         self.added: list[str] = []
@@ -212,6 +214,8 @@ class Model:
             Consequence: ("problem", "consequences"),
         }
 
+        self.reserved_names += zip(*self.familytree.values())
+
         # --------------------------------------------------------------------
         # * Dimensions or Representation
         # --------------------------------------------------------------------
@@ -261,7 +265,8 @@ class Model:
             "parameter_sets",
             "X",
         ]
-        # self.program_attrs = {i: self.program for i in  self.program_attrs}
+
+        self.reserved_names += self.program_attrs
 
         # properties that can be called by model
         # these never get set
@@ -280,6 +285,9 @@ class Model:
             "Z",
             "P",
         ]
+
+        self.reserved_names += _program_matrices
+
         self.properties = {
             "horizon": self.time,
             "network": self.space,
@@ -336,10 +344,9 @@ class Model:
         # have been set in what location and time
 
         # * General Resource Balances
-        self.balances: dict[
-            _Commodity,
-            dict[Location | Linkage, dict[Periods, list[Aspect]]],
-        ] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        self.balances: BalanceType = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(list))
+        )
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
 
@@ -347,7 +354,7 @@ class Model:
         self.dispositions: dict[
             Aspect,
             dict[
-                _Commodity | Process | Storage | Transport,
+                Commodity | Process | Storage | Transport,
                 dict[Location | Linkage, dict[Periods, list[Aspect]]],
             ],
         ] = {}
@@ -541,7 +548,7 @@ class Model:
         :type nn: bool, optional
         """
         if name in self.cookbook:
-            logger.warning("Overriding existing recipe: %s", name)
+            logger.warning("⛔ Overriding existing recipe: %s ⛔", name)
 
         self.cookbook[name] = Recipe(
             name=name,
@@ -609,6 +616,7 @@ class Model:
         depending: str,
         default: str,
         label: str = "",
+        latex: str = "",
     ):
         """Creates an Instruction and updates the manual
 
@@ -620,8 +628,8 @@ class Model:
         :type default: str
         :param label: Label for the parameter. Defaults to ''.
         :type label: str, optional
-        :param citations: Captions for the parameter. Defaults to ''.
-        :type citations: str, optional
+        :param latex: LaTeX representation for the parameter. Defaults to ''.
+        :type latex: str, optional
         """
 
         self.manual[name] = Instruction(
@@ -631,6 +639,7 @@ class Model:
             depending=depending,
             default=default,
             label=label,
+            latex=latex,
         )
 
     # ------------------------------------------------------------------------
@@ -702,6 +711,21 @@ class Model:
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
             root = self.periods[-1]
+
+    def Modes(self, size: int, sample: Sample):
+        """
+        This is an easy way to define modes within a period
+
+        :param size: Number of modes to create
+        :type size: int
+        :param name: Name of the modes. Defaults to "modes".
+        :type name: str, optional
+        """
+        modes = Modes(size=size, sample=sample, n=len(self.modes))
+        periods = sample.domain.periods or self.time.horizon
+        setattr(self, f'_{periods}{len(periods.modes)}', modes)
+        periods.modes.append(modes)
+        return modes
 
     # ------------------------------------------------------------------------
     # * Illustrations from Different Perspectives
@@ -829,7 +853,7 @@ class Model:
     # * Default Components
     # ------------------------------------------------------------------------
 
-    def _t0(self, size: int = 0) -> Periods:
+    def _t0(self, size: int = 1) -> Periods:
         """Return a default period
 
         :param size: Size of the period. Defaults to 0.
@@ -839,19 +863,16 @@ class Model:
         :rtype: Periods
         """
 
-        if size:
-            # if size is passed,
-            # make a new temporal scale
-            new_period = Periods(f"Time/{size}", periods=size, of=self.horizon)
-            setattr(self, f"t{len(self.time.periods)}", new_period)
+        if not self.periods:
+            # if no periods exits yet, make the horizon
+            self.t0 = Periods()
 
-            # return the newly created period
-            return self.time.periods[-1]
+        if size > 1:
+            setattr(self, f"t{len(self.periods)}", self.horizon / size)
+
+        return self.periods[-1]
 
         # or create a default period
-
-        self.t0 = Periods("Time")
-        return self.t0
 
     def _l0(self) -> Location:
         """Return a default location"""

@@ -14,12 +14,9 @@ energia.dimensions.problem
 
    .. autosummary::
    
-      Consequence
       Control
       Domain
       Problem
-      State
-      Stream
       cached_property
       chain
    

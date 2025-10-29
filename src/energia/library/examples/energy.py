@@ -1,12 +1,12 @@
 """Energy system examples"""
 
-from ...components.commodity.currency import Currency
-from ...components.commodity.material import Material
-from ...components.commodity.resource import Resource
+from ...components.commodities.currency import Currency
+from ...components.commodities.material import Material
+from ...components.commodities.resource import Resource
 from ...components.impact.categories import Environ
 from ...components.measure.unit import Unit
-from ...components.operation.process import Process
-from ...components.operation.storage import Storage
+from ...components.operations.process import Process
+from ...components.operations.storage import Storage
 from ...components.spatial.location import Location
 from ...components.temporal.periods import Periods
 from ...components.temporal.scales import TemporalScales
@@ -16,105 +16,17 @@ from ...represent.model import Model
 def scheduling():
     """A small scheduling example"""
     m = Model("scheduling")
-
-    # ## Time
-    #
-    # We have 4 quarter which form a year
-
     m.q = Periods()
     m.y = 4 * m.q
-
-    # The horizon ($\overset{\ast}{t} = argmin_{n \in N} |\mathcal{T}_{n}|$) is determined by Energia implicitly. Check it by printing Model.Horizon
-
-    m.horizon
-
-    # ## Space
-    #
-    # If nothing is provided, a default location is created. The created single location will serve as the de facto network
-    #
-    # In single location case studies, it may be easier to skip providing a location all together
-
-    m.network
-
-    # ## Resources
-    #
-    # In the Resource Task Network (RTN) methodology all commodities are resources. In this case, we have a few general resources (wind, power) and a monetary resource (USD).
-
     m.usd = Currency()
     m.power, m.wind = Resource(), Resource()
-
-    # ### Setting Bounds
-    #
-    # The first bound is set for over the network and year, given that no spatiotemporal disposition is provided:
-    #
-    # $\mathbf{cons}_{wind, network, year_0} \leq 400$
-    #
-    # For the second bound, given that a nominal is given, the list is treated as multiplicative factor. The length matches with the quarterly scale. Thus:
-    #
-    # $\mathbf{rlse}_{power, network, quarter_0} \geq 60$
-    #
-    # $\mathbf{rlse}_{power, network, quarter_1} \geq 70$
-    #
-    # $\mathbf{rlse}_{power, network, quarter_2} \geq 100$
-    #
-    # $\mathbf{rlse}_{power, network, quarter_3} \geq 30$
-    #
-
     _ = m.wind.consume <= 400
     _ = m.power.release.prep(100) >= [0.6, 0.7, 1, 0.3]
-
-    # Check the model anytime, using m.show(), or object.show()
-    #
-    # The first constraint is a general resource balance, generated for every resource at every spatiotemporal disposition at which an aspect regarding it is defined.
-    #
-    # Skip the True in .show() for a more concise set notation based print
-
-    # ## Process
-
-    # There are multiple ways to model this.
-    #
-    # Whats most important, however, is the resource balance. The resource in the brackets is the basis resource. For a negative basis, multiply the resource by the negative factor or just use negation if that applies.
-
     m.wf = Process()
     _ = m.wf(m.power) == -1 * m.wind
-
-    # Now set bounds on the extent to which the wind farm can operate. We are actually writing the following constraint:
-    #
-    # $\mathbf{opr} <= \phi \cdot \mathbf{cap}$
-    #
-    # However, we know the capacity, so it is treated as a parameter.
-    #
-    # Note that the incoming values are normalized by default. Use norm = False to avoid that
-
     _ = m.wf.operate.prep(200, norm=False) <= [0.9, 0.8, 0.5, 0.7]
-
-    # Add a cost to the process operation. This implies that the cost of operating is variable in every quarter. In general:
-    #
-    # $\dot{\mathbf{v}} == \theta \cdot \mathbf{v}$
-
     _ = m.wf.operate[m.usd.spend] == [4000, 4200, 4300, 3900]
-
-    # Note that printing can be achieved via the aspect [operate, spend, etc.] or the object
-
-    # ## Locating the process
-    #
-    # The production streams are only generated once the process is places in some location. In this study, the only location is available is the default network.
-
     m.network.locate(m.wf)
-
-    # Alternatively,
-
-    # m.wf.locate(m.network)
-
-    # # The Model
-    #
-    # The model consists of the following:
-    #
-    # 1. A general resource balances for wind in (network, year) and power in (network, quarter)
-    # 2. Bounds on wind consumption [upper] and power release [lower], and wf operation [upper]
-    # 3. Conversion constraints, giving produced and expended resources based on operation
-    # 4. Calculation of spending USD in every quarter
-    # 5. Mapping constraints for operate: q -> y and spend: q -> y (generated after objective is set)
 
     return m
 
@@ -209,12 +121,6 @@ def design_scheduling_materials():
     m.scales = TemporalScales([1, 4], ["y", "q"])
     m.usd = Currency()
     m.gwp = Environ()
-
-    m.declare(Resource, ["power", "wind", "solar"])
-    _ = m.solar.consume == True
-    _ = m.wind.consume == True
-    _ = m.power.release.prep(180) >= [0.6, 0.7, 0.8, 0.3]
-
     m.declare(
         Material,
         [
@@ -228,6 +134,11 @@ def design_scheduling_materials():
         ],
     )
 
+    m.declare(Resource, ["power", "wind", "solar"])
+    _ = m.solar.consume == True
+    _ = m.wind.consume == True
+    _ = m.power.release.prep(180) >= [0.6, 0.7, 0.8, 0.3]
+
     _ = m.lir.consume[m.gwp.emit] == 9600
     _ = m.lib.consume[m.gwp.emit] == 2800
     _ = m.steel.consume[m.gwp.emit] == 2121.152427
@@ -238,45 +149,58 @@ def design_scheduling_materials():
     _ = m.si_poly.consume[m.gwp.emit] == 98646.7
 
     m.wf = Process()
-    _ = m.wf.fab[0] == 109.9 * m.steel + 398.7 * m.concrete
-    _ = m.wf.fab[1] == 249.605 * m.steel + 12.4 * m.concrete
-    _ = m.wf(m.power) == {
-        m.wf.fab.modes[0]: -2.857 * m.wind,
-        m.wf.fab.modes[1]: -2.3255 * m.wind,
-    }
     _ = m.wf.capacity.x <= 100
     _ = m.wf.capacity.x >= 10
     _ = m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
-    _ = m.wf.capacity(m.wf.fab.modes)[m.usd.spend] == [
+    _ = m.wf.construction == [
+        -109.9 * m.steel - 398.7 * m.concrete,
+        -249.605 * m.steel - 12.4 * m.concrete,
+    ]
+    _ = m.wf(m.power) == {
+        m.wf.construction.modes[0]: -2.857 * m.wind,
+        m.wf.construction.modes[1]: -2.3255 * m.wind,
+    }
+
+    _ = m.wf.capacity[m.usd.spend](m.wf.construction.modes) == [150000, 120000]
+    _ = m.wf.capacity(m.wf.construction.modes)[m.usd.spend] == [
         1292000 + 29200,
         3192734 + 101498,
     ]
     _ = m.wf.operate[m.usd.spend] == 49
 
     m.pv = Process()
-    _ = m.pv.fab[0] == 70 * m.glass + 7 * m.si_mono
-    _ = m.pv.fab[1] == 70 * m.glass + 7 * m.si_poly
+    _ = m.pv.construction == [
+        -70 * m.glass - 7 * m.si_mono,
+        -70 * m.glass - 7 * m.si_poly,
+    ]
+
     _ = m.pv(m.power) == {
-        m.pv.fab.modes[0]: -5 * m.solar,
-        m.pv.fab.modes[1]: -6.67 * m.solar,
+        m.pv.construction.modes[0]: -5 * m.solar,
+        m.pv.construction.modes[1]: -6.67 * m.solar,
     }
     _ = m.pv.capacity.x <= 100
     _ = m.pv.capacity.x >= 10
     _ = m.pv.operate.prep(norm=True) <= [0.6, 0.8, 0.9, 0.7]
+
     _ = m.pv.capacity[m.usd.spend] == 567000 + 872046
     _ = m.pv.operate[m.usd.spend] == 90000
 
+    # m.usd.spend(m.wf.capacity, m.wf.construction.modes) == [150000, 120000]
+    # m.usd.spend(m.wf.capacity, m.wf.construction.modes[0]) == 150000
+    # m.usd.spend(m.wf.capacity, m.wf.construction.modes[1]) == 120000
+    # # [150000, 120000]
+
     m.lii = Storage()
     _ = m.lii(m.power) == 0.9
-    _ = m.lii.fab[0] == 0.137 * m.lib + 1.165 * m.steel
-    _ = m.lii.fab[1] == 0.137 * m.lir + 1.165 * m.steel
+    _ = m.lii.construction == [
+        -0.137 * m.lib - 1.165 * m.steel,
+        -0.137 * m.lir - 1.165 * m.steel,
+    ]
     _ = m.lii.capacity.x <= 100
     _ = m.lii.capacity.x >= 10
     _ = m.lii.capacity[m.usd.spend] == 1302182 + 41432
     _ = m.lii.inventory[m.usd.spend] == 2000
-
     m.network.locate(m.wf, m.pv, m.lii)
-
     return m
 
 
@@ -382,7 +306,7 @@ def supermarket():
     m.heating = Resource(basis=m.kW, label="Heating")
     _ = m.heating.release >= resource_demand_dict["Space Heating"]
 
-    m.st = Process(basis=m.PJ, label="Biomass ST")
+    m.st = Process(label="Biomass ST")
     _ = (
         m.st(-m.biomass)
         == (277.78 * generation_process_dict["Biomass ST"]["nE"] / 100) * m.power
@@ -397,7 +321,7 @@ def supermarket():
     )
     _ = m.st.operate[m.usd.spend] == generation_process_dict["Biomass ST"]["Opex"]
 
-    m.chp = Process(basis=m.PJ, label="Biomass ST")
+    m.chp = Process(label="Biomass ST")
     _ = (
         m.chp(-m.ng)
         == (277.78 * generation_process_dict["Natural Gas CHP"]["nE"] / 100) * m.power
@@ -413,7 +337,7 @@ def supermarket():
     )
     _ = m.chp.operate[m.usd.spend] == generation_process_dict["Natural Gas CHP"]["Opex"]
 
-    m.pv = Process(basis=m.kW, label="Solar PV")
+    m.pv = Process(label="Solar PV")
     _ = (
         m.pv(-m.solar)
         == (277.78 * generation_process_dict["Solar PV"]["nE"] / 100) * m.power
@@ -426,7 +350,7 @@ def supermarket():
     )
     _ = m.pv.operate[m.usd.spend] == generation_process_dict["Solar PV"]["Opex"]
 
-    m.wf = Process(basis=m.kW, label="Wind Farm")
+    m.wf = Process(label="Wind Farm")
     _ = (
         m.wf(-m.wind)
         == (277.78 * generation_process_dict["Wind Farm"]["nE"] / 100) * m.power
@@ -439,7 +363,7 @@ def supermarket():
     )
     _ = m.wf.operate[m.usd.spend] == generation_process_dict["Wind Farm"]["Opex"]
 
-    m.grid = Process(basis=m.PJ, label="Grid Electricity")
+    m.grid = Process(label="Grid Electricity")
     _ = (
         m.grid(-m.gridpower)
         == 277.78 * m.power
@@ -447,7 +371,7 @@ def supermarket():
     )
     _ = m.grid.capacity <= 10**5  # no binary needed because no upper bound
 
-    m.refrigerator = Process(basis=m.kW, label="Refrigerator")
+    m.refrigerator = Process(label="Refrigerator")
     _ = m.refrigerator.capacity <= 10**5
     _ = (
         m.refrigerator(-m.power)
@@ -463,7 +387,7 @@ def supermarket():
         == consumption_process_dict["Refrigeration"]["Opex"]
     )
 
-    m.led = Process(basis=m.kW, label="LED")
+    m.led = Process(label="LED")
     _ = (
         m.led(-m.power)
         == (consumption_process_dict["LED"]["Efficiency"] / 100) * m.lighting
@@ -471,7 +395,7 @@ def supermarket():
     _ = m.led.capacity[m.usd.spend] == consumption_process_dict["LED"]["Capex"] * 0.05
     _ = m.led.operate[m.usd.spend] == consumption_process_dict["LED"]["Opex"]
 
-    m.heater = Process(basis=m.kW, label="Heater")
+    m.heater = Process(label="Heater")
     _ = (
         m.heater(-m.heat)
         == (consumption_process_dict["Heating"]["Efficiency"] / 100) * m.heating

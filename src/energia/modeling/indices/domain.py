@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from math import prod
+from functools import cached_property
 from operator import is_, is_not
 from typing import TYPE_CHECKING, Self
 
@@ -13,14 +13,14 @@ if TYPE_CHECKING:
     from gana import I as Idx
     from gana import V
 
-    from ..._core._commodity import _Commodity
     from ..._core._x import _X
+    from ...components.commodities.commodity import Commodity
     from ...components.game.couple import Interact
     from ...components.game.player import Player
     from ...components.impact.indicator import Indicator
-    from ...components.operation.process import Process
-    from ...components.operation.storage import Storage
-    from ...components.operation.transport import Transport
+    from ...components.operations.process import Process
+    from ...components.operations.storage import Storage
+    from ...components.operations.transport import Transport
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
     from ...components.temporal.lag import Lag
@@ -34,14 +34,14 @@ if TYPE_CHECKING:
 @dataclass
 class Domain(_Hash):
     """
-    A domain is an ordered set of the indices of an element.
+    Point represented by a tuple of indices
 
     :param indicator: Indicates the impact of some activity through an equivalency,
         e.g. GWP, ODP.
     :type indicator: Indicator | None
     :param commodity: Represents the flow of any stream, measured using some basis,
         e.g. water, Rupee, carbon-dioxide.
-    :type commodity: _Commodity | None
+    :type commodity: Commodity | None
     :param process: Process that is being considered, e.g. dam, farming.
     :type process: Process | None
     :param storage: Storage that is being considered, e.g. reservoir.
@@ -76,7 +76,7 @@ class Domain(_Hash):
     # this helps relay the checks
     # primary component (one of these is needed)
     indicator: Indicator | None = None
-    commodity: _Commodity | None = None
+    commodity: Commodity | None = None
 
     process: Process | None = None
     storage: Storage | None = None
@@ -108,10 +108,10 @@ class Domain(_Hash):
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
 
-    @property
-    def I(self) -> tuple[Idx, ...]:
-        """Compound index"""
-        return prod(self.Ilist)
+    # @property
+    # def I(self) -> tuple[Idx, ...]:
+    #     """Compound index"""
+    #     return prod(self.Ilist)
 
     # -----------------------------------------------------
     #                    Components
@@ -122,7 +122,7 @@ class Domain(_Hash):
     # look at change() and call()
 
     @property
-    def stream(self) -> Indicator | _Commodity:
+    def stream(self) -> Indicator | Commodity:
         """Stream"""
         return self.indicator or self.commodity
 
@@ -132,9 +132,9 @@ class Domain(_Hash):
         return self.process or self.storage or self.transport
 
     @property
-    def primary(self) -> Indicator | _Commodity | Process | Storage | Transport:
+    def primary(self) -> Indicator | Commodity | Process | Storage | Transport:
         """Primary component"""
-        _primary = self.stream or self.operation
+        _primary = self.stream or self.operation or self.samples[0]
         if not _primary:
             raise ValueError("Domain must have at least one primary index")
         return _primary
@@ -229,17 +229,12 @@ class Domain(_Hash):
     @property
     def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
-
-        # samples = sum([[i, j] for i, j in self.samples.items()], [])
-
-        # these default to network and horizon, so can default from model using .space or .time
-
         return self.index_primary + self.index_binds
 
     @property
     def index_primary(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport]:
         """Primary index
 
         :returns: list of primary indices
@@ -263,7 +258,7 @@ class Domain(_Hash):
     @property
     def index_short(
         self,
-    ) -> list[Indicator | _Commodity | Process | Storage | Transport | Sample]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
         return self.index_primary + self.samples
 
@@ -302,7 +297,7 @@ class Domain(_Hash):
     ) -> dict[
         str,
         Indicator
-        | _Commodity
+        | Commodity
         | Player
         | Process
         | Storage
@@ -337,7 +332,7 @@ class Domain(_Hash):
     ) -> dict[
         str,
         Indicator
-        | _Commodity
+        | Commodity
         | Process
         | Storage
         | Transport
@@ -379,16 +374,30 @@ class Domain(_Hash):
         """Tuple of objects"""
         return list(self._.values())
 
-    @property
-    def Ilist(self) -> list[Idx | list[V]]:
+    @cached_property
+    def I(self) -> list[Idx | list[V]]:
         """List of I"""
-        return [i if isinstance(i, list) else i.I for i in self.index]
+        _I = []
+        for idx in self.index:
+            if isinstance(idx, list):
+                # this is how variables are handled in gana
+                _I.append(idx)
+            elif isinstance(idx.I, tuple):
+                _I.extend(idx.I)
+            else:
+                _I.append(idx.I)
+        return tuple(_I)
+
+    @property
+    def size(self) -> int:
+        """Size of the domain"""
+        return len(self.index)
 
     # -----------------------------------------------------
     #                    Helpers
     # -----------------------------------------------------
 
-    def update_cons(self, cons_name: str):
+    def inform_indices(self, cons_name: str):
         """Update the constraints declared at every index"""
         for j in self.index:
             if cons_name not in j.constraints:

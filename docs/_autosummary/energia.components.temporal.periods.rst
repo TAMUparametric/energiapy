@@ -8,6 +8,7 @@ energia.components.temporal.periods
 
    .. autosummary::
    
+      compare
       is_
    
    .. rubric:: Classes
@@ -19,4 +20,10 @@ energia.components.temporal.periods
       Periods
       Value
       cached_property
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      NotFoundError
    

@@ -1,7 +1,7 @@
-energia.components.operation
-============================
+energia.components.operations
+=============================
 
-.. automodule:: energia.components.operation
+.. automodule:: energia.components.operations
 
    
    .. rubric:: Classes
@@ -19,6 +19,7 @@ energia.components.operation
    :recursive:
 
    free
+   operation
    process
    storage
    trade

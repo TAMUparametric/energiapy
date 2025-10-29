@@ -5,14 +5,14 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
-from ..._core._commodity import _Commodity
+from .commodity import Commodity
 
 if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ..measure.unit import Unit
 
 
-class Currency(_Commodity):
+class Currency(Commodity):
     """
     Same as Economic Impact (Eco)
 
@@ -20,9 +20,6 @@ class Currency(_Commodity):
     :type label: str, optional
     :param name: Name of the commodity, used for indexing. Defaults to None.
     :type name: str, optional
-    :param basis: Unit basis of the commodity. Defaults to None.
-    :type basis: Unit, optional
-
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model
@@ -45,15 +42,12 @@ class Currency(_Commodity):
     def __init__(
         self,
         *locs: Location,
-        basis: Unit | None = None,
         label: str = "",
         citations: str = "",
         **kwargs,
     ):
         self.locs = list(locs)
-        _Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
         # dictionary of exchange rates
         self.exchange = {}

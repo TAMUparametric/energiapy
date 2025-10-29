@@ -15,9 +15,9 @@ from .linkage import Linkage
 
 if TYPE_CHECKING:
     from ...dimensions.space import Space
-    from ..commodity.currency import Currency
-    from ..operation.process import Process
-    from ..operation.storage import Storage
+    from ..commodities.currency import Currency
+    from ..operations.process import Process
+    from ..operations.storage import Storage
 
 
 class Location(_X):
@@ -107,6 +107,11 @@ class Location(_X):
         # lowest level of the hierarchy locations
         # return an empty dictionary (set)
         return {}
+
+    @property
+    def parent(self) -> Self | None:
+        """Finds the parent Location"""
+        return self.isin
 
     @property
     def depth(self):

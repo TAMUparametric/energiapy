@@ -1,4 +1,4 @@
-﻿energia.modeling.variables.sample
+energia.modeling.variables.sample
 =================================
 
 .. automodule:: energia.modeling.variables.sample

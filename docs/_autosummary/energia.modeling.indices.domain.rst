@@ -12,11 +12,11 @@ energia.modeling.indices.domain
       field
       is_
       is_not
-      prod
    
    .. rubric:: Classes
 
    .. autosummary::
    
       Domain
+      cached_property
    

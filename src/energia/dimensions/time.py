@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
-from warnings import warn
 
 from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 
+logger = logging.getLogger("energia")
+
 if TYPE_CHECKING:
-    from gana.block.program import Prg
+    from gana import Prg
 
 
 @dataclass
@@ -56,7 +58,6 @@ class Time(_Dimension):
     def tree(self) -> dict[int | float, Periods]:
         """Return the tree of periods"""
         hrz = self.horizon
-
         return {int(hrz.howmany(prd)): prd for prd in self.periods}
 
     @property
@@ -69,8 +70,10 @@ class Time(_Dimension):
 
         if size not in self.tree:
             # if no math make a default period
-            warn(
-                f"{size} does not match the size of any data set passed, generating 't{size}'.)",
+            logger.info(
+                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
+                size,
+                len(self.periods),
             )
             _ = self.model._t0(size=size)
 
@@ -91,14 +94,14 @@ class Time(_Dimension):
     def densest(self) -> Periods:
         """The densest period"""
         if self.periods:
-            return min(self.periods, key=lambda x: x.periods)
+            return min(self.periods, key=lambda x: x.true_size)
         return self.horizon
 
     @property
     def sparsest(self) -> Periods:
         """The sparsest period"""
         if self.periods:
-            return max(self.periods, key=lambda x: x.periods)
+            return max(self.periods, key=lambda x: x.true_size)
         return self.horizon
 
     @property

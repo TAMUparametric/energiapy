@@ -1,16 +1,16 @@
 """Energia Imports"""
 
-from .components.commodity.currency import Currency
-from .components.commodity.emission import Emission
-from .components.commodity.land import Land
-from .components.commodity.material import Material
-from .components.commodity.resource import Resource
+from .components.commodities.currency import Currency
+from .components.commodities.emission import Emission
+from .components.commodities.land import Land
+from .components.commodities.material import Material
+from .components.commodities.resource import Resource
 from .components.game.player import Player
 from .components.impact.categories import Economic, Environ, Social
 from .components.measure.unit import Unit
-from .components.operation.process import Process
-from .components.operation.storage import Storage
-from .components.operation.transport import Transport
+from .components.operations.process import Process
+from .components.operations.storage import Storage
+from .components.operations.transport import Transport
 from .components.spatial.linkage import Linkage
 from .components.spatial.location import Location
 from .components.temporal.periods import Periods
@@ -44,4 +44,4 @@ __all__ = [
     "si_units",
     "time_units",
 ]
-__version__ = "2.1.0"
+__version__ = "2.1.1"

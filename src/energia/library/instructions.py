@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .._core._operation import _Operation
-from ..components.commodity.resource import _Commodity
-from ..components.operation.storage import Stored
+from ..components.commodities.resource import Commodity
+from ..components.operations.operation import Operation
+from ..components.operations.storage import Stored
 
 if TYPE_CHECKING:
     from ..represent.model import Model
@@ -17,18 +17,20 @@ def costing_operation(model: Model):
 
     model.Instruction(
         name="capex",
-        kind=_Operation,
+        kind=Operation,
         deciding="capacity",
         depending="spend",
         default="money",
+        latex="Capex",
         label="Capital Expenditure",
     )
     model.Instruction(
         name="opex",
-        kind=_Operation,
+        kind=Operation,
         deciding="operate",
         depending="spend",
         default="money",
+        latex="Opex",
         label="Operational Expenditure",
     )
 
@@ -38,6 +40,7 @@ def costing_operation(model: Model):
         deciding="invcapacity",
         depending="spend",
         default="money",
+        latex="Capex",
         label="Capital Expenditure (Storage)",
     )
 
@@ -47,6 +50,7 @@ def costing_operation(model: Model):
         deciding="inventory",
         depending="spend",
         default="money",
+        latex=r"Cost^{inv}",
         label="Inventory Cost (Storage)",
     )
 
@@ -56,9 +60,10 @@ def costing_commodity(model: Model):
 
     model.Instruction(
         name="price",
-        kind=_Commodity,
+        kind=Commodity,
         deciding="consume",
         depending="spend",
         default="money",
+        latex=r"Price",
         label="Resource Price",
     )

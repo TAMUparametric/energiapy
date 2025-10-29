@@ -10,7 +10,7 @@ from ._hash import _Hash
 
 if TYPE_CHECKING:
     from gana import I as Idx
-    from gana.block.program import Prg
+    from gana import Prg
     from gana.sets.constraint import C
 
     from ..modeling.indices.domain import Domain

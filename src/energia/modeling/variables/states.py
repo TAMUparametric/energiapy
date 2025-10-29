@@ -37,6 +37,19 @@ class State(Aspect):
 
 
 @dataclass
+class Inventory(Aspect):
+    """Inventory State Variable
+    Can only have Stored as primary
+    """
+
+    add: EndoStream | None = None
+    sub: EndoStream | None = None
+
+    def __post_init__(self):
+        State.__post_init__(self)
+
+
+@dataclass
 class Size(State):
     """
     Capacity State Variable
@@ -94,8 +107,8 @@ class EndoStream(Stream):
     def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
-
-        Balance(aspect=self, domain=domain)
+        if not domain.modes:
+            Balance(aspect=self, domain=domain)
 
 
 @dataclass
@@ -108,8 +121,8 @@ class ExoStream(Stream):
     def update(self, domain: Domain, reporting: bool = False):
 
         Map(aspect=self, domain=domain, reporting=reporting)
-
-        Balance(aspect=self, domain=domain)
+        if not domain.modes:
+            Balance(aspect=self, domain=domain)
 
 
 @dataclass

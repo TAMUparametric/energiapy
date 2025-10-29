@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 import logging
-import time as keep_time
+from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ...components.temporal.modes import Modes
+from ...utils.decorators import timer
+# from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from gana import P, V
     from gana.sets.constraint import C
+    from gana.sets.function import F
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -65,190 +68,218 @@ class Bind:
         geq: bool = False,
         eq: bool = False,
         forall: list[_X | _Component] | None = None,
+        parameter_name: str = "",
     ):
         self.sample = sample
-        self.parameter = parameter
-        self.leq = leq
-        self.geq = geq
-        self.eq = eq
+        self._parameter, self.parameter_name = parameter, parameter_name
+        self.leq, self.geq, self.eq = leq, geq, eq
         self.forall = forall
 
-        self.model = sample.model
+        self._handshake()
 
-        self.nominal = sample.nominal
-        self.norm = sample.norm
-        self.domain = sample.domain
-        self.aspect = sample.aspect
-        self.report = sample.report
-        self.program = sample.program
-
-        # when i say all elements in the set, it implies that each element features
-        # individually in the index of the updated sample
-
-        # if as set is passed
-        # write the constraint 'for all' elements in it
         if self.forall:
-
-            if isinstance(parameter, list):
-                # if a list is passed
-                # iterate over it
-                for n, idx in enumerate(self.forall):
-                    if self.leq:
-                        _ = self.sample(idx) <= parameter[n]
-                    if self.geq:
-                        _ = self.sample(idx) >= parameter[n]
-                    if self.eq:
-                        _ = self.sample(idx) == parameter[n]
-                return
-
-            # if a single value is passed
-            # just repeat the same value over
-            # all elements in the set
-
-            for idx in self.forall:
-
-                if self.leq:
-                    _ = self.sample(idx) <= parameter
-                if self.geq:
-                    _ = self.sample(idx) >= parameter
-                if self.eq:
-                    _ = self.sample(idx) == parameter
-
+            # if as set is passed
+            # write the constraint 'for all' elements in it
+            self._write_forall()
             return
 
-        if isinstance(parameter, dict):
-            # if a dictionary is passed
-            # modes are assumed
-            n_modes = len(parameter)
-            modes_name = f"bin{len(self.model.modes)}"
-
-            setattr(self.model, modes_name, Modes(n_modes=n_modes, bind=self.sample))
-
-            # this gets the last set mode (which was just set above)
-            modes = self.model.modes[-1]
-            mode_bounds = [
-                (
-                    (parameter[i - 1], parameter[i])
-                    if i - 1 in parameter
-                    else (0, parameter[i])
-                )
-                for i in parameter
-            ]
-            modes_lb = [b[0] for b in mode_bounds]
-            modes_ub = [b[1] for b in mode_bounds]
-
-            _ = self.sample(modes) >= modes_lb
-
-            _ = self.sample(modes) <= modes_ub
+        if isinstance(self._parameter, dict):
+            # if a dict is passed, it is assumed to be mode bounds
+            self._write_w_modes()
             return
+
+        self.write()
+
+    @timer(logger, kind="bind")
+    def write(self):
+        """Writes the bind constraint"""
+
+        # the lhs comes from the sample
+        # calling the lhs here, updates the
+        _ = self.lhs
+
+        if self._check_existing():
+            return False
+
+        if self.leq:
+            self.cons: C = self.lhs <= self.rhs
+
+        elif self.eq:
+            self.cons: C = self.lhs == self.rhs
+
+        elif self.geq:
+            self.cons: C = self.lhs >= self.rhs
+
+        else:
+            return False
+
+        self._inform()
+
+        # set the constraint
+        setattr(
+            self.program,
+            self.cons_name,
+            self.cons,
+        )
+        # returned for @timer
+        return self.sample, self.rel
+
+    @cached_property
+    def parameter(self):
+        """Parameter bound of the bind constraint"""
 
         if self.nominal:
-            # if a nominal value for the parameter is passed
+            # if a nominal value for the self.parameter is passed
             # this is essentially the expectation
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
             if self.norm:
-                parameter = normalize(parameter)
+                _parameter = normalize(self._parameter)
+
+            else:
+                _parameter = self._parameter
 
             # if the sample needs to be normalized
-            parameter = [
+            _parameter = [
                 (
                     (self.nominal * i[0], self.nominal * i[1])
                     if isinstance(i, tuple)
                     else self.nominal * i
                 )
-                for i in parameter
+                for i in _parameter
             ]
+            return _parameter
 
-            # ------Get LHS
-            # lhs needs to be determined here
-            # because V will be spaced and timed if not passed by user
-            # .X(), .Vb() need time and space
+        return self._parameter
 
-        lhs = self.sample.V(parameter)
+    @cached_property
+    def lhs(self):
+        """Left hand side of the bind constraint"""
 
-        logger.info("Binding %s in domain %s", self.aspect, self.domain)
+        # ------Get LHS
+        # lhs needs to be determined here
+        # because V will be spaced and timed if not passed by user
+        # .X(), .Vb() need time and space
+        return self.sample.V(self.parameter)
 
-        start = keep_time.time()
-        # ------Get RHS
+    @cached_property
+    def rhs(self) -> V | F | P:
+        """Right hand side of the bind constraint"""
 
-        if self.aspect.bound is not None:
+        if self.aspect.bound:
             # ------if variable bound
             if self.report:
                 # ------if variable bound and reported
                 # we do not want a bi-linear term
-                rhs = parameter * self.sample.X(parameter)
+                return self.parameter * self.sample.X(self.parameter)
 
-            else:
-                # ------if just variable bound
-                rhs = parameter * self.sample.Vb()
+            # ------if just variable bound
 
-        elif self.report or self.domain.modes is not None:
-            # ------if  parameter bound and reported or has modes
+            return self.parameter * self.sample.Vb()
+
+        if self.report or self.domain.modes is not None:
+            # ------if  self.parameter bound and reported or has modes
             # create reporting variable write v <= p*x
-            rhs = parameter * self.sample.X(parameter)
             self.aspect.update(self.domain, reporting=True)
+            return self.parameter * self.sample.X(self.parameter)
 
-        else:
-            # ------if just parameter bound
-            rhs = parameter
+        # ------if just self.parameter bound
+        return self.parameter
+
+    @cached_property
+    def rel(self):
+        """Constraint name suffix"""
 
         if self.leq:
-            # Less than equal to
-            if (
-                self.domain.space in self.aspect.bound_spaces[self.domain.primary]["ub"]
-            ) and not self.domain.modes:
-                # return if aspect already bound in space
-                return
-            self.aspect.bound_spaces[self.domain.primary]["ub"].append(
-                self.domain.space,
-            )
-            cons: C = lhs <= rhs
-            rel = "_ub"
-
+            return "ub"
         elif self.eq:
-            # Exactly equal to
-            cons: C = lhs == rhs
-            rel = "_eq"
-
+            return "eq"
         elif self.geq:
-            # Greater than equal to
-            if (
-                self.domain.space in self.aspect.bound_spaces[self.domain.primary]["lb"]
-            ) and not self.domain.modes:
-                # return if aspect already bound in space
-                return
-            self.aspect.bound_spaces[self.domain.primary]["lb"].append(
-                self.domain.space,
-            )
-            cons: C = lhs >= rhs
-            rel = "_lb"
-        else:
-            return
+            return "lb"
 
-        # name of the constraint
-        cons_name = rf"{self.aspect.name}{self.domain.idxname}{rel}"
+    @cached_property
+    def cons_name(self):
+        """Constraint name"""
+
+        return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
+
+    def _write_forall(self):
+        """Writes the bind constraint for all elements in the set"""
+
+        for n, idx in enumerate(self.forall):
+
+            lhs = self.sample(idx)
+
+            try:
+                # if a list is passed
+                # or any iterable vector
+                rhs = self.parameter[n]
+            except TypeError:
+                # if not repeat the same value
+                # over all elements
+                rhs = self.parameter
+
+            if self.leq:
+                _ = lhs <= rhs
+            if self.geq:
+                _ = lhs >= rhs
+            if self.eq:
+                _ = lhs == rhs
+
+    def _write_w_modes(self):
+        """Writes the bind constraint with modes"""
+
+        # create modes
+        self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
+
+        mode_bounds = [
+            (
+                (self.parameter[i - 1], self.parameter[i])
+                if i - 1 in self.parameter
+                else (0, self.parameter[i])
+            )
+            for i in self.parameter
+        ]
+
+        _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
+        _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
+
+    def _check_existing(self) -> bool:
+        """Checks if aspect already has been bound in that space"""
+        if (
+            (self.domain.space, self.domain.time)
+            in self.aspect.bound_spaces[self.domain.primary][self.rel]
+        ) and not self.domain.modes:
+            return True
+
+        self.aspect.bound_spaces[self.domain.primary][self.rel].append(
+            (self.domain.space, self.domain.time)
+        )
+
+    def _inform(self):
+        """Informs the aspect and domain about the bind constraint"""
 
         # categorize the constraint
         if self.domain.modes:
-            cons.categorize("Piecewise Linear")
+            self.cons.categorize("Piecewise Linear")
         else:
-            cons.categorize("Bound")
+            self.cons.categorize("Binds")
+
+        # let the aspect know about the new constraint
+        if self.cons_name not in self.aspect.constraints:
+            self.aspect.constraints.append(self.cons_name)
 
         # let all objects in the domain know that
         # a constraint with this name contains it
-        self.domain.update_cons(cons_name)
+        self.domain.inform_indices(self.cons_name)
 
-        # let the aspect know about the new constraint
-        self.aspect.constraints.append(cons_name)
-
-        # set the constraint
-        setattr(
-            self.program,
-            cons_name,
-            cons,
-        )
-
-        end = keep_time.time()
-        logger.info("\u2714 Completed in %s seconds", end - start)
-
+    def _handshake(self):
+        """Borrow attributes from sample"""
+        # borrowed from Sample
+        self.model = self.sample.model
+        self.nominal = self.sample.nominal
+        self.norm = self.sample.norm
+        self.domain = self.sample.domain
+        self.aspect = self.sample.aspect
+        self.report = self.sample.report
+        self.program = self.sample.program

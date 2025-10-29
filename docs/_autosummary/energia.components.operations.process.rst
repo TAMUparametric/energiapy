@@ -1,18 +1,19 @@
-energia.components.commodity.currency
+energia.components.operations.process
 =====================================
 
-.. automodule:: energia.components.commodity.currency
+.. automodule:: energia.components.operations.process
 
    
    .. rubric:: Functions
 
    .. autosummary::
    
-      is_
+      timer
    
    .. rubric:: Classes
 
    .. autosummary::
    
-      Currency
+      Operation
+      Process
    

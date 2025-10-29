@@ -1,4 +1,4 @@
-﻿energia.represent.model
+energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -44,6 +44,7 @@
       Material
       Model
       Modes
+      P
       Periods
       Player
       Problem

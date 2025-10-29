@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Self
 
-from ..modeling.parameters.conversion import Conversion
-from ._component import _Component
+from ..._core._component import _Component
+from ...modeling.parameters.conversion import Conversion
 
 if TYPE_CHECKING:
-    from ..components.measure.unit import Unit
+    from ..measure.unit import Unit
 
 
-class _Commodity(_Component):
+class Commodity(_Component, Mapping):
     """
     A commodity, can be a material, chemical, energy, etc.
 
@@ -42,9 +43,8 @@ class _Commodity(_Component):
     def __init__(
         self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
     ):
-        _Component.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
-        )
+        self.basis = basis
+        _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         # list of conversions associated with the commodity
         self.conversions: list[Conversion] = []
@@ -73,34 +73,28 @@ class _Commodity(_Component):
     def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
         # math operations with conversions form the balance in tasks
-        return Conversion(balance={self: other})
+        return Conversion.from_balance({self: other})
 
     def __rmul__(self, other: int | float) -> Conversion:
         # reverse multiplication
         return self * other
 
-    def __add__(self, other: Conversion) -> Conversion:
-        if isinstance(other, _Commodity):
-            # if another commodity is added, give it the parameter 1
-            _balance = {self: 1, other: 1}
-        else:
-            # if added with another conversion, updated the balance
-            _balance = {self: 1, **other.balance}
-        return Conversion(balance=_balance)
+    def __add__(self, other: Conversion | Commodity) -> Conversion:
+        return Conversion.from_balance({self: 1, **other})
 
     def __neg__(self) -> Conversion:
         # just multiply by -1
         return self * -1
 
     def __sub__(self, other: Conversion | Self):
-        if isinstance(other, _Commodity):
+        if isinstance(other, Commodity):
             # if another resource is subtracted
             # give it the parameter -1
             return self + -1 * other
         if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
-            return Conversion(
-                balance={
+            return Conversion.from_balance(
+                {
                     self: 1,
                     **{
                         res: (
@@ -121,12 +115,21 @@ class _Commodity(_Component):
         if isinstance(other, Conversion):
             conv = self + other
             # set itself as base
-            conv.basis = self
+            conv.resource = self
             return conv
 
         if isinstance(other, int | float):
-            conv = Conversion(basis=self, hold=other)
+            conv = Conversion(resource=self, hold=other)
 
             return conv
 
         return super().__eq__(other)
+
+    def __getitem__(self, _):
+        return 1
+
+    def __iter__(self):
+        return iter([self])
+
+    def __len__(self):
+        return 1

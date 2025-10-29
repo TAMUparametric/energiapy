@@ -9,6 +9,7 @@ energia.modeling.constraints.balance
    .. autosummary::
    
       is_
+      timer
    
    .. rubric:: Classes
 
@@ -16,4 +17,5 @@ energia.modeling.constraints.balance
    
       Balance
       Stored
+      cached_property
    

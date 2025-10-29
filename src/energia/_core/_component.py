@@ -25,8 +25,6 @@ class _Component(_X):
     A component with a mathematical program (hence index in it) and
     input parameters (modeling aspects).
 
-    :param basis: Unit basis of the component. Defaults to None.
-    :type basis: Unit, optional
     :param label: Label for the component. Defaults to None.
     :type label: str, optional
     :param citations: Citation for the component. Defaults to None.
@@ -52,14 +50,10 @@ class _Component(_X):
 
     def __init__(
         self,
-        basis: Unit | None = None,
         label: str = "",
         citations: str = "",
         **kwargs,
     ):
-
-        self.basis = basis
-
         self.parameters = kwargs
 
         # what differentiates a component from an index is that it has aspects
@@ -209,3 +203,6 @@ class _Component(_X):
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
+
+
+    

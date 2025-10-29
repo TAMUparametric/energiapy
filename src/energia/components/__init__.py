@@ -1,17 +1,17 @@
 """energia.components module"""
 
-from .commodity.currency import Currency
-from .commodity.emission import Emission
-from .commodity.land import Land
-from .commodity.material import Material
-from .commodity.resource import Resource
+from .commodities.currency import Currency
+from .commodities.emission import Emission
+from .commodities.land import Land
+from .commodities.material import Material
+from .commodities.resource import Resource
 from .game.couple import Interact
 from .game.player import Player
 from .impact.categories import Economic, Environ, Social
 from .measure.unit import Unit
-from .operation.process import Process
-from .operation.storage import Storage
-from .operation.transport import Transport
+from .operations.process import Process
+from .operations.storage import Storage
+from .operations.transport import Transport
 from .spatial.linkage import Linkage
 from .spatial.location import Location
 from .temporal.periods import Periods

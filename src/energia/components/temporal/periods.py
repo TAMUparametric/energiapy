@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from functools import cached_property
 from operator import is_
 from typing import TYPE_CHECKING, Self
@@ -10,12 +11,17 @@ from gana import I as Idx
 
 from ..._core._x import _X
 from ...modeling.parameters.value import Value
+from ...utils.dictionary import NotFoundError, compare
 from .lag import Lag
 
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
+    from ...components.temporal.modes import Modes
     from ...dimensions.time import Time
+
+
+logger = logging.getLogger("energia")
 
 
 class Periods(_X):
@@ -49,37 +55,40 @@ class Periods(_X):
 
     def __init__(
         self,
-        periods: int | float = 1,
+        size: int | float = 1,
         of: Self | None = None,
+        n: int | None = None,
         label: str = "",
         citations: str = "",
     ):
-        self.periods = periods
+        self.size = size
+
+        if of is not None:
+            of.isof.append(self)
+
         self.of = of
 
+        # is a period of
+        self.isof: list[Self] = []
+
         _X.__init__(self, label=label, citations=citations)
-
-        self._periods = self.periods
-
-        self._of = self.of
-
-        if self.of is not None and not self.of.isroot():
-            self.periods = self.periods * self.of.periods
-            self.of = self.of.of
-
-        self._horizon: Self | None = None
-
-        # can be overwritten by program
-        self.name = f"{self._periods}{self._of}"
-
-        if self.of is None:
-            self.of = self
 
         # if this is a slice of another period
         self.slice: slice | None = None
 
         # if this is a single period in Periods
-        self.pos: int | None = None
+        self.n = n
+
+        # if parent is true, this is part of another periods set
+        self.parent: Self | None = None
+
+        self.modes: list[Modes] = []
+
+        if self.of is not None and self.size:
+            # self.tree = {self.of: self.of.tree}
+            self.name = f"{self.size}{self.of}"
+
+        self._howmany: dict[Periods, float] = {}
 
     def isroot(self):
         """Is used to define another period?"""
@@ -87,14 +96,17 @@ class Periods(_X):
             return True
 
     @property
+    def tree(self) -> dict[Self, dict]:
+        """Tree representation of the Periods"""
+        if self.of is None:
+            return {self: {}}
+
+        return {self: self.of.tree}
+
+    @property
     def cons(self) -> list[C]:
         """Constraints"""
         return [getattr(self.program, c) for c in self.constraints]
-
-    @property
-    def time(self) -> Time:
-        """Time to which the Periods belongs"""
-        return self.model.time
 
     @property
     def horizon(self) -> Self:
@@ -107,81 +119,80 @@ class Periods(_X):
         return self == self.time.horizon
 
     @cached_property
+    def time(self) -> Time:
+        """Time to which the Periods belongs"""
+        return self.model.time
+
+    @cached_property
     def I(self) -> Idx:
-        """Index set of scale"""
+        """Index tuple"""
 
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
         if self.slice is not None:
             return self.of.I[self.slice]
 
-        if self.pos is not None:
-            return self.of.I[self.pos]
+        if self.n is not None:
+            return self.of.I[self.n]
 
-        _index = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
-        setattr(self.program, self.name, _index)
-        return _index
+        if self.isof:
+            return self.isof[0].I + (self.i,)
+        return (self.i,)
 
-    def howmany(self, period: Self | Lag):
+    @cached_property
+    def i(self) -> Idx:
+        """Only Index"""
+        _i = Idx(size=self.isof[0].size if self.isof else 1, tag=self.label or "")
+        setattr(self.program, self.name, _i)
+        return _i
+
+    @property
+    def true_size(self) -> float:
+        """True size of the Periods"""
+        if self.of is None:
+            return self.size
+
+        return self.size * self.of.true_size
+
+    def howmany(self, of: Periods):
         """How many periods make this period"""
+        try:
+            return self._howmany[of]
+        except KeyError:
+            try:
+                _return = compare(self.tree, of)
+            except NotFoundError:
+                try:
+                    _return = 1 / compare(of.tree, self)
+                except NotFoundError:
+                    try:
+                        _return = self.size / compare(of.tree, self.of)
+                    except NotFoundError:
+                        try:
+                            _return = compare(self.tree, of.of) / of.size
+                        except NotFoundError:
+                            raise ValueError(f"No common basis between {self} and {of}")
 
-        if isinstance(period, Lag):
-            # lags are usually made up of negative multiplications of periods
-            return self.howmany(period.of) * period.periods
-
-        if period == self:
-            # if the same
-            return 1
-
-        if period.isroot():
-
-            # if there are multiple root periods defined
-            if is_(period, self.of):
-                # if they are multiples of the same base period
-                # check if they contain the same number of periods
-                return self.periods
-            raise ValueError(f"{period} is not a period of {self.name}")
-
-        if is_(period.of, self.of):
-
-            # if they are multiples of the same base period
-            # return the ratio of the periods
-            p = self.periods / period.periods
-            if p.is_integer():
-                return int(p)
-            return p
-
-        if is_(self, period.of):
-
-            # if self is the base of the period
-            # return the inverse of the of the periods
-            return 1 / period.periods
-
-        raise ValueError(f"{period} is not a period of {self.name}")
+        self._howmany[of] = _return
+        return _return
 
     def __mul__(self, times: int | float):
+
+        if times == 0:
+            return 0
 
         if times < 0:
             # if multiplying by a negative number
             # return a lag
-            if not self._of:
-                return Lag(of=self, periods=-times)
+            # if not self._of:
+            return Lag(of=self, periods=-times)
 
-            raise ValueError(f"{self} is not a period of anything, so cannot be lagged")
+            # raise ValueError(f"{self} is not a period of anything, so cannot be lagged")
 
-        if times < 1:
-            # if it is a fraction
-            period = Periods()
-            if not self.of:
-                # this is a root period
-                period.of = self
-                period.periods = times
-            else:
-                self.of = period
-                self.periods = int(1 / times)
-            return period
+        # if times < 1:
+        #     return (1 / times) * self
 
-        return Periods(periods=int(times), of=self)
+        return Periods(size=times, of=self)
 
     def __truediv__(self, other: int | float):
         if isinstance(other, Periods):
@@ -198,7 +209,7 @@ class Periods(_X):
         return self * other
 
     def __call__(self, times):
-        return Periods(periods=times, of=self)
+        return Periods(size=times, of=self)
 
     def __neg__(self):
         return self * -1
@@ -213,29 +224,42 @@ class Periods(_X):
         return is_(self, other)
 
     def __ge__(self, other: Self):
-        return self.time.horizon.howmany(self) <= self.time.horizon.howmany(other)
+        if isinstance(other, Periods):
+            return self.time.horizon.howmany(self) <= self.time.horizon.howmany(other)
+        raise NotImplementedError
 
     def __gt__(self, other: Self):
-        return self.time.horizon.howmany(self) < self.time.horizon.howmany(other)
+        if isinstance(other, Periods):
+            return self.time.horizon.howmany(self) < self.time.horizon.howmany(other)
+        raise NotImplementedError
 
     def __le__(self, other: Self):
-        return self.time.horizon.howmany(self) >= self.time.horizon.howmany(other)
+        if isinstance(other, Periods):
+            return self.time.horizon.howmany(self) >= self.time.horizon.howmany(other)
+        raise NotImplementedError
 
     def __lt__(self, other: Self):
-        return self.time.horizon.howmany(self) > self.time.horizon.howmany(other)
+        if isinstance(other, Periods):
+            return self.time.horizon.howmany(self) > self.time.horizon.howmany(other)
+        raise NotImplementedError
 
     def __getitem__(self, key: int | slice):
+
         periods = Periods()
-        periods.of = self
+        periods.parent = self
+        periods.of = self.of
         periods.model = self.model
 
         if isinstance(key, slice):
             periods.slice = key
+            # record the range
             start = key.start or 0
             stop = key.stop or len(self)
+            # not set on the model
             periods.name = rf"{self}[{start}: {stop}]"
         else:
-            periods.pos = key
+            # single period
+            periods.n = key
             periods.name = rf"{self}[{key}]"
 
         return periods
