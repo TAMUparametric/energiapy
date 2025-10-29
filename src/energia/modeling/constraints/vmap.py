@@ -241,7 +241,8 @@ class Map:
             and d.samples
         ]
         for domain in domains:
-            self.write(domain, self.domain)
+            if domain.modes is None:
+                self.write(domain, self.domain)
 
     def _map_across_modes(self):
         # modes need some additional checks
@@ -251,6 +252,12 @@ class Map:
         # CORRECT: v_t = v_t,m; v_t,m = v_t,m1 + v_t,m2 OR v_t = v_t,m1 + v_t,m2
         if not self.domain.modes:
             return
+
+        if not self._special_modes_check(
+            self.domain, self.domain.change({"modes": None})
+        ):
+            return
+
         if self.domain.modes.parent:
             self.write(self.domain, self.domain.change({"modes": None}))
         else:
@@ -269,9 +276,31 @@ class Map:
             return True
         else:
             self.maps[what][to_domain].append(from_domain)
-
         if what in ["samples", "modes"]:
             return True
+
+    def _special_modes_check(self, from_domain: Domain, to_domain: Domain) -> None:
+        """
+        Checks if constraints have been written for child modes
+        or for parent modes
+        """
+        if to_domain in self.aspect.maps["modes"]:
+            if from_domain.modes.parent:
+                if (
+                    from_domain.change({"modes": from_domain.modes.parent})
+                    in self.aspect.maps["modes"][to_domain]
+                ):
+                    return False
+            else:
+                print(from_domain.modes._)
+                for modes in from_domain.modes._:
+                    print('aaaa', modes)
+                    if (
+                        from_domain.change({"modes": modes})
+                        in self.aspect.maps["modes"][to_domain]
+                    ):
+                        return False
+        return True
 
     def _give_cname(
         self,
