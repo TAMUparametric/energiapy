@@ -56,6 +56,10 @@ class Lag(_Name):
         _I[-1] = _I[-1] - self.periods
         return tuple(_I)
 
+    @cached_property
+    def i(self) -> Idx:
+        return self.of.I[-1] - self.periods
+
     @property
     def horizon(self) -> Periods:
         """Horizon of the lag"""

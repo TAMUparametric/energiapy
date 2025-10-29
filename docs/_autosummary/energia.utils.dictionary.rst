@@ -8,9 +8,11 @@ energia.utils.dictionary
 
    .. autosummary::
    
+      compare
       dictify
       flatten
       get_depth
+      is_
       merge_trees
       tupler
    
@@ -19,4 +21,10 @@ energia.utils.dictionary
    .. autosummary::
    
       defaultdict
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      NotFoundError
    

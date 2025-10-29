@@ -8,7 +8,7 @@ energia.components.operations.process
 
    .. autosummary::
    
-      warn
+      timer
    
    .. rubric:: Classes
 

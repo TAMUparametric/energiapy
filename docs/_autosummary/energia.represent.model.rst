@@ -44,6 +44,7 @@ energia.represent.model
       Material
       Model
       Modes
+      P
       Periods
       Player
       Problem

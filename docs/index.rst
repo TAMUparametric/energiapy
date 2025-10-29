@@ -34,19 +34,12 @@ Energia on Python
    examples/design_scheduling_material
 
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Implementation:
-   :hidden:
-   
-   frameworks
-
 .. toctree::
    :maxdepth: 1
    :caption: Information
    :hidden:
 
+   frameworks
    license
    changelog
    

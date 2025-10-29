@@ -88,6 +88,8 @@ class Periods(_X):
             # self.tree = {self.of: self.of.tree}
             self.name = f"{self.size}{self.of}"
 
+        self._howmany: dict[Periods, float] = {}
+
     def isroot(self):
         """Is used to define another period?"""
         if self.of is None:
@@ -107,11 +109,6 @@ class Periods(_X):
         return [getattr(self.program, c) for c in self.constraints]
 
     @property
-    def time(self) -> Time:
-        """Time to which the Periods belongs"""
-        return self.model.time
-
-    @property
     def horizon(self) -> Self:
         """Time Horizon"""
         return self.time.horizon
@@ -120,6 +117,11 @@ class Periods(_X):
     def ishorizon(self) -> bool:
         """Is this the horizon of the model?"""
         return self == self.time.horizon
+
+    @cached_property
+    def time(self) -> Time:
+        """Time to which the Periods belongs"""
+        return self.model.time
 
     @cached_property
     def I(self) -> Idx:
@@ -140,7 +142,7 @@ class Periods(_X):
     @cached_property
     def i(self) -> Idx:
         """Only Index"""
-        _i = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
+        _i = Idx(size=self.isof[0].size if self.isof else 1, tag=self.label or "")
         setattr(self.program, self.name, _i)
         return _i
 
@@ -154,17 +156,25 @@ class Periods(_X):
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
-
         try:
-            return compare(self.tree, of)
-        except NotFoundError:
+            return self._howmany[of]
+        except KeyError:
             try:
-                return 1 / compare(of.tree, self)
+                _return = compare(self.tree, of)
             except NotFoundError:
                 try:
-                    return self.size / compare(of.tree, self.of)
+                    _return = 1 / compare(of.tree, self)
                 except NotFoundError:
-                    raise ValueError(f"No common basis between {self} and {of}")
+                    try:
+                        _return = self.size / compare(of.tree, self.of)
+                    except NotFoundError:
+                        try:
+                            _return = compare(self.tree, of.of) / of.size
+                        except NotFoundError:
+                            raise ValueError(f"No common basis between {self} and {of}")
+
+        self._howmany[of] = _return
+        return _return
 
     def __mul__(self, times: int | float):
 
