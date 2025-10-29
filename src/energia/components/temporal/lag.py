@@ -52,7 +52,9 @@ class Lag(_Name):
         this returns the set of t - 5
         i.e. an offset of 5 hours
         """
-        return self.of.I - self.periods
+        _I = list(self.of.I)
+        _I[-1] = _I[-1] - self.periods
+        return tuple(_I)
 
     @property
     def horizon(self) -> Periods:

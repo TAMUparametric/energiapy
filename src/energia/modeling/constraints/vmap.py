@@ -306,7 +306,7 @@ class Map:
             # if the domain has been mapped to but this is a time sum
             # we need to first map time
             # and then add it to an existing map at a lower domain
-            return sigma(v(*domain.I), domain.time.I)
+            return sigma(v(*domain.I), domain.time.i)
         if msum:
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes

@@ -58,7 +58,6 @@ class Time(_Dimension):
     def tree(self) -> dict[int | float, Periods]:
         """Return the tree of periods"""
         hrz = self.horizon
-
         return {int(hrz.howmany(prd)): prd for prd in self.periods}
 
     @property

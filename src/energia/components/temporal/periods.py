@@ -62,20 +62,16 @@ class Periods(_X):
         citations: str = "",
     ):
         self.size = size
+
+        if of is not None:
+            of.isof.append(self)
+
         self.of = of
 
+        # is a period of
+        self.isof: list[Self] = []
+
         _X.__init__(self, label=label, citations=citations)
-
-        # self._periods = self.periods
-
-        # self._of = self.of
-
-        # if self.of is not None and not self.of.isroot():
-        #     self.periods = self.periods * self.of.periods
-        #     self.of = self.of.of
-
-        # if self.of is None:
-        #     self.of = self
 
         # if this is a slice of another period
         self.slice: slice | None = None
@@ -96,7 +92,7 @@ class Periods(_X):
         """Is used to define another period?"""
         if self.of is None:
             return True
-
+  
     @property
     def tree(self) -> dict[Self, dict]:
         """Tree representation of the Periods"""
@@ -127,7 +123,7 @@ class Periods(_X):
 
     @cached_property
     def I(self) -> Idx:
-        """Index set of scale"""
+        """Index tuple"""
 
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
@@ -137,9 +133,16 @@ class Periods(_X):
         if self.n is not None:
             return self.of.I[self.n]
 
-        _I = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
-        setattr(self.program, self.name, _I)
-        return _I
+        if self.isof:
+            return self.isof[0].I + (self.i,)
+        return (self.i,)
+
+    @cached_property
+    def i(self) -> Idx:
+        """Only Index"""
+        _i = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
+        setattr(self.program, self.name, _i)
+        return _i
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
