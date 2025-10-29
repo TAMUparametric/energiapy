@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
-from gana import P
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency

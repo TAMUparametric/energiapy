@@ -127,10 +127,6 @@ class Map:
         return self.aspect.reporting if self.reporting else self.aspect
 
     @cached_property
-    def rhs(self):
-        return self.rhs(self.domain)
-
-    @cached_property
     def name(self) -> str:
         return f"{self.aspect.name}_map"
 

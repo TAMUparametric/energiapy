@@ -22,9 +22,9 @@ def m():
     _m.proc2 = Process()
     _m.proc2(_m.c) == [[1, 2, 3] * _m.a, _m.b]
 
-    _m.proc.construction == [_m.conv1, _m.conv2, _m.conv3, _m.conv4]
+    _ = _m.proc.construction == [_m.conv1, _m.conv2, _m.conv3, _m.conv4]
 
-    _m.proc2.construction == {
+    _ = _m.proc2.construction == {
         _m.proc2.production.modes[0]: _m.conv1,
         _m.proc2.production.modes[1]: _m.conv2,
     }

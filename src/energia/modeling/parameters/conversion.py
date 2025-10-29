@@ -422,9 +422,7 @@ class PWLConversion(Mapping, _Hash):
         if conversions:
 
             self.modes = self.model.Modes(size=len(conversions), sample=sample)
-            self.balance: dict[Modes, Conversion] = {
-                m: conv for m, conv in zip(self.modes, conversions)
-            }
+            self.balance: dict[Modes, Conversion] = dict(zip(self.modes, conversions))
 
             for conv in conversions:
                 conv.operation = self.operation
