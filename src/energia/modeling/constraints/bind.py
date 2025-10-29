@@ -269,7 +269,8 @@ class Bind:
             self.cons.categorize("Binds")
 
         # let the aspect know about the new constraint
-        self.aspect.constraints.append(self.cons_name)
+        if self.cons_name not in self.aspect.constraints:
+            self.aspect.constraints.append(self.cons_name)
 
         # let all objects in the domain know that
         # a constraint with this name contains it

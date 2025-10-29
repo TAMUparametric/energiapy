@@ -202,8 +202,8 @@ class Calculate:
                     cons_name,
                     cons,
                 )
-
-                calc.aspect.constraints.append(cons_name)
+                if not cons_name in calc.aspect.constraints:
+                    calc.aspect.constraints.append(cons_name)
                 domain.inform_indices(cons_name)
 
     def __call__(self, *index) -> Self:

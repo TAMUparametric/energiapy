@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
+import logging
 
 from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
@@ -72,7 +73,7 @@ class Time(_Dimension):
         if size not in self.tree:
             # if no math make a default period
             logger.info(
-                "💡  %s does not match the size of any data set passed, generating 't%s'",
+                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
                 size,
                 len(self.periods),
             )
