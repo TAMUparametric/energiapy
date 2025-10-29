@@ -1,6 +1,7 @@
 """dictionary utils"""
 
 from collections import defaultdict
+from operator import is_
 
 
 def get_depth(d: dict) -> int:
@@ -109,3 +110,20 @@ def dictify(d: defaultdict | dict) -> dict:
     if isinstance(d, defaultdict):
         return {k: dictify(v) for k, v in d.items()}
     return d
+
+
+class NotFoundError(Exception):
+    """Raised when two periods are not linked in the period tree."""
+
+
+def compare(tree: dict, of):
+    """How many periods make this period"""
+    n = 1
+    for i, j in tree.items():
+        if is_(i, of):
+            return n
+        n *= i.size
+        if not j:
+            raise NotFoundError
+        n *= compare(j, of)
+    return n
