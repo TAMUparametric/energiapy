@@ -92,7 +92,7 @@ class Periods(_X):
         """Is used to define another period?"""
         if self.of is None:
             return True
-  
+
     @property
     def tree(self) -> dict[Self, dict]:
         """Tree representation of the Periods"""
@@ -143,6 +143,14 @@ class Periods(_X):
         _i = Idx(size=self.time.horizon.howmany(self), tag=self.label or "")
         setattr(self.program, self.name, _i)
         return _i
+
+    @property
+    def true_size(self) -> float:
+        """True size of the Periods"""
+        if self.of is None:
+            return self.size
+
+        return self.size * self.of.true_size
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
