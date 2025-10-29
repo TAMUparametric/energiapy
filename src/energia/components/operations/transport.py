@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 from .operation import Operation
 
 if TYPE_CHECKING:
-    from ..commodities.resource import Resource
+    # from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
-    from ..temporal.periods import Periods
+    # from ..temporal.periods import Periods
 
 
 class Transport(Operation):
