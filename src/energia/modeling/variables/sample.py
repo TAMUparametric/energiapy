@@ -213,6 +213,12 @@ class Sample:
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         try:
             return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except AttributeError:
+            print(self)
+            _ = self == True
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
         except KeyError:
             # the variable has not been defined yet
             lag = self.domain.lag
@@ -580,7 +586,6 @@ class Sample:
     def __getattr__(self, other):
         aspect = getattr(self.model, other)
         return aspect(self)
-
 
     def __le__(self, other):
 
