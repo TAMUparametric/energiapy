@@ -43,6 +43,7 @@ class Calculate:
         self,
         calculation: Sample,
         sample: Sample,
+        forall: list[_X] = None,
     ):
         self.calculation = calculation
         self.model = self.calculation.model
@@ -53,7 +54,7 @@ class Calculate:
         self.sample = sample
         self.parameter = None
 
-        self._forall: list[_X] = []
+        self._forall = forall or []
 
         # if nominal is provided
         # and multiplied by the nominal value

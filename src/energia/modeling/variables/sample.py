@@ -76,6 +76,7 @@ class Sample:
         timed: bool = False,
         spaced: bool = False,
         report: bool = False,
+        of: Self | None = None,
     ):
 
         # this is the aspect for which the constraint is being defined
@@ -114,6 +115,9 @@ class Sample:
         # parameters
         self.parameter: P = None
         self.length: int = 0
+
+        # Deciding Sample
+        self.of = of
 
     @property
     def name(self) -> str:
@@ -612,7 +616,14 @@ class Sample:
             return False
 
         else:
-            Bind(sample=self, parameter=other, eq=True, forall=self._forall)
+
+            if self.domain.samples:
+                Calculate(
+                    calculation=self, sample=self.domain.samples[0], forall=self._forall
+                ) == other
+
+            else:
+                Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):
         logger.info(
@@ -730,7 +741,7 @@ class FuncOfSamples:
         setattr(self.program, f"ge_{self.F.name}", func)
         return func
 
-    def opt(self, max=False):
+    def opt(self, maximize=False):
         """Optimize the function
 
         :param max: if maximization, defaults to False

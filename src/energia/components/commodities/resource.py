@@ -85,3 +85,9 @@ class Resource(Commodity):
         # the hashing will be inherited by the subclasses
         cls.__repr__ = Resource.__repr__
         cls.__hash__ = Resource.__hash__
+
+    def Map(self):
+        """Map the resource to all domains where it is consumed or released"""
+        # for domain in set(self.consume.domains + self.release.domains):
+        #     self.consume.map(domain)
+        #     self.release.map(domain)
