@@ -5,8 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ..constraints.balance import Balance
-from ..constraints.vmap import Map
 from .aspect import Aspect
 
 if TYPE_CHECKING:
@@ -32,8 +30,7 @@ class State(Aspect):
     def update(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""
 
-        # Write a mapping constraint
-        Map(aspect=self, domain=domain, reporting=reporting)
+        self.Map(domain=domain, reporting=reporting)
 
 
 @dataclass
@@ -86,16 +83,6 @@ class Stream(State):
     def __post_init__(self):
         State.__post_init__(self)
 
-    # def update(self, domain: Domain):
-    #     """Add a domain to the decision variable"""
-
-    #     # Write a mapping constraint
-
-    #     Map(aspect=self, domain=domain)
-
-    #     # Write/Update, the stream balance
-    #     Balance(aspect=self, domain=domain)
-
 
 @dataclass
 class EndoStream(Stream):
@@ -106,9 +93,9 @@ class EndoStream(Stream):
 
     def update(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain, reporting=reporting)
+        self.Map(domain=domain, reporting=reporting)
         if not domain.modes:
-            Balance(aspect=self, domain=domain)
+            self.Balance(domain=domain)
 
 
 @dataclass
@@ -120,9 +107,9 @@ class ExoStream(Stream):
 
     def update(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain, reporting=reporting)
+        self.Map(domain=domain, reporting=reporting)
         if not domain.modes:
-            Balance(aspect=self, domain=domain)
+            self.Balance(domain=domain)
 
 
 @dataclass
@@ -134,4 +121,4 @@ class IndStream(Stream):
 
     def update(self, domain: Domain, reporting: bool = False):
 
-        Map(aspect=self, domain=domain, reporting=reporting)
+        self.Map(domain=domain, reporting=reporting)

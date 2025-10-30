@@ -23,6 +23,8 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
+from ..constraints.balance import Balance as BalCons
+from ..constraints.vmap import Map as MapCons
 from ..indices.domain import Domain
 from .sample import Sample
 
@@ -464,3 +466,13 @@ class Aspect:
         """Iterate over domains"""
         for d in self.domains:
             yield self(domain=d)
+
+    def Map(self, domain: Domain, reporting: bool = False):
+        """Map the aspect to the domain"""
+
+        MapCons(aspect=self, domain=domain, reporting=reporting)
+
+    def Balance(self, domain: Domain):
+        """Add a general resource balance for the aspect over the domain"""
+
+        BalCons(aspect=self, domain=domain)
