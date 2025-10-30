@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     # from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location
+
     # from ..temporal.periods import Periods
 
 

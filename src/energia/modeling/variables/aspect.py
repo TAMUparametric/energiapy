@@ -363,7 +363,9 @@ class Aspect:
         if isinstance(other, Aspect):
             return self.name == other.name
 
-    def __call__(self, *index: _X, domain: Domain | None = None):
+    def __call__(
+        self, *index: _X, domain: Domain | None = None, report=False
+    ) -> Sample:
 
         if not domain:
 
@@ -441,7 +443,9 @@ class Aspect:
         else:
             timed = spaced = True
 
-        return Sample(aspect=self, domain=domain, timed=timed, spaced=spaced)
+        return Sample(
+            aspect=self, domain=domain, timed=timed, spaced=spaced, report=report
+        )
 
     def __str__(self):
         return self.name
