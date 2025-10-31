@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "energiapy"
-version = "2.1.1"
+version = "2.1.2"
 authors = [
   { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
   {name = "Efstratios N. Pistikopoulos", email = "stratos@tamu.edu"}
