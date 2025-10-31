@@ -45,11 +45,6 @@ class Time(_Dimension):
         self.modes: list[Modes] = []
         _Dimension.__post_init__(self)
 
-    @cached_property
-    def program(self) -> Prg:
-        """Mathematical program"""
-        return self.model.program
-
     # -----------------------------------------------------
     #                    Helpers
     # -----------------------------------------------------
@@ -64,27 +59,7 @@ class Time(_Dimension):
     def sorted_periods(self) -> list[Periods]:
         """Sorted periods from densest to sparsest"""
         return sorted(self.periods)
-
-    def find(self, size: int | float) -> Periods:
-        """Find the period that has the length"""
-
-        if size not in self.tree:
-            # if no math make a default period
-            logger.info(
-                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
-                size,
-                len(self.periods),
-            )
-            _ = self.model._t0(size=size)
-
-        return self.tree[size]
-
-    def split(self, period: Periods) -> tuple[list[Periods], list[Periods]]:
-        """Gives a list of periods which are denser and sparser than period"""
-
-        periods = self.sorted_periods
-        index = periods.index(period)
-        return periods[:index], periods[index + 1 :]
+    
 
     # -----------------------------------------------------
     #                    Superlatives
@@ -111,3 +86,24 @@ class Time(_Dimension):
             return self.sparsest
         # if nothing found, make a default period
         return self.model._t0()
+
+    def find(self, size: int | float) -> Periods:
+        """Find the period that has the length"""
+
+        if size not in self.tree:
+            # if no math make a default period
+            logger.info(
+                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
+                size,
+                len(self.periods),
+            )
+            _ = self.model._t0(size=size)
+
+        return self.tree[size]
+
+    def split(self, period: Periods) -> tuple[list[Periods], list[Periods]]:
+        """Gives a list of periods which are denser and sparser than period"""
+
+        periods = self.sorted_periods
+        index = periods.index(period)
+        return periods[:index], periods[index + 1 :]

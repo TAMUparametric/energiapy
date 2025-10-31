@@ -23,6 +23,7 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
+from ...utils.dictionary import merge_tree_levels
 from ..constraints.balance import Balance as BalCons
 from ..constraints.vmap import Map as MapCons
 from ..indices.domain import Domain
@@ -240,6 +241,25 @@ class Aspect:
     ]:
         """Dispositions dict"""
         return self.model.dispositions[self]
+
+    @property
+    def sizes(self):
+        """dict of domain sizes"""
+        _sizes = {}
+        for d in self.domains:
+            if d.size in _sizes:
+                _sizes[d.size].append(d.index)
+            else:
+                _sizes[d.size] = [d.index]
+        return _sizes
+
+    @property
+    def box(self):
+        """Box of domain indices"""
+        return [b.index_short for b in self.domains]
+
+    def crumple_domains(self):
+        return merge_tree_levels(self.dispositions)
 
     def alias(self, *names: str):
         """

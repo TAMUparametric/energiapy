@@ -134,10 +134,17 @@ class Domain(_Hash):
     @property
     def primary(self) -> Indicator | Commodity | Process | Storage | Transport:
         """Primary component"""
-        _primary = self.stream or self.operation or self.samples[0]
+        _primary = self.stream or self.operation or self.samples
         if not _primary:
             raise ValueError("Domain must have at least one primary index")
         return _primary
+
+    @property
+    def sample(self) -> Sample | None:
+        """Sample"""
+        if self.samples:
+            return self.samples[0]
+        return None
 
     @property
     def space(self) -> Location | Linkage:
@@ -179,13 +186,7 @@ class Domain(_Hash):
         This implies that the domain is of the form
         <object, space, time>
         """
-        if self.lag:
-            return False
-        if self.disposition in [
-            ("commodity", "space", "time"),
-            ("indicator", "space", "time"),
-            ("operation", "space", "time"),
-        ]:
+        if not self.lag and self.size == 3:
             return True
         return False
 
@@ -268,21 +269,24 @@ class Domain(_Hash):
 
         tree = {}
         node = tree
+        index_root = (
+            self.index[: -2 * (len(self.samples))] if self.samples else self.index
+        )
 
-        if self.samples:
-            index = self.index[: -2 * (len(self.samples))]
-        else:
-            index = self.index
-        for key in index:
+        for key in index_root:
             node[key] = {}
             node = node[key]
-        for b in self.samples:
-            node[b.aspect] = {}
-            node[b.aspect][b.domain.primary] = {}
-            node = node[b.aspect][b.domain.primary]
 
-        # tree = {}
-        # node = tree
+        if self.samples:
+
+            for b in self.samples:
+                node[b.aspect] = {}
+                node[b.aspect][b.domain.primary] = {}
+                # step up a level
+                node = node[b.aspect][b.domain.primary]
+
+        else:
+            node[None] = {}
 
         return tree
 
