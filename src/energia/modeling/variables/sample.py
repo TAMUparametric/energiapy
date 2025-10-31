@@ -618,7 +618,7 @@ class Sample:
 
             if self.domain.samples:
                 Calculate(
-                    calculation=self, sample=self.domain.samples[0], forall=self._forall
+                    calculation=self, f_of=self.domain.samples[0], forall=self._forall
                 ) == other
 
             else:
@@ -649,7 +649,7 @@ class Sample:
         decision = self(*self.index_short)
         decision.report = self.report
 
-        return Calculate(calculation=calculation, sample=decision)
+        return Calculate(calculation=calculation, f_of=decision)
 
     def draw(self, **kwargs):
         """Draws the variable"""

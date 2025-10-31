@@ -42,25 +42,40 @@ class Calculate:
     def __init__(
         self,
         calculation: Sample,
-        sample: Sample,
+        f_of: Sample,
+        parameter: (
+            float
+            | list[float]
+            | dict[float, float]
+            | tuple[float, float]
+            | list[tuple[float, float]]
+        ) = 0,
         forall: list[_X] = None,
+        parameter_name: str = "",
     ):
         self.calculation = calculation
-        self.model = self.calculation.model
-        self.domain = self.calculation.domain
-        self.name = self.calculation.name
-        self.program = self.calculation.program
-        self.index = self.calculation.index
-        self.sample = sample
-        self.parameter = None
-
+        self.sample = f_of
+        self._parameter, self.parameter_name = parameter, parameter_name
         self._forall = forall or []
+
+        self._handshake()
+
+        self.parameter = None
 
         # if nominal is provided
         # and multiplied by the nominal value
         self._nominal: float = None
         # the input argument is normalized if True
         self._normalize: bool = False
+
+    def _handshake(self):
+        """Borrow attributes from sample"""
+        # borrowed from Sample
+        self.model = self.calculation.model
+        self.domain = self.calculation.domain
+        self.name = self.calculation.name
+        self.program = self.calculation.program
+        self.index = self.calculation.index
 
     def forall(self, index: list[_X]) -> Self:
         """
@@ -120,95 +135,92 @@ class Calculate:
         if isinstance(other, dict):
 
             self._write_w_modes()
+            return
+
+        if self._nominal:
+            if self._normalize:
+                other = [
+                    (
+                        (self._nominal * i[0], self._nominal * i[1])
+                        if isinstance(i, tuple)
+                        else self._nominal * i
+                    )
+                    for i in normalize(other)
+                ]
+            else:
+                other = [
+                    (
+                        (self._nominal * i[0], self._nominal * i[1])
+                        if isinstance(i, tuple)
+                        else self._nominal * i
+                    )
+                    for i in other
+                ]
+
+        if isinstance(other, Value):
+            time = other.periods
+            other = other.value
 
         else:
+            time = None
 
-            if self._nominal:
-                if self._normalize:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in normalize(other)
-                    ]
-                else:
-                    other = [
-                        (
-                            (self._nominal * i[0], self._nominal * i[1])
-                            if isinstance(i, tuple)
-                            else self._nominal * i
-                        )
-                        for i in other
-                    ]
+        if self.sample.aspect not in self.model.dispositions:
+            # if a calculation is given directly, without an explicit bound being set
+            _ = self.sample == True
 
-            if isinstance(other, Value):
-                time = other.periods
-                other = other.value
+        if self._forall:
+            if isinstance(other, list):
+                # if other is a list, iterate over the _forall indices
+                for n, idx in enumerate(self._forall):
+                    _ = self(idx) == other[n]
+            else:
+                for idx in self._forall:
+                    # if other is not a list, just compare with the first element
+                    _ = self(idx) == other
+
+        else:
+            # the aspect being calculated
+            if time:
+                calc: Sample = self.calculation(time)
+            else:
+                calc: Sample = self.calculation
+
+            if self.sample.domain.modes:
+                # mode calculations, should map to modes
+                calc = calc(self.sample.domain.modes)
+
+            # the aspect the calculation is dependent on
+            decision: Sample = self.sample
+            if self.sample.report:
+                # incidental, v_inc_calc = P_inc*x_v
+                v_lhs = calc.Vinc(other)
+                domain = calc.domain
+                v_rhs = decision.X(other)
+                cons_name = rf"{self.calculation.aspect.name}_inc{domain.idxname}_calc"
 
             else:
-                time = None
+                # v_calc = P*v
+                v_lhs = calc.V(other)
+                domain = calc.domain
+                v_rhs = decision.V(other)
+                cons_name = rf"{self.calculation.aspect.name}{domain.idxname}_calc"
 
-            if self.sample.aspect not in self.model.dispositions:
-                # if a calculation is given directly, without an explicit bound being set
-                _ = self.sample == True
+            cons: C = v_lhs == other * v_rhs
 
-            if self._forall:
-                if isinstance(other, list):
-                    # if other is a list, iterate over the _forall indices
-                    for n, idx in enumerate(self._forall):
-                        _ = self(idx) == other[n]
-                else:
-                    for idx in self._forall:
-                        # if other is not a list, just compare with the first element
-                        _ = self(idx) == other
+            # categorize the constraint
+            cons.categorize("Calculations")
 
-            else:
-                # the aspect being calculated
-                if time:
-                    calc: Sample = self.calculation(time)
-                else:
-                    calc: Sample = self.calculation
-
-                if self.sample.domain.modes:
-                    # mode calculations, should map to modes
-                    calc = calc(self.sample.domain.modes)
-
-                # the aspect the calculation is dependant on
-                decision: Sample = self.sample
-                if self.sample.report:
-                    # incidental, v_inc_calc = P_inc*x_v
-                    v_lhs = calc.Vinc(other)
-                    domain = calc.domain
-                    v_rhs = decision.X(other)
-                    cons_name = (
-                        rf"{self.calculation.aspect.name}_inc{domain.idxname}_calc"
-                    )
-
-                else:
-                    # v_calc = P*v
-                    v_lhs = calc.V(other)
-                    domain = calc.domain
-                    v_rhs = decision.V(other)
-                    cons_name = rf"{self.calculation.aspect.name}{domain.idxname}_calc"
-
-                cons: C = v_lhs == other * v_rhs
-
-                # categorize the constraint
-                cons.categorize("Calculations")
-
-                setattr(
-                    self.program,
-                    cons_name,
-                    cons,
-                )
-                if not cons_name in calc.aspect.constraints:
-                    calc.aspect.constraints.append(cons_name)
-                domain.inform_indices(cons_name)
+            setattr(
+                self.program,
+                cons_name,
+                cons,
+            )
+            if not cons_name in calc.aspect.constraints:
+                calc.aspect.constraints.append(cons_name)
+            domain.inform_indices(cons_name)
 
     def __call__(self, *index) -> Self:
         return Calculate(
             calculation=self.calculation(*index),
-            sample=self.sample(*index),
+            f_of=self.sample(*index),
         )
