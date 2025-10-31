@@ -41,10 +41,9 @@ class Balance(_Hash):
     :vartype grb: dict[Commodity, dict[Location, dict[Periods, list[Aspect]]]]
     """
 
-    def __init__(self, aspect: Aspect, domain: Domain, label: str = ""):
+    def __init__(self, aspect: Aspect, domain: Domain):
         self.aspect = aspect
         self.domain = domain
-        self.label = label
 
         self._handshake()
 

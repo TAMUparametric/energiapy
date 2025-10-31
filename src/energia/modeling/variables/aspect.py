@@ -23,6 +23,9 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
+from ...utils.dictionary import merge_tree_levels
+from ..constraints.balance import Balance as BalCons
+from ..constraints.vmap import Map as MapCons
 from ..indices.domain import Domain
 from .sample import Sample
 
@@ -239,6 +242,25 @@ class Aspect:
         """Dispositions dict"""
         return self.model.dispositions[self]
 
+    @property
+    def sizes(self):
+        """dict of domain sizes"""
+        _sizes = {}
+        for d in self.domains:
+            if d.size in _sizes:
+                _sizes[d.size].append(d.index)
+            else:
+                _sizes[d.size] = [d.index]
+        return _sizes
+
+    @property
+    def box(self):
+        """Box of domain indices"""
+        return [b.index_short for b in self.domains]
+
+    def crumple_domains(self):
+        return merge_tree_levels(self.dispositions)
+
     def alias(self, *names: str):
         """
         Create aliases for the decision
@@ -363,7 +385,9 @@ class Aspect:
         if isinstance(other, Aspect):
             return self.name == other.name
 
-    def __call__(self, *index: _X, domain: Domain | None = None):
+    def __call__(
+        self, *index: _X, domain: Domain | None = None, report=False
+    ) -> Sample:
 
         if not domain:
 
@@ -441,7 +465,9 @@ class Aspect:
         else:
             timed = spaced = True
 
-        return Sample(aspect=self, domain=domain, timed=timed, spaced=spaced)
+        return Sample(
+            aspect=self, domain=domain, timed=timed, spaced=spaced, report=report
+        )
 
     def __str__(self):
         return self.name
@@ -460,3 +486,13 @@ class Aspect:
         """Iterate over domains"""
         for d in self.domains:
             yield self(domain=d)
+
+    def Map(self, domain: Domain, reporting: bool = False):
+        """Map the aspect to the domain"""
+
+        MapCons(aspect=self, domain=domain, reporting=reporting)
+
+    def Balance(self, domain: Domain):
+        """Add a general resource balance for the aspect over the domain"""
+
+        BalCons(aspect=self, domain=domain)

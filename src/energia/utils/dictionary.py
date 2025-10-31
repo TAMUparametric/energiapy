@@ -127,3 +127,52 @@ def compare(tree: dict, of):
             raise NotFoundError
         n *= compare(j, of)
     return n
+
+
+def dict_signature(d):
+    """Hashable signature of a dict for grouping."""
+    if not isinstance(d, dict):
+        return None
+    return tuple((k, dict_signature(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0])))
+
+
+def merge_tree_levels(d):
+    """
+    Convert nested dict to level-wise compact structure,
+    merging repeated keys at all levels.
+    """
+    if not isinstance(d, dict) or not d:
+        return []
+
+    # Group children by their structure signature
+    sig_to_keys = defaultdict(list)
+    for k, v in d.items():
+        sig_to_keys[dict_signature(v)].append((k, v))
+
+    current_level = []
+    next_levels = []
+
+    for sig, kv_list in sig_to_keys.items():
+        keys = [k for k, v in kv_list]
+        children = [v for k, v in kv_list]
+
+        # flatten singletons
+        current_level.append(keys if len(keys) > 1 else keys[0])
+
+        # recurse only once per identical children
+        child_levels = merge_tree_levels(children[0])
+        if child_levels:
+            next_levels.append(child_levels)
+
+    # merge next_levels by depth
+    merged_next_levels = []
+    for group in next_levels:
+        for i, lvl in enumerate(group):
+            if len(merged_next_levels) <= i:
+                merged_next_levels.append([])
+            # flatten duplicates at same level
+            for item in lvl:
+                if item not in merged_next_levels[i]:
+                    merged_next_levels[i].append(item)
+
+    return [current_level] + merged_next_levels

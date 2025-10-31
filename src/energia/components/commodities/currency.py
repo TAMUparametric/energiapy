@@ -5,6 +5,7 @@ from __future__ import annotations
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
+from ...modeling.parameters.conversion import Conversion
 from .commodity import Commodity
 
 if TYPE_CHECKING:
@@ -75,10 +76,16 @@ class Currency(Commodity):
         raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
 
     def __eq__(self, other):
+
         if isinstance(other, Currency):
+
+            if is_(self, other):
+                return True
             self.exchange[other] = 1.0
-        # assume it is a Conversion
-        else:
+            return False
+
+        elif isinstance(other, Conversion):
+
             currency = list(other.balance.keys())[0]
             rate = other.balance[currency]
 
@@ -98,3 +105,6 @@ class Currency(Commodity):
 
             # set the exchange rate of other against self
             currency.exchange[self] = 1 / rate
+            return True
+
+        return False

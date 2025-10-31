@@ -288,9 +288,7 @@ class Map:
                 ):
                     return False
             else:
-                print(from_domain.modes._)
                 for modes in from_domain.modes._:
-                    print('aaaa', modes)
                     if (
                         from_domain.change({"modes": modes})
                         in self.aspect.maps["modes"][to_domain]

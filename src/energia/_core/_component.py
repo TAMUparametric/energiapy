@@ -204,5 +204,7 @@ class _Component(_X):
         setattr(self.program, self.name, _index)
         return _index
 
-
-    
+    def __len__(self):
+        """Length of the component's index set"""
+        # always one
+        return 1

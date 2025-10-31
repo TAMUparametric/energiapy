@@ -75,6 +75,8 @@ class Sample:
         label: str = "",
         timed: bool = False,
         spaced: bool = False,
+        report: bool = False,
+        of: Self | None = None,
     ):
 
         # this is the aspect for which the constraint is being defined
@@ -96,7 +98,7 @@ class Sample:
         self.bound = self.aspect.bound
 
         # this is set if the aspect needs a reporting binary variable
-        self.report: bool = False
+        self.report = report
 
         # if incidental calculation is generated
         self.hasinc: bool = False
@@ -113,6 +115,9 @@ class Sample:
         # parameters
         self.parameter: P = None
         self.length: int = 0
+
+        # Deciding Sample
+        self.of = of
 
     @property
     def name(self) -> str:
@@ -213,6 +218,11 @@ class Sample:
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
         try:
             return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except AttributeError:
+            _ = self == True
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
         except KeyError:
             # the variable has not been defined yet
             lag = self.domain.lag
@@ -339,7 +349,8 @@ class Sample:
             )
             self._inform()
 
-        return getattr(self.program, self.aspect.name)(*self.I)
+        var = getattr(self.program, self.aspect.name)(*self.I)
+        return var
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
         """
@@ -478,7 +489,7 @@ class Sample:
         self.aspect.reporting = v_rpt
         return v_rpt(*self.I)
 
-    def obj(self, max: bool = False):
+    def obj(self, maximize: bool = False):
         """
         Set the sample itself as the objective
 
@@ -510,21 +521,21 @@ class Sample:
             else:
                 _obj += sigma(v_inc)
 
-        if max:
+        if maximize:
             setattr(self.program, f"max{self.aspect.name})", sup(_obj))
         else:
             setattr(self.program, f"min({self.aspect.name})", inf(_obj))
 
         self.program.renumber()
 
-    def opt(self, max: bool = False):
+    def opt(self, maximize: bool = False):
         """
         Optimize
 
         :param max: if maximization, defaults to False
         :type max: bool, optional
         """
-        self.obj(max)
+        self.obj(maximize)
         # optimize!
         self.program.opt()
 
@@ -533,7 +544,7 @@ class Sample:
         # TODO
         self.opt()
         bmin = self.program.obj()
-        self.opt(max=True)
+        self.opt(maximize=True)
         bmax = -self.program.obj()
         return (bmin, bmax)
 
@@ -581,7 +592,6 @@ class Sample:
         aspect = getattr(self.model, other)
         return aspect(self)
 
-
     def __le__(self, other):
 
         Bind(sample=self, parameter=other, leq=True, forall=self._forall)
@@ -605,7 +615,14 @@ class Sample:
             return False
 
         else:
-            Bind(sample=self, parameter=other, eq=True, forall=self._forall)
+
+            if self.domain.samples:
+                Calculate(
+                    calculation=self, sample=self.domain.samples[0], forall=self._forall
+                ) == other
+
+            else:
+                Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):
         logger.info(
@@ -620,11 +637,7 @@ class Sample:
         _ = self <= other
 
     def __call__(self, *index) -> Self:
-
-        index = list(set(self.domain.index_short + list(index)))
-        sample = self.aspect(*index)
-        sample.report = self.report
-        return sample
+        return self.aspect(*{*self.domain.index_short, *index}, report=self.report)
 
     def __getitem__(self, dependent: Sample):
         if isinstance(dependent, int):
@@ -727,7 +740,7 @@ class FuncOfSamples:
         setattr(self.program, f"ge_{self.F.name}", func)
         return func
 
-    def opt(self, max=False):
+    def opt(self, maximize=False):
         """Optimize the function
 
         :param max: if maximization, defaults to False

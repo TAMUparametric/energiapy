@@ -1,6 +1,10 @@
 import pytest
 
-from energia.library.examples.energy import design_scheduling, design_scheduling_w_attrs
+from energia.library.examples.energy import (
+    design_scheduling,
+    design_scheduling_w_attrs,
+    design_scheduling_w_funcs,
+)
 
 
 @pytest.fixture
@@ -9,13 +13,15 @@ def model(request):
         _m = design_scheduling()
     elif request.param == "attrs":
         _m = design_scheduling_w_attrs()
+    elif request.param == "funcs":
+        _m = design_scheduling_w_funcs()
     else:
         raise ValueError(f"Unknown model type: {request.param}")
     _m.usd.spend.opt()
     return _m
 
 
-@pytest.mark.parametrize("model", ["plain", "attrs"], indirect=True)
+@pytest.mark.parametrize("model", ["plain", "attrs", "funcs"], indirect=True)
 def test_small_1L_mT_mO_MILP(model):
     m = model
     assert m.storages == [m.lii]
