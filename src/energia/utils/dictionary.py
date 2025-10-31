@@ -133,7 +133,9 @@ def dict_signature(d):
     """Hashable signature of a dict for grouping."""
     if not isinstance(d, dict):
         return None
-    return tuple((k, dict_signature(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0])))
+    return tuple(
+        (k, dict_signature(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0]))
+    )
 
 
 def merge_tree_levels(d):

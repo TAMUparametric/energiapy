@@ -230,7 +230,7 @@ class Domain(_Hash):
     @property
     def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
-        return self.index_primary + self.index_binds
+        return self.index_primary + self.index_binds + self.index_modes
 
     @property
     def index_primary(
@@ -243,7 +243,7 @@ class Domain(_Hash):
         """
         return [self.primary] + [
             i
-            for i in [self.location, self.linkage, self.periods, self.lag, self.modes]
+            for i in [self.location, self.linkage, self.periods, self.lag]
             if i is not None
         ]
 
@@ -257,11 +257,16 @@ class Domain(_Hash):
         return [x for b in self.samples for x in (b.aspect, b.domain.primary)]
 
     @property
+    def index_modes(self) -> list[Modes]:
+        """Set of mode indices"""
+        return [self.modes] if self.modes else []
+
+    @property
     def index_short(
         self,
     ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample]:
         """Set of indices"""
-        return self.index_primary + self.samples
+        return self.index_primary + self.samples + self.index_modes
 
     @property
     def tree(self) -> dict:
@@ -270,13 +275,12 @@ class Domain(_Hash):
         tree = {}
         node = tree
 
-        index_root = (
-            self.index[: -2 * (len(self.samples))] if self.samples else self.index
-        )
-
-        for key in index_root:
+        for key in self.index_primary:
             node[key] = {}
             node = node[key]
+
+        # if self.modes:
+        #     node[self.modes] = {}
 
         if self.samples:
             for b in self.samples:
@@ -284,11 +288,44 @@ class Domain(_Hash):
                 node[b.aspect][b.domain.primary] = {}
                 node = node[b.aspect][b.domain.primary]
 
-        elif self.modes is None:
+        else:
+            if not self.modes:
+                node[None] = {}
+
+        if self.modes:
+            node[self.modes] = {}
+            node = node[self.modes]
+
+        if not self.samples and not self.modes:
             node[None] = {}
 
         return tree
 
+    # @property
+    # def tree(self) -> dict:
+    #     """Convert index into tree"""
+
+    #     tree = {}
+    #     node = tree
+
+    #     for key in self.index_primary:
+    #         node[key] = {}
+    #         node = node[key]
+
+    #     if self.modes:
+    #         node[self.modes] = {}
+    #         node = node[self.modes]
+
+    #     if self.samples:
+    #         for b in self.samples:
+    #             node[b.aspect] = {}
+    #             node[b.aspect][b.domain.primary] = {}
+    #             node = node[b.aspect][b.domain.primary]
+
+    #     if not self.samples and not self.modes:
+    #         node[None] = {}
+
+    #     return tree
 
     @property
     def aspects(self) -> list[Aspect]:

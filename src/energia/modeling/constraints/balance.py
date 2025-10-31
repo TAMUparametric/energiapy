@@ -72,9 +72,7 @@ class Balance(_Hash):
 
                 if lower_times:
                     _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
-                    return
-
-        # -initialize GRB for self.commodity if necessary -----
+                   
 
         if not self.existing_aspects:
             # this checks whether a general self.commodity balance has been defined
@@ -116,6 +114,11 @@ class Balance(_Hash):
     def sign(self) -> float:
         """Returns the aspect"""
         return self.aspect.sign
+
+    @property
+    def existing_aspects(self):
+        """Exisiting Aspects"""
+        return self.balances[self.commodity][self.space][self.time]
 
     @timer(logger, "balance-init")
     def _create_constraint(self, stored: bool) -> Domain:
@@ -249,7 +252,6 @@ class Balance(_Hash):
         self.commodity = self.domain.commodity
         self.samples = self.domain.samples
         self.time = self.domain.time
-        self.existing_aspects = self.balances[self.commodity][self.space][self.time]
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain
