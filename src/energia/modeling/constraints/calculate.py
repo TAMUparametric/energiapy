@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 from ...utils.math import normalize
@@ -60,8 +61,6 @@ class Calculate:
 
         self._handshake()
 
-        self.parameter = None
-
         # if nominal is provided
         # and multiplied by the nominal value
         self._nominal: float = None
@@ -72,6 +71,8 @@ class Calculate:
         """Borrow attributes from sample"""
         # borrowed from Sample
         self.model = self.sample.model
+        self.nominal = self.sample.nominal
+        self.norm = self.sample.norm
         self.domain = self.sample.domain
         self.name = self.sample.name
         self.program = self.sample.program
@@ -128,9 +129,35 @@ class Calculate:
 
         _ = self.of(modes)[self.sample(modes)] == list(self.parameter.values())
 
-    def __eq__(self, other):
+    @cached_property
+    def parameter(self):
+        """Parameter bound of the bind constraint"""
 
-        self.parameter = other
+        if self.nominal:
+            # if a nominal value for the self.parameter is passed
+            # this is essentially the expectation
+            # skipping an instance check here
+            # if a non iterable is passed, let an error be raised
+            if self.norm:
+                _parameter = normalize(self._parameter)
+
+            else:
+                _parameter = self._parameter
+
+            # if the sample needs to be normalized
+            _parameter = [
+                (
+                    (self.nominal * i[0], self.nominal * i[1])
+                    if isinstance(i, tuple)
+                    else self.nominal * i
+                )
+                for i in _parameter
+            ]
+            return _parameter
+
+        return self._parameter
+
+    def __eq__(self, other):
 
         if isinstance(other, dict):
 

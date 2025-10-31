@@ -76,7 +76,6 @@ class Sample:
         timed: bool = False,
         spaced: bool = False,
         report: bool = False,
-        of: Self | None = None,
     ):
 
         # this is the aspect for which the constraint is being defined
@@ -116,8 +115,12 @@ class Sample:
         self.parameter: P = None
         self.length: int = 0
 
-        # Deciding Sample
-        self.of = of
+    @property
+    def of(self) -> Self | None:
+        """Sample being calculated"""
+        if self.domain.samples:
+            return self.domain.samples[0]
+        return None
 
     @property
     def name(self) -> str:
@@ -615,14 +618,9 @@ class Sample:
             return False
 
         else:
-
-            if self.domain.samples:
-                Calculate(
-                    sample=self, of=self.domain.samples[0], forall=self._forall
-                ) == other
-
-            else:
-                Bind(sample=self, parameter=other, eq=True, forall=self._forall)
+            if self.of:
+                _ = self.of(*self.domain.index_primary[1:]) == True
+            Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):
         logger.info(
@@ -639,13 +637,13 @@ class Sample:
     def __call__(self, *index) -> Self:
         return self.aspect(*{*self.domain.index_short, *index}, report=self.report)
 
-    def __getitem__(self, of: Sample):
-        if isinstance(of, int):
-            f = self.F(self.F.index[of])
+    def __getitem__(self, calculate: Sample):
+        if isinstance(calculate, int):
+            f = self.F(self.F.index[calculate])
             f.report = self.report
             return f
 
-        sample = of(self)
+        sample = calculate(self)
         decision = self(*self.index_short)
         decision.report = self.report
 
