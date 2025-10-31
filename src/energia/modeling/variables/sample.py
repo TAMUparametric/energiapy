@@ -618,7 +618,7 @@ class Sample:
 
             if self.domain.samples:
                 Calculate(
-                    calculation=self, f_of=self.domain.samples[0], forall=self._forall
+                    sample=self, of=self.domain.samples[0], forall=self._forall
                 ) == other
 
             else:
@@ -639,17 +639,17 @@ class Sample:
     def __call__(self, *index) -> Self:
         return self.aspect(*{*self.domain.index_short, *index}, report=self.report)
 
-    def __getitem__(self, dependent: Sample):
-        if isinstance(dependent, int):
-            f = self.F(self.F.index[dependent])
+    def __getitem__(self, of: Sample):
+        if isinstance(of, int):
+            f = self.F(self.F.index[of])
             f.report = self.report
             return f
 
-        calculation = dependent(self)
+        sample = of(self)
         decision = self(*self.index_short)
         decision.report = self.report
 
-        return Calculate(calculation=calculation, f_of=decision)
+        return Calculate(sample=sample, of=decision)
 
     def draw(self, **kwargs):
         """Draws the variable"""

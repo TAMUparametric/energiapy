@@ -41,8 +41,8 @@ class Calculate:
 
     def __init__(
         self,
-        calculation: Sample,
-        f_of: Sample,
+        sample: Sample,
+        of: Sample,
         parameter: (
             float
             | list[float]
@@ -53,8 +53,8 @@ class Calculate:
         forall: list[_X] = None,
         parameter_name: str = "",
     ):
-        self.calculation = calculation
-        self.sample = f_of
+        self.sample = sample
+        self.of = of
         self._parameter, self.parameter_name = parameter, parameter_name
         self._forall = forall or []
 
@@ -71,11 +71,11 @@ class Calculate:
     def _handshake(self):
         """Borrow attributes from sample"""
         # borrowed from Sample
-        self.model = self.calculation.model
-        self.domain = self.calculation.domain
-        self.name = self.calculation.name
-        self.program = self.calculation.program
-        self.index = self.calculation.index
+        self.model = self.sample.model
+        self.domain = self.sample.domain
+        self.name = self.sample.name
+        self.program = self.sample.program
+        self.index = self.sample.index
 
     def forall(self, index: list[_X]) -> Self:
         """
@@ -120,13 +120,13 @@ class Calculate:
         # *3-5. spend(bin0) = 5000*capacity(bin0); spend(bin1) = 4000*capacity(bin1); spend(bin2) = 3000*capacity(bin2)
         # *6. spend = spend(bin0) + spend(bin1) + spend(bin2)
         # this takes care of *1 and *2
-        _ = self.sample == dict(enumerate(self.parameter))
+        _ = self.of == dict(enumerate(self.parameter))
         # this takes care of *3-*6
 
         # the new modes object would have just been added to the model
         modes = self.model.modes[-1]
 
-        _ = self.sample(modes)[self.calculation(modes)] == list(self.parameter.values())
+        _ = self.of(modes)[self.sample(modes)] == list(self.parameter.values())
 
     def __eq__(self, other):
 
@@ -164,9 +164,9 @@ class Calculate:
         else:
             time = None
 
-        if self.sample.aspect not in self.model.dispositions:
+        if self.of.aspect not in self.model.dispositions:
             # if a calculation is given directly, without an explicit bound being set
-            _ = self.sample == True
+            _ = self.of == True
 
         if self._forall:
             if isinstance(other, list):
@@ -181,29 +181,29 @@ class Calculate:
         else:
             # the aspect being calculated
             if time:
-                calc: Sample = self.calculation(time)
+                calc: Sample = self.sample(time)
             else:
-                calc: Sample = self.calculation
+                calc: Sample = self.sample
 
-            if self.sample.domain.modes:
+            if self.of.domain.modes:
                 # mode calculations, should map to modes
-                calc = calc(self.sample.domain.modes)
+                calc = calc(self.of.domain.modes)
 
             # the aspect the calculation is dependent on
-            decision: Sample = self.sample
-            if self.sample.report:
+            decision: Sample = self.of
+            if self.of.report:
                 # incidental, v_inc_calc = P_inc*x_v
                 v_lhs = calc.Vinc(other)
                 domain = calc.domain
                 v_rhs = decision.X(other)
-                cons_name = rf"{self.calculation.aspect.name}_inc{domain.idxname}_calc"
+                cons_name = rf"{self.sample.aspect.name}_inc{domain.idxname}_calc"
 
             else:
                 # v_calc = P*v
                 v_lhs = calc.V(other)
                 domain = calc.domain
                 v_rhs = decision.V(other)
-                cons_name = rf"{self.calculation.aspect.name}{domain.idxname}_calc"
+                cons_name = rf"{self.sample.aspect.name}{domain.idxname}_calc"
 
             cons: C = v_lhs == other * v_rhs
 
@@ -221,6 +221,6 @@ class Calculate:
 
     def __call__(self, *index) -> Self:
         return Calculate(
-            calculation=self.calculation(*index),
-            f_of=self.sample(*index),
+            sample=self.sample(*index),
+            of=self.of(*index),
         )
