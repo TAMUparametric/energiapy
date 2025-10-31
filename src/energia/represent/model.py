@@ -46,6 +46,7 @@ from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
+from .ations.scenario import Scenario
 
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)
@@ -235,8 +236,11 @@ class Model:
         self.graph = Graph(self)
         # * 2. Problem at hand
         self.problem = Problem(self)
-        # * 3 mathematical Program of mpMINLP subclass
+        # * 3 Mathematical Program of mpMINLP subclass
         self.program = Program(model=self)
+        # * 4 Scenario, the parameter set or uncertainty realization
+        self.scenario = Scenario(model=self)
+
         # shorthand
         self._ = self.program
 
