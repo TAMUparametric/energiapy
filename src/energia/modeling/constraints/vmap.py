@@ -161,11 +161,10 @@ class Map:
                 # there has to be a way to avoid this
                 # I make a list  of bounds as such [aspect(component), aspect(component), ...]
                 samples = [
-                    aspect(component) if callable(aspect) else aspect
+                    aspect(component)
                     for aspect, comp_dict in binds_dict.items()
                     for component in comp_dict
                 ]
-                print(samples)
                 from_domain = self.domain.copy()
                 from_domain.periods, from_domain.samples = dp, samples
                 self.write(from_domain, self.domain, tsum=True)
@@ -289,9 +288,7 @@ class Map:
                 ):
                     return False
             else:
-                print(from_domain.modes._)
                 for modes in from_domain.modes._:
-                    print('aaaa', modes)
                     if (
                         from_domain.change({"modes": modes})
                         in self.aspect.maps["modes"][to_domain]

@@ -269,6 +269,7 @@ class Domain(_Hash):
 
         tree = {}
         node = tree
+
         index_root = (
             self.index[: -2 * (len(self.samples))] if self.samples else self.index
         )
@@ -276,19 +277,39 @@ class Domain(_Hash):
         for key in index_root:
             node[key] = {}
             node = node[key]
-
-        if self.samples:
-
-            for b in self.samples:
-                node[b.aspect] = {}
-                node[b.aspect][b.domain.primary] = {}
-                # step up a level
-                node = node[b.aspect][b.domain.primary]
-
-        else:
-            node[None] = {}
+        for b in self.samples:
+            node[b.aspect] = {}
+            node[b.aspect][b.domain.primary] = {}
+            node = node[b.aspect][b.domain.primary]
 
         return tree
+
+    # @property
+    # def tree(self) -> dict:
+    #     """Convert index into tree"""
+
+    #     tree = {}
+    #     node = tree
+    #     index_root = (
+    #         self.index[: -2 * (len(self.samples))] if self.samples else self.index
+    #     )
+
+    #     for key in index_root:
+    #         node[key] = {}
+    #         node = node[key]
+
+    #     if self.samples:
+
+    #         for b in self.samples:
+    #             node[b.aspect] = {}
+    #             node[b.aspect][b.domain.primary] = {}
+    #             # step up a level
+    #             node = node[b.aspect][b.domain.primary]
+
+    #     else:
+    #         node[None] = {}
+
+    #     return tree
 
     @property
     def aspects(self) -> list[Aspect]:

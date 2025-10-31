@@ -220,7 +220,6 @@ class Sample:
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
         except AttributeError:
-            print(self)
             _ = self == True
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
