@@ -165,13 +165,15 @@ class Bind:
         # .X(), .Vb() need time and space
         return self.sample.V(self.parameter)
 
-    @cached_property
+    @property
     def rhs(self) -> V | F | P:
         """Right hand side of the bind constraint"""
         if self.of:
             # if the dependent variable is not set, creates issues.
             # ------if a calculation is being done
-            return self.parameter * self.of.V(self.parameter)
+            return self.parameter * self.of(*self.domain.index_spatiotemporal).V(
+                self.parameter
+            )
 
         if self.aspect.bound:
             # ------if variable bound

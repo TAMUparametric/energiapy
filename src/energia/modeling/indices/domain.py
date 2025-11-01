@@ -248,6 +248,15 @@ class Domain(_Hash):
         ]
 
     @property
+    def index_spatiotemporal(self) -> list[Aspect | _X]:
+        """List of indices with modes
+
+        :returns: list of indices with modes
+        :rtype: list[X]
+        """
+        return self.index_primary[1:] + self.index_modes
+
+    @property
     def index_binds(self) -> list[Aspect | _X]:
         """List of bind indices
 

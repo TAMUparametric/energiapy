@@ -649,7 +649,8 @@ class Sample:
         # decision = self(*self.index_short)
         # decision.report = self.report
         # sample = calculate(decision)
-        return calculate(self)
+        return calculate(self(), *self.domain.index_spatiotemporal)
+
         # return Calculate(sample=sample, of=decision)
 
     def draw(self, **kwargs):
