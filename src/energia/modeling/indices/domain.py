@@ -309,6 +309,8 @@ class Domain(_Hash):
             node[None] = {}
 
         return tree
+    
+    
 
     # @property
     # def tree(self) -> dict:

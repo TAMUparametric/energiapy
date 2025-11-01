@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..._core._hash import _Hash
+from ...utils.dictionary import merge_trees
 
 if TYPE_CHECKING:
     from ..modeling.indices.domain import Domain
@@ -27,11 +28,16 @@ class Scenario(_Hash):
 
         # Calculations
         self.calcs = {}
+        # incidental calculations
+        self.inc_calcs = {}
 
-    def _update(
+    def update(
         self,
-        sample: Sample,
         domain: Domain,
-        tree: dict,
+        rel: str,
+        parameter: Sample,
     ):
         """Update the scenario representation"""
+
+        if rel == 'ub':
+            self.ubs = merge_trees(self.ubs, domain.tree)
