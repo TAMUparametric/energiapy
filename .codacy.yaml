@@ -2,5 +2,5 @@ engines:
   python:
     enabled: true
 
-ignore:
+exclude_paths:
   - "tests/**"
