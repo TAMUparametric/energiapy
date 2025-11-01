@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ...components.temporal.periods import Periods
+    from ...modeling.indices.sample import Sample
     from ...modeling.variables.aspect import Aspect
-    from ...modeling.variables.sample import Sample
     from ..spatial.location import Location
 
 

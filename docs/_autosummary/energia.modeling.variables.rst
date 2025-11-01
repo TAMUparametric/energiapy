@@ -14,5 +14,4 @@ energia.modeling.variables
    control
    loss
    recipe
-   sample
    states

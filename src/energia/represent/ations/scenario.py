@@ -8,7 +8,7 @@ from ..._core._hash import _Hash
 from ...utils.dictionary import merge_trees
 
 if TYPE_CHECKING:
-    from ...modeling.variables.sample import Sample
+    from ...modeling.indices.sample import Sample
     from ...represent.model import Model
 
 

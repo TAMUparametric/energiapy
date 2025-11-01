@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 
     from ..._core._component import _Component
     from ..._core._x import _X
-    from ..indices.domain import Domain
     from ..variables.aspect import Aspect
+    from .domain import Domain
 
 
 # ------------------------------------------------------------------------------
@@ -617,7 +617,7 @@ class Sample:
             return False
 
         else:
-            if self.of:
+            if callable(self.of):
                 _ = self.of(*self.domain.index_primary[1:]) == True
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
@@ -633,7 +633,7 @@ class Sample:
         )
         _ = self <= other
 
-    def __call__(self, *index) -> Self:
+    def __call__(self, *index) -> Sample:
         return self.aspect(*{*self.domain.index_short, *index}, report=self.report)
 
     def __getitem__(self, calculate: Sample):

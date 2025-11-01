@@ -32,10 +32,11 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--main-font);
   font-weight: 1200;           /* Makes headings bold */
   color: #1a1a1a;
-  /* margin-top: 1em; */
-  /* line-height: 1.2; */
   letter-spacing: -0.01em;
 }
+
+/* margin-top: 1em; */
+/* line-height: 1.2; */
 
 /* Optional: slightly different colors by level */
 h1 { color: #002e8a; }  /* Deep blue for main title */

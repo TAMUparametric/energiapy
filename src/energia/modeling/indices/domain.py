@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.aspect import Aspect
-    from ..variables.sample import Sample
+    from .sample import Sample
 
 
 @dataclass
@@ -94,7 +94,7 @@ class Domain(_Hash):
     modes: Modes | None = None
 
     # These can be summed over
-    samples: list[Sample] | None = field(default_factory=list)
+    samples: list[Sample] = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
@@ -273,7 +273,7 @@ class Domain(_Hash):
     @property
     def index_short(
         self,
-    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample | Modes]:
         """Set of indices"""
         return self.index_primary + self.samples + self.index_modes
 

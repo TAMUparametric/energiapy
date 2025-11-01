@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from ..._core._component import _Component
     from ..._core._x import _X
-    from ..variables.sample import Sample
+    from ..indices.sample import Sample
 
 
 class Bind:

@@ -27,7 +27,7 @@ from ...utils.dictionary import merge_tree_levels
 from ..constraints.balance import Balance as BalCons
 from ..constraints.vmap import Map as MapCons
 from ..indices.domain import Domain
-from .sample import Sample
+from ..indices.sample import Sample
 
 if TYPE_CHECKING:
     from gana import I as Idx
@@ -338,7 +338,7 @@ class Aspect:
         else:
             rc("font", **{"size": font_size})
 
-        fig, ax = plt.subplots(figsize=fig_size)
+        _, ax = plt.subplots(figsize=fig_size)
 
         if not z:
             ax.plot(

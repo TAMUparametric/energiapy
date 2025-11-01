@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ...components.spatial.location import Location
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
-    from ..variables.sample import Sample
+    from ..indices.sample import Sample
 
 
 class Conversion(Mapping, _Hash):

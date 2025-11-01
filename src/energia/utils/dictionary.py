@@ -154,9 +154,9 @@ def merge_tree_levels(d):
     current_level = []
     next_levels = []
 
-    for sig, kv_list in sig_to_keys.items():
-        keys = [k for k, v in kv_list]
-        children = [v for k, v in kv_list]
+    for _, kv_list in sig_to_keys.items():
+        keys = [k for k, _ in kv_list]
+        children = [v for _, v in kv_list]
 
         # flatten singletons
         current_level.append(keys if len(keys) > 1 else keys[0])

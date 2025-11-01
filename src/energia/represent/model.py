@@ -65,8 +65,8 @@ if TYPE_CHECKING:
     from .._core._component import _Component
     from ..components.commodities.commodity import Commodity
     from ..modeling.indices.domain import Domain
+    from ..modeling.indices.sample import Sample
     from ..modeling.variables.aspect import Aspect
-    from ..modeling.variables.sample import Sample
 
     BalanceType = DefaultDict[
         Commodity,

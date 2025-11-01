@@ -70,4 +70,4 @@ class Control(Aspect):
         """Add a domain to the decision variable"""
 
         # Write a mapping constraint
-        Map(aspect=self, domain=domain, reporting=reporting)
+        self.Map(domain=domain, reporting=reporting)
