@@ -11,3 +11,4 @@ energia.modeling.indices
    :recursive:
 
    domain
+   sample

@@ -15,5 +15,6 @@ energia.components.commodities.currency
    .. autosummary::
    
       Commodity
+      Conversion
       Currency
    

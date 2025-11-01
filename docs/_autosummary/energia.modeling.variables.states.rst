@@ -15,13 +15,11 @@ energia.modeling.variables.states
    .. autosummary::
    
       Aspect
-      Balance
       Consequence
       EndoStream
       ExoStream
       IndStream
       Inventory
-      Map
       SetPoint
       Size
       State

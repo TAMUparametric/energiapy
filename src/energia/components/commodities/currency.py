@@ -10,7 +10,6 @@ from .commodity import Commodity
 
 if TYPE_CHECKING:
     from ...components.spatial.location import Location
-    from ..measure.unit import Unit
 
 
 class Currency(Commodity):

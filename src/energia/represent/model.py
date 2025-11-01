@@ -46,6 +46,7 @@ from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
+from .ations.scenario import Scenario
 
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)
@@ -64,8 +65,8 @@ if TYPE_CHECKING:
     from .._core._component import _Component
     from ..components.commodities.commodity import Commodity
     from ..modeling.indices.domain import Domain
+    from ..modeling.indices.sample import Sample
     from ..modeling.variables.aspect import Aspect
-    from ..modeling.variables.sample import Sample
 
     BalanceType = DefaultDict[
         Commodity,
@@ -232,11 +233,14 @@ class Model:
 
         # * II Representations
         # * 1. Graph with Edges and Nodes
-        self.graph = Graph(self)
+        self.graphs = [Graph(self)]
         # * 2. Problem at hand
-        self.problem = Problem(self)
-        # * 3 mathematical Program of mpMINLP subclass
-        self.program = Program(model=self)
+        self.problems = [Problem(self)]
+        # * 3 Mathematical Program of mpMINLP subclass
+        self.programs = [Program(model=self)]
+        # * 4 Scenario, the parameter set or uncertainty realization
+        self.scenarios = [Scenario(model=self)]
+
         # shorthand
         self._ = self.program
 
@@ -413,6 +417,29 @@ class Model:
 
         for func in self.init:
             func(self)
+
+    # -------------------------------------------------------------------
+    # * Active Representation
+    # -------------------------------------------------------------------
+    @property
+    def problem(self) -> Problem:
+        """The active problem"""
+        return self.problems[-1]
+
+    @property
+    def graph(self) -> Graph:
+        """The active graph"""
+        return self.graphs[-1]
+
+    @property
+    def program(self) -> Program:
+        """The active program"""
+        return self.programs[-1]
+
+    @property
+    def scenario(self) -> Scenario:
+        """The active scenario"""
+        return self.scenarios[-1]
 
     # -------------------------------------------------------------------
     # * Onboard Component and Send to Family

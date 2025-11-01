@@ -1,27 +1,26 @@
 import pytest
-from pytest import approx
 
-from energia.library.examples.energy import design_scheduling_materials
+from energia.library.examples.energy import design_scheduling_material_modes
 
 
 @pytest.fixture
 def m():
-    _m = design_scheduling_materials()
+    _m = design_scheduling_material_modes()
     _m.usd.spend.opt()
     _m.gwp.emit.opt()
     return _m
 
 
-def _wrap_with_approx(expected, rel=1e-6, abs=1e-9):
+def _wrap_with_approx(expected, rel=1e-6, _abs=1e-9):
     """
     Recursively wrap lists/floats in pytest.approx.
     """
     if isinstance(expected, dict):
-        return {k: _wrap_with_approx(v, rel, abs) for k, v in expected.items()}
+        return {k: _wrap_with_approx(v, rel, _abs) for k, v in expected.items()}
     elif isinstance(expected, (list, tuple)):
-        return approx(expected, rel=rel, abs=abs)
+        return pytest.approx(expected, rel=rel, abs=_abs)
     elif isinstance(expected, (int, float)):
-        return approx(expected, rel=rel, abs=abs)
+        return pytest.approx(expected, rel=rel, abs=_abs)
     else:
         return expected
 

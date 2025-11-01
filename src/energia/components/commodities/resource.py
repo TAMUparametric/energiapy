@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..impact.categories import Environ
-from .commodity import Commodity
+from energia.components.commodities.commodity import Commodity
+from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
-    from ...modeling.constraints.calculate import Calculate
+    from ...modeling.indices.sample import Sample
     from ..measure.unit import Unit
 
 
@@ -61,7 +61,7 @@ class Resource(Commodity):
         self.inv_of: Resource | None = None
 
     @property
-    def gwp(self) -> Calculate:
+    def gwp(self) -> Sample:
         """Global Warming Potential"""
         if not hasattr(self.model, "GWP"):
             self.model.GWP = Environ(label="Global Warming Potential (kg CO2)")
@@ -69,7 +69,7 @@ class Resource(Commodity):
         return self.consume[self.model.GWP.emit]
 
     @property
-    def htp(self) -> Calculate:
+    def htp(self) -> Sample:
         """Human Toxicity Potential"""
         if not hasattr(self.model, "HTP"):
             self.model.HTP = Environ(label="Human Toxicity Potential (kg 1,4-DB eq.)")
@@ -77,7 +77,7 @@ class Resource(Commodity):
         return self.consume[self.model.HTP.emit]
 
     @property
-    def price(self) -> Calculate:
+    def price(self) -> Sample:
         """Cost of consume"""
         return self.consume[self.model._cash().spend]
 

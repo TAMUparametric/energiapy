@@ -14,8 +14,8 @@ from ...utils.decorators import timer
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from ...modeling.indices.sample import Sample
     from ...modeling.variables.aspect import Aspect
-    from ...modeling.variables.sample import Sample
     from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
     from ..spatial.location import Location

@@ -133,7 +133,9 @@ def dict_signature(d):
     """Hashable signature of a dict for grouping."""
     if not isinstance(d, dict):
         return None
-    return tuple((k, dict_signature(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0])))
+    return tuple(
+        (k, dict_signature(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0]))
+    )
 
 
 def merge_tree_levels(d):
@@ -152,9 +154,9 @@ def merge_tree_levels(d):
     current_level = []
     next_levels = []
 
-    for sig, kv_list in sig_to_keys.items():
-        keys = [k for k, v in kv_list]
-        children = [v for k, v in kv_list]
+    for _, kv_list in sig_to_keys.items():
+        keys = [k for k, _ in kv_list]
+        children = [v for _, v in kv_list]
 
         # flatten singletons
         current_level.append(keys if len(keys) > 1 else keys[0])

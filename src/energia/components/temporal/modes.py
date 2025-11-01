@@ -12,7 +12,7 @@ from ..._core._x import _X
 if TYPE_CHECKING:
     from gana.sets.constraint import C
 
-    from ...modeling.variables.sample import Sample
+    from ...modeling.indices.sample import Sample
 
 
 class Modes(_X):

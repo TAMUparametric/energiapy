@@ -8,7 +8,6 @@ from ..._core._component import _Component
 
 if TYPE_CHECKING:
     from ...dimensions.impact import Impact
-    from ..measure.unit import Unit
 
 
 class Indicator(_Component):

@@ -95,7 +95,7 @@ Installing Energia
 ------------------
 
 Energia supports the standard pip installation. 
-This will populate your activated environment with Energia and its dependencies.
+This will populate your activated environment with Energia and its dependencies:
 
 .. code-block:: bash
 
@@ -103,6 +103,13 @@ This will populate your activated environment with Energia and its dependencies.
 
 
 Once installed, you may need to restart your environment (or terminal). 
+
+
+To install the most updated, albeit sometimes unstable, version from git, use:
+
+.. code-block:: bash
+
+    pip install git+https://github.com/TAMUparametric/energiapy.git
 
 
 .. _ides:

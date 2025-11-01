@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..variables.aspect import Aspect
-    from ..variables.sample import Sample
+    from .sample import Sample
 
 
 @dataclass
@@ -94,7 +94,7 @@ class Domain(_Hash):
     modes: Modes | None = None
 
     # These can be summed over
-    samples: list[Sample] | None = field(default_factory=list)
+    samples: list[Sample] = field(default_factory=list)
 
     def __post_init__(self):
         # Domains are structured something like this:
@@ -230,7 +230,7 @@ class Domain(_Hash):
     @property
     def index(self) -> list[Aspect | _X]:
         """list of _Index elements"""
-        return self.index_primary + self.index_binds
+        return self.index_primary + self.index_binds + self.index_modes
 
     @property
     def index_primary(
@@ -243,9 +243,18 @@ class Domain(_Hash):
         """
         return [self.primary] + [
             i
-            for i in [self.location, self.linkage, self.periods, self.lag, self.modes]
+            for i in [self.location, self.linkage, self.periods, self.lag]
             if i is not None
         ]
+
+    @property
+    def index_spatiotemporal(self) -> list[Aspect | _X]:
+        """List of indices with modes
+
+        :returns: list of indices with modes
+        :rtype: list[X]
+        """
+        return self.index_primary[1:] + self.index_modes
 
     @property
     def index_binds(self) -> list[Aspect | _X]:
@@ -257,38 +266,39 @@ class Domain(_Hash):
         return [x for b in self.samples for x in (b.aspect, b.domain.primary)]
 
     @property
+    def index_modes(self) -> list[Modes]:
+        """Set of mode indices"""
+        return [self.modes] if self.modes else []
+
+    @property
     def index_short(
         self,
-    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample]:
+    ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample | Modes]:
         """Set of indices"""
-        return self.index_primary + self.samples
+        return self.index_primary + self.samples + self.index_modes
 
     @property
     def tree(self) -> dict:
         """Convert index into tree"""
-
         tree = {}
         node = tree
-
-        index_root = (
-            self.index[: -2 * (len(self.samples))] if self.samples else self.index
-        )
-
-        for key in index_root:
+        for key in self.index:
             node[key] = {}
             node = node[key]
-
-        if self.samples:
-            for b in self.samples:
-                node[b.aspect] = {}
-                node[b.aspect][b.domain.primary] = {}
-                node = node[b.aspect][b.domain.primary]
-
-        elif self.modes is None:
-            node[None] = {}
-
         return tree
 
+    def param_tree(self, parameter: float | list[float]) -> dict:
+        """Tree representation of the Domain"""
+        tree = {}
+        node = tree
+        n_last = len(self.index) - 1
+        for n, key in enumerate(self.index):
+            if n == n_last:
+                node[key] = parameter
+            else:
+                node[key] = {}
+                node = node[key]
+        return tree
 
     @property
     def aspects(self) -> list[Aspect]:

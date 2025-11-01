@@ -1,7 +1,7 @@
-energia.modeling.variables.sample
-=================================
+energia.modeling.indices.sample
+===============================
 
-.. automodule:: energia.modeling.variables.sample
+.. automodule:: energia.modeling.indices.sample
 
    
    .. rubric:: Functions
@@ -18,7 +18,6 @@ energia.modeling.variables.sample
    .. autosummary::
    
       Bind
-      Calculate
       FuncOfSamples
       Idx
       Sample

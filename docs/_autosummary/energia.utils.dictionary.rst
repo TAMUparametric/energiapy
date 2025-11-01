@@ -9,10 +9,12 @@ energia.utils.dictionary
    .. autosummary::
    
       compare
+      dict_signature
       dictify
       flatten
       get_depth
       is_
+      merge_tree_levels
       merge_trees
       tupler
    

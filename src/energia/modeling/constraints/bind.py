@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from ..._core._component import _Component
     from ..._core._x import _X
-    from ..variables.sample import Sample
+    from ..indices.sample import Sample
 
 
 class Bind:
@@ -85,7 +85,10 @@ class Bind:
 
         if isinstance(self._parameter, dict):
             # if a dict is passed, it is assumed to be mode bounds
-            self._write_w_modes()
+            if self.iscalc:
+                self._calc_w_modes()
+            else:
+                self._write_w_modes()
             return
 
         self.write()
@@ -149,7 +152,6 @@ class Bind:
                 for i in _parameter
             ]
             return _parameter
-
         return self._parameter
 
     @cached_property
@@ -162,9 +164,15 @@ class Bind:
         # .X(), .Vb() need time and space
         return self.sample.V(self.parameter)
 
-    @cached_property
+    @property
     def rhs(self) -> V | F | P:
         """Right hand side of the bind constraint"""
+        if self.of:
+            # if the dependent variable is not set, creates issues.
+            # ------if a calculation is being done
+            return self.parameter * self.of(*self.domain.index_spatiotemporal).V(
+                self.parameter
+            )
 
         if self.aspect.bound:
             # ------if variable bound
@@ -189,10 +197,13 @@ class Bind:
     @cached_property
     def rel(self):
         """Constraint name suffix"""
-
         if self.leq:
             return "ub"
         elif self.eq:
+            if self.of is not None:
+                if self.report:
+                    return "inc_calc"
+                return "calc"
             return "eq"
         elif self.geq:
             return "lb"
@@ -200,8 +211,12 @@ class Bind:
     @cached_property
     def cons_name(self):
         """Constraint name"""
-
         return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
+
+    @property
+    def iscalc(self) -> bool:
+        """Is this a calculation bind constraint?"""
+        return self.of is not None
 
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set"""
@@ -226,9 +241,31 @@ class Bind:
             if self.eq:
                 _ = lhs == rhs
 
+    def _calc_w_modes(self):
+        """Write with modes"""
+        # if this is a dict, piece wise linear functions are being passed
+        # Take the example of expenditure and capacity being modeled
+        # sat the input is {(0, 200): 5000, (200, 300): 4000, (300, 400): 3000
+        # what this implies is that for the capacity between 0 and 200, the expenditure is 5000
+        # for the capacity between 200 and 300, the expenditure is 4000
+        # for the capacity between 300 and 400, the expenditure is 3000
+        # Modes objects index the bin. Three in this case : 1 - (0,200), 2 - (200,300), 3 - (300,400)
+        # We need the following equations:
+        # *1. capacity = capacity(bin0) + capacity(bin1) + capacity(bin2)
+        # *2. x_capacity = 0*capacity(bin0) + 200*capacity(bin1) + 300*capacity(bin2), where is a reporting binary
+        # *3-5. spend(bin0) = 5000*capacity(bin0); spend(bin1) = 4000*capacity(bin1); spend(bin2) = 3000*capacity(bin2)
+        # *6. spend = spend(bin0) + spend(bin1) + spend(bin2)
+        # this takes care of *1 and *2
+        _ = self.of == dict(enumerate(self.parameter))
+        # this takes care of *3-*6
+
+        # the new modes object would have just been added to the model
+        modes = self.model.modes[-1]
+
+        _ = self.of(modes)[self.sample(modes)] == list(self.parameter.values())
+
     def _write_w_modes(self):
         """Writes the bind constraint with modes"""
-
         # create modes
         self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
 
@@ -246,21 +283,25 @@ class Bind:
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
-        if (
-            (self.domain.space, self.domain.time)
-            in self.aspect.bound_spaces[self.domain.primary][self.rel]
-        ) and not self.domain.modes:
-            return True
+        if not self.iscalc:
+            if (
+                (self.domain.space, self.domain.time)
+                in self.aspect.bound_spaces[self.domain.primary][self.rel]
+            ) and not self.domain.modes:
+                return True
 
-        self.aspect.bound_spaces[self.domain.primary][self.rel].append(
-            (self.domain.space, self.domain.time)
-        )
+            self.aspect.bound_spaces[self.domain.primary][self.rel].append(
+                (self.domain.space, self.domain.time)
+            )
+        return False
 
     def _inform(self):
         """Informs the aspect and domain about the bind constraint"""
 
         # categorize the constraint
-        if self.domain.modes:
+        if self.iscalc:
+            self.cons.categorize("Calculations")
+        elif self.domain.modes:
             self.cons.categorize("Piecewise Linear")
         else:
             self.cons.categorize("Binds")
@@ -273,6 +314,8 @@ class Bind:
         # a constraint with this name contains it
         self.domain.inform_indices(self.cons_name)
 
+        self.model.scenario.update(self.sample, self.rel, self.parameter)
+
     def _handshake(self):
         """Borrow attributes from sample"""
         # borrowed from Sample
@@ -283,3 +326,4 @@ class Bind:
         self.aspect = self.sample.aspect
         self.report = self.sample.report
         self.program = self.sample.program
+        self.of = self.sample.of

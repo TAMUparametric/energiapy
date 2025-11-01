@@ -12,5 +12,4 @@ energia.modeling.constraints
 
    balance
    bind
-   calculate
    vmap

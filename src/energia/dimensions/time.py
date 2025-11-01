@@ -1,20 +1,13 @@
 """Time"""
 
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
-from functools import cached_property
-from typing import TYPE_CHECKING
 
 from .._core._dimension import _Dimension
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 
 logger = logging.getLogger("energia")
-
-if TYPE_CHECKING:
-    from gana import Prg
 
 
 @dataclass
@@ -59,7 +52,6 @@ class Time(_Dimension):
     def sorted_periods(self) -> list[Periods]:
         """Sorted periods from densest to sparsest"""
         return sorted(self.periods)
-    
 
     # -----------------------------------------------------
     #                    Superlatives

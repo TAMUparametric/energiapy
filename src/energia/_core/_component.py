@@ -10,13 +10,12 @@ from gana import I
 from ._x import _X
 
 if TYPE_CHECKING:
-    from ..components.measure.unit import Unit
     from ..components.spatial.location import Location
     from ..components.temporal.periods import Periods
     from ..dimensions.problem import Problem
     from ..dimensions.space import Space
     from ..dimensions.time import Time
-    from ..modeling.variables.sample import Sample
+    from ..modeling.indices.sample import Sample
     from ..represent.model import Model
 
 
@@ -87,53 +86,49 @@ class _Component(_X):
         # the aspects of all other components
         return self.model.problem
 
+    def _handle_norm(self, aspect: str, sample: Sample) -> Sample:
+        """Check if a nominal parameter is set for the aspect"""
+        # check if a request to normalize has been made
+        nominal = aspect + "_nominal"
+        nom = aspect + "_nom"
+        normalize = aspect + "_normalize"
+        norm = aspect + "_norm"
+
+        if normalize in self.parameters or norm in self.parameters:
+            _normalize = self.parameters.get(normalize, self.parameters.get(norm))
+        else:
+            # default behavior is to normalize
+            _normalize = False
+
+        # irrespective of normalize request, check if nominal value set
+        if nominal in self.parameters or nom in self.parameters:
+            # if nominal is given, normalize to it
+            return sample.prep(self.parameters[nominal], True)
+
+        if _normalize:
+            # if _normalize is True but no nominal provided
+            return sample.prep(norm=True)
+
+        return sample
+
+    def _handle_x(self, aspect: str, sample: Sample) -> Sample:
+        """Check if aspect is optional"""
+
+        if (
+            aspect + '_optional' in self.parameters
+            and self.parameters[aspect + '_optional']
+        ):
+            return sample.x
+        if (
+            aspect + '_report' in self.parameters
+            and self.parameters[aspect + '_report']
+        ):
+            return sample.x
+
+        return sample
+
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
-
-        def _handle_norm(aspect: str, sample: Sample) -> Sample:
-            """Check if a nominal parameter is set for the aspect"""
-            # check if a request to normalize has been made
-            nominal = aspect + "_nominal"
-            nom = aspect + "_nom"
-            normalize = aspect + "_normalize"
-            norm = aspect + "_norm"
-
-            if normalize in self.parameters or norm in self.parameters:
-                _normalize = self.parameters.get(normalize, self.parameters.get(norm))
-            else:
-                # default behavior is to normalize
-                _normalize = False
-
-            # irrespective of normalize request, check if nominal value set
-            if nominal in self.parameters or nom in self.parameters:
-                # if nominal is given, normalize to it
-                return sample.prep(self.parameters[nominal], True)
-
-            if _normalize:
-                # if _normalize is True but no nominal provided
-                return sample.prep(norm=True)
-
-            return sample
-
-        def _handle_x(aspect: str, sample: Sample) -> Sample:
-            """Check if aspect is optional"""
-
-            if (
-                aspect + '_optional' in self.parameters
-                and self.parameters[aspect + '_optional']
-            ):
-                return sample.x
-            if (
-                aspect + '_report' in self.parameters
-                and self.parameters[aspect + '_report']
-            ):
-                return sample.x
-
-            return sample
-
-        # def _handle(aspect: str, sample: Sample) -> Sample:
-        #     """Handle both nominal and optional"""
-        #     return _handle_x(aspect, _handle_norm(aspect, sample))
 
         # this handles the parameters being set on init
         if name == "model" and value is not None:
@@ -160,10 +155,12 @@ class _Component(_X):
                     sample = getattr(self, aspect)
 
                     if isinstance(param, list):
-                        sample = _handle_x(aspect, _handle_norm(aspect, sample))
+                        sample = self._handle_x(
+                            aspect, self._handle_norm(aspect, sample)
+                        )
 
                     else:
-                        sample = _handle_x(aspect, sample)
+                        sample = self._handle_x(aspect, sample)
 
                     if len(split_attr) == 1:
                         # if split returned just the aspect name

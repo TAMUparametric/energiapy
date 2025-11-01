@@ -1,13 +1,6 @@
 """Impact Indicator Categories"""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from .indicator import Indicator
-
-if TYPE_CHECKING:
-    from ..measure.unit import Unit
 
 
 class Environ(Indicator):
