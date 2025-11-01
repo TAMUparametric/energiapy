@@ -230,7 +230,7 @@ class Periods(_X):
 
     def __gt__(self, other: Self):
         if isinstance(other, Periods):
-            return self.time.horizon.howmany(self) < self.time.horizon.howmany(other)
+            return self.time.horizon.howmany(self) < self.time.horizon.howmany(other)    
         raise NotImplementedError
 
     def __le__(self, other: Self):

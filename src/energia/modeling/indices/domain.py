@@ -280,63 +280,25 @@ class Domain(_Hash):
     @property
     def tree(self) -> dict:
         """Convert index into tree"""
-
         tree = {}
         node = tree
-
-        for key in self.index_primary:
+        for key in self.index:
             node[key] = {}
             node = node[key]
-
-        # if self.modes:
-        #     node[self.modes] = {}
-
-        if self.samples:
-            for b in self.samples:
-                node[b.aspect] = {}
-                node[b.aspect][b.domain.primary] = {}
-                node = node[b.aspect][b.domain.primary]
-
-        else:
-            if not self.modes:
-                node[None] = {}
-
-        if self.modes:
-            node[self.modes] = {}
-            node = node[self.modes]
-
-        if not self.samples and not self.modes:
-            node[None] = {}
-
         return tree
-    
-    
 
-    # @property
-    # def tree(self) -> dict:
-    #     """Convert index into tree"""
-
-    #     tree = {}
-    #     node = tree
-
-    #     for key in self.index_primary:
-    #         node[key] = {}
-    #         node = node[key]
-
-    #     if self.modes:
-    #         node[self.modes] = {}
-    #         node = node[self.modes]
-
-    #     if self.samples:
-    #         for b in self.samples:
-    #             node[b.aspect] = {}
-    #             node[b.aspect][b.domain.primary] = {}
-    #             node = node[b.aspect][b.domain.primary]
-
-    #     if not self.samples and not self.modes:
-    #         node[None] = {}
-
-    #     return tree
+    def param_tree(self, parameter: float | list[float]) -> dict:
+        """Tree representation of the Domain"""
+        tree = {}
+        node = tree
+        n_last = len(self.index) - 1
+        for n, key in enumerate(self.index):
+            if n == n_last:
+                node[key] = parameter
+            else:
+                node[key] = {}
+                node = node[key]
+        return tree
 
     @property
     def aspects(self) -> list[Aspect]:
