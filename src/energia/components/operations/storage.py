@@ -7,7 +7,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
-from ...modeling.constraints.calculate import Calculate
 from ...modeling.parameters.conversion import Conversion
 from ...utils.decorators import timer
 from ..commodities.resource import Resource
@@ -169,7 +168,7 @@ class Storage(_Component):
         return self.discharge.production.basis
 
     @property
-    def storage_cost(self) -> Calculate:
+    def storage_cost(self) -> Sample:
         """Cost of storing the resource"""
         return self.inventory[self.model._cash().spend]
 

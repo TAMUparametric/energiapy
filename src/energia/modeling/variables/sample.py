@@ -12,7 +12,6 @@ from gana import V, inf, sigma, sup
 
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
-from ..constraints.calculate import Calculate
 
 logger = logging.getLogger("energia")
 
@@ -642,16 +641,7 @@ class Sample:
             f = self.F(self.F.index[calculate])
             f.report = self.report
             return f
-
-        # return calculate(self)
-
-        # sample = calculate(self)
-        # decision = self(*self.index_short)
-        # decision.report = self.report
-        # sample = calculate(decision)
         return calculate(self(), *self.domain.index_spatiotemporal)
-
-        # return Calculate(sample=sample, of=decision)
 
     def draw(self, **kwargs):
         """Draws the variable"""
