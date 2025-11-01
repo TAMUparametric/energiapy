@@ -85,7 +85,7 @@ class Bind:
 
         if isinstance(self._parameter, dict):
             # if a dict is passed, it is assumed to be mode bounds
-            if self.of is not None:
+            if self.iscalc:
                 self._calc_w_modes()
             else:
                 self._write_w_modes()
@@ -213,6 +213,11 @@ class Bind:
         """Constraint name"""
         return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
 
+    @property
+    def iscalc(self) -> bool:
+        """Is this a calculation bind constraint?"""
+        return self.of is not None
+
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set"""
 
@@ -278,7 +283,7 @@ class Bind:
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
-        if self.of is None:
+        if not self.iscalc:
             if (
                 (self.domain.space, self.domain.time)
                 in self.aspect.bound_spaces[self.domain.primary][self.rel]
@@ -294,7 +299,7 @@ class Bind:
         """Informs the aspect and domain about the bind constraint"""
 
         # categorize the constraint
-        if self.of is not None:
+        if self.iscalc:
             self.cons.categorize("Calculations")
         elif self.domain.modes:
             self.cons.categorize("Piecewise Linear")
