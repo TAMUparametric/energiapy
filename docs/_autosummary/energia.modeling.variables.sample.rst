@@ -18,7 +18,6 @@ energia.modeling.variables.sample
    .. autosummary::
    
       Bind
-      Calculate
       FuncOfSamples
       Idx
       Sample

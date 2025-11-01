@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Samples write Calculate Constraint Directly
 - Constraints made functions of Aspect 
+- Domain tree simplified
+- Active representation returned form list
 
 ### Fixed
-
+- Passing sample as indices
+- Documentation import issue
 
 ### New 
-
-
+- Scenario to collect parameter input
 
 ## [2.1.1] - 2025-10-29
 ### Changed 

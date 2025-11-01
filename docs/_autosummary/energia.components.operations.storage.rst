@@ -14,7 +14,6 @@ energia.components.operations.storage
 
    .. autosummary::
    
-      Calculate
       Charge
       Conversion
       Discharge

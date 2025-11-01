@@ -9,6 +9,7 @@ energia.modeling.variables.aspect
    .. autosummary::
    
       dataclass
+      merge_tree_levels
       rc
    
    .. rubric:: Classes
@@ -16,6 +17,7 @@ energia.modeling.variables.aspect
    .. autosummary::
    
       Aspect
+      BalCons
       Commodity
       Domain
       Indicator
@@ -23,6 +25,7 @@ energia.modeling.variables.aspect
       Lag
       Linkage
       Location
+      MapCons
       Modes
       Periods
       Player
