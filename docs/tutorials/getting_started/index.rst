@@ -11,3 +11,4 @@ This sections will help you get started with Energia from :ref:`installation` to
 
    installation
    initializing_models
+   trying_energia
