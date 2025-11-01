@@ -25,7 +25,7 @@ def scheduling():
     m.wf = Process()
     _ = m.wf(m.power) == -1 * m.wind
     _ = m.wf.operate.prep(200, norm=False) <= [0.9, 0.8, 0.5, 0.7]
-    _ = m.wf.operate[m.usd.spend] == [4000, 4200, 4300, 3900]
+    _ = m.usd.spend(m.wf.operate) == [4000, 4200, 4300, 3900]
     m.network.locate(m.wf)
 
     return m
@@ -152,7 +152,60 @@ def design_scheduling_w_attrs():
     return m
 
 
-def design_scheduling_materials():
+def design_scheduling_material():
+
+    m = Model("design_scheduling_material")
+    m.q = Periods()
+    m.y = 4 * m.q
+    m.usd = Currency()
+
+    m.declare(Resource, ['power', 'wind', 'solar'])
+    _ = m.solar.consume(m.q) <= 100
+    _ = m.wind.consume <= 400
+    _ = m.power.release.prep(180) >= [0.6, 0.7, 0.8, 0.3]
+
+    m.wf = Process()
+    _ = m.wf(m.power) == -1 * m.wind
+    _ = m.wf.capacity.x <= 100
+    _ = m.wf.capacity.x >= 10
+    _ = m.wf.operate.prep(norm=True) <= [0.9, 0.8, 0.5, 0.7]
+    _ = m.usd.spend(m.wf.capacity) == 990637 + 3354
+    _ = m.usd.spend(m.wf.operate) == 49
+
+    m.pv = Process()
+    _ = m.pv(m.power) == -1 * m.solar
+    _ = m.pv.capacity.x <= 100
+    _ = m.pv.capacity.x >= 10
+    _ = m.pv.operate.prep(norm=True) <= [0.6, 0.8, 0.9, 0.7]
+    _ = m.usd.spend(m.pv.capacity) == 567000 + 872046
+    _ = m.usd.spend(m.pv.operate) == 90000
+
+    m.lii = Storage()
+    _ = m.lii(m.power) == 0.9
+    _ = m.lii.capacity.x <= 100
+    _ = m.lii.capacity.x >= 10
+    _ = m.usd.spend(m.lii.capacity) == 1302182 + 41432
+    _ = m.usd.spend(m.lii.inventory) == 2000
+
+    m.cement = Material()
+    _ = m.cement.consume <= 1000000
+    _ = m.usd.spend(m.cement.consume) == 17
+    _ = m.cement.use(m.wf.capacity) == 400
+    _ = m.cement.use(m.pv.capacity) == 560
+    _ = m.cement.use(m.lii.capacity) == 300
+
+    m.gwp = Environ()
+    _ = m.gwp.emit(m.wf.capacity) == 1000
+    _ = m.gwp.emit(m.pv.capacity) == 2000
+    _ = m.gwp.emit(m.lii.capacity) == 3000
+    _ = m.gwp.emit(m.cement.consume) == 0.9
+
+    m.network.locate(m.wf, m.pv, m.lii)
+
+    return m
+
+
+def design_scheduling_material_modes():
     """Design and scheduling considering materials and emissions from them"""
     m = Model("design_scheduling")
     m.scales = TemporalScales([1, 4], ["y", "q"])
@@ -213,11 +266,7 @@ def design_scheduling_materials():
         3192734 + 101498,
     ]
 
-    # _ = m.wf.capacity(m.wf.construction.modes)[m.usd.spend] == [
-    #     1292000 + 29200,
-    #     3192734 + 101498,
-    # ]
-    _ = m.wf.operate[m.usd.spend] == 49
+    _ = m.usd.spend(m.wf.operate) == 49
 
     m.pv = Process()
     _ = m.pv.construction == [
