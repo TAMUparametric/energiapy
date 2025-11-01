@@ -14,9 +14,8 @@ The options are:
 - `Launch in Binder <https://mybinder.org/>`_: Launches a temporary online environment with Energia installed.
   Note that any files you create or modify will be lost when you close the session.
 
-- `Launch in Google Colab <https://colab.google/>`_: Opens a Google Colab notebook with Energia installed.
-  You can run and modify code snippets in the Colab environment.
-
+- `Launch in Google Colab <https://colab.google/>`_: Opens a Google Colab notebook *without* Energia installed.
+  Uncomment and run the first line (!pip install energiapy) before running any code cells.
 
 .. note::
 
