@@ -314,7 +314,7 @@ class Bind:
         # a constraint with this name contains it
         self.domain.inform_indices(self.cons_name)
 
-        self.model.scenario.update(self.domain, self.rel, self.sample)
+        self.model.scenario.update(self.sample, self.rel, self.parameter)
 
     def _handshake(self):
         """Borrow attributes from sample"""

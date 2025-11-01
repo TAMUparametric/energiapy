@@ -204,7 +204,6 @@ def design_scheduling_materials():
         m.wf.construction.modes[0]: -2.857 * m.wind,
         m.wf.construction.modes[1]: -2.3255 * m.wind,
     }
-    _ = m.wf.capacity[m.usd.spend](m.wf.construction.modes) == [150000, 120000]
 
     # _ = m.wf(m.power, m.wf.construction.modes) == [-2.857 * m.wind, -2.3255 * m.wind]
     # _ = m.usd.spend(m.wf.capacity, m.wf.construction.modes) == [150000, 120000]
