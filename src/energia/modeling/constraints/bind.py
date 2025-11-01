@@ -152,7 +152,6 @@ class Bind:
                 for i in _parameter
             ]
             return _parameter
-
         return self._parameter
 
     @cached_property
@@ -198,10 +197,13 @@ class Bind:
     @cached_property
     def rel(self):
         """Constraint name suffix"""
-
         if self.leq:
             return "ub"
         elif self.eq:
+            if self.of is not None:
+                if self.report:
+                    return "inc_calc"
+                return "calc"
             return "eq"
         elif self.geq:
             return "lb"
@@ -209,10 +211,6 @@ class Bind:
     @cached_property
     def cons_name(self):
         """Constraint name"""
-        if self.of is not None:
-            if self.report:
-                return rf"{self.aspect.name}_inc{self.domain.idxname}_calc"
-            return rf"{self.aspect.name}{self.domain.idxname}_calc"
         return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
 
     def _write_forall(self):
