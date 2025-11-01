@@ -67,7 +67,6 @@ class Scenario(_Hash):
             )
 
         elif rel == 'calc':
-            print(sample.aspect, sample.domain, parameter)
             self.calcs = merge_trees(
                 self.calcs, {sample.aspect: sample.domain.param_tree(parameter)}
             )

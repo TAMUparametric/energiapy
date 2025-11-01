@@ -31,7 +31,7 @@ def scheduling():
     return m
 
 
-def design_scheduling():
+def design_scheduling_w_gattr():
     """A small design and scheduling example"""
     m = Model("design_scheduling")
     m.q = Periods()
@@ -69,8 +69,11 @@ def design_scheduling():
     return m
 
 
-def design_scheduling_w_funcs():
-    """A small design and scheduling example with functions"""
+def design_scheduling():
+    """
+    A small design and scheduling example
+    with functions for calculations instead of getattr
+    """
     m = Model("design_scheduling")
     m.q = Periods()
     m.y = 4 * m.q
@@ -205,13 +208,15 @@ def design_scheduling_materials():
         m.wf.construction.modes[1]: -2.3255 * m.wind,
     }
 
-    # _ = m.wf(m.power, m.wf.construction.modes) == [-2.857 * m.wind, -2.3255 * m.wind]
-    # _ = m.usd.spend(m.wf.capacity, m.wf.construction.modes) == [150000, 120000]
-
-    _ = m.wf.capacity(m.wf.construction.modes)[m.usd.spend] == [
+    _ = m.usd.spend(m.wf.capacity, m.wf.construction.modes) == [
         1292000 + 29200,
         3192734 + 101498,
     ]
+
+    # _ = m.wf.capacity(m.wf.construction.modes)[m.usd.spend] == [
+    #     1292000 + 29200,
+    #     3192734 + 101498,
+    # ]
     _ = m.wf.operate[m.usd.spend] == 49
 
     m.pv = Process()
@@ -230,8 +235,6 @@ def design_scheduling_materials():
 
     _ = m.usd.spend(m.pv.capacity) == 567000 + 872046
     _ = m.usd.spend(m.pv.operate) == 90000
-    # _ = m.pv.capacity[m.usd.spend] == 567000 + 872046
-    # _ = m.pv.operate[m.usd.spend] == 90000
 
     m.lii = Storage()
     _ = m.lii(m.power) == 0.9
@@ -245,8 +248,6 @@ def design_scheduling_materials():
     _ = m.usd.spend(m.lii.capacity) == 1302182 + 41432
     _ = m.usd.spend(m.lii.inventory) == 2000
 
-    # _ = m.lii.capacity[m.usd.spend] == 1302182 + 41432
-    # _ = m.lii.inventory[m.usd.spend] == 2000
     m.network.locate(m.wf, m.pv, m.lii)
     return m
 
