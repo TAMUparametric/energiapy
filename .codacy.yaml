@@ -4,3 +4,4 @@ engines:
 
 exclude_paths:
   - "tests/**"
+  - "src/energia/library/examples/**"
