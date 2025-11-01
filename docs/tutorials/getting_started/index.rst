@@ -1,7 +1,11 @@
 Getting Started
 ===============
 
-This sections will help you get started with Energia from :ref:`installation` to :doc:`initializing_models`.
+This sections will help you get started with Energia: 
+
+1. :ref:`installation` 
+2. :doc:`initializing_models`
+3. :ref:`trying-energia`
 
 
 .. toctree::
@@ -11,3 +15,4 @@ This sections will help you get started with Energia from :ref:`installation` to
 
    installation
    initializing_models
+   trying_energia

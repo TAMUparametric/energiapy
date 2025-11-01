@@ -65,10 +65,10 @@ html_theme_options = {
     "launch_buttons": {
         "thebe": True,
         "binderhub_url": "https://mybinder.org",
+        "colab_url": "https://colab.research.google.com/",
         "notebook_interface": "classic",  # or "jupyterlab"
         "binder_branch": "main",
         "path_to_docs": "docs/",
-        # "colab_url": "https://colab.research.google.com/",
         # "deepnote_url": "https://deepnote.com",
     },
 }
