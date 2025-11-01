@@ -9,9 +9,10 @@ energia.library.examples.energy
    .. autosummary::
    
       design_scheduling
-      design_scheduling_materials
+      design_scheduling_material
+      design_scheduling_material_modes
       design_scheduling_w_attrs
-      design_scheduling_w_funcs
+      design_scheduling_w_gattr
       scheduling
       supermarket
    
