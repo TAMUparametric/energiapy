@@ -645,10 +645,12 @@ class Sample:
 
         # return calculate(self)
 
-        sample = calculate(self)
-        decision = self(*self.index_short)
-        decision.report = self.report
-        return Calculate(sample=sample, of=decision)
+        # sample = calculate(self)
+        # decision = self(*self.index_short)
+        # decision.report = self.report
+        # sample = calculate(decision)
+        return calculate(self)
+        # return Calculate(sample=sample, of=decision)
 
     def draw(self, **kwargs):
         """Draws the variable"""
