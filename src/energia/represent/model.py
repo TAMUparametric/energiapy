@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -37,9 +38,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -233,13 +242,13 @@ class Model:
 
         # * II Representations
         # * 1. Graph with Edges and Nodes
-        self.graph = Graph(self)
+        self.graphs = [Graph(self)]
         # * 2. Problem at hand
-        self.problem = Problem(self)
+        self.problems = [Problem(self)]
         # * 3 Mathematical Program of mpMINLP subclass
-        self.program = Program(model=self)
+        self.programs = [Program(model=self)]
         # * 4 Scenario, the parameter set or uncertainty realization
-        self.scenario = Scenario(model=self)
+        self.scenarios = [Scenario(model=self)]
 
         # shorthand
         self._ = self.program
@@ -417,6 +426,29 @@ class Model:
 
         for func in self.init:
             func(self)
+
+    # -------------------------------------------------------------------
+    # * Active Representation
+    # -------------------------------------------------------------------
+    @property
+    def problem(self) -> Problem:
+        """The active problem"""
+        return self.problems[-1]
+
+    @property
+    def graph(self) -> Graph:
+        """The active graph"""
+        return self.graphs[-1]
+
+    @property
+    def program(self) -> Program:
+        """The active program"""
+        return self.programs[-1]
+
+    @property
+    def scenario(self) -> Scenario:
+        """The active scenario"""
+        return self.scenarios[-1]
 
     # -------------------------------------------------------------------
     # * Onboard Component and Send to Family

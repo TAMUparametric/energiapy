@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 class Scenario(_Hash):
     """Scenario representation"""
 
-    def __init__(self, model: str):
+    def __init__(self, model: Model):
 
-        self.model: Model = model
+        self.model = model
         self.name = rf"Scenario({self.model})"
 
         # Bounds, upper, lower, and equality
