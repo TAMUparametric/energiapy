@@ -72,7 +72,6 @@ class Balance(_Hash):
 
                 if lower_times:
                     _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
-                   
 
         if not self.existing_aspects:
             # this checks whether a general self.commodity balance has been defined
