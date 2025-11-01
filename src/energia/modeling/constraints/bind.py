@@ -294,7 +294,9 @@ class Bind:
         """Informs the aspect and domain about the bind constraint"""
 
         # categorize the constraint
-        if self.domain.modes:
+        if self.of is not None:
+            self.cons.categorize("Calculations")
+        elif self.domain.modes:
             self.cons.categorize("Piecewise Linear")
         else:
             self.cons.categorize("Binds")

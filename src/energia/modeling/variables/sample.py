@@ -643,10 +643,11 @@ class Sample:
             f.report = self.report
             return f
 
+        # return calculate(self)
+
         sample = calculate(self)
         decision = self(*self.index_short)
         decision.report = self.report
-
         return Calculate(sample=sample, of=decision)
 
     def draw(self, **kwargs):
