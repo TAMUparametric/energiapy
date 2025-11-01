@@ -292,15 +292,7 @@ class Model:
 
         self.reserved_names += _program_matrices
 
-        self.properties = {
-            "horizon": self.time,
-            "network": self.space,
-            "indicators": self.impact,
-            "operations": self.system,
-            "aspects": self.problem,
-            "domains": self.problem,
-            **{i: self.program for i in _program_matrices},
-        }
+        self.properties = {i: self.program for i in _program_matrices}
 
         # --------------------------------------------------------------------
         # * Default Components
@@ -441,6 +433,41 @@ class Model:
         """The active scenario"""
         return self.scenarios[-1]
 
+
+    # -------------------------------------------------------------------
+    # * Dimensional Properties and Collections
+    # -------------------------------------------------------------------
+
+    @property
+    def horizon(self) -> Periods:
+        """Time horizon"""
+        return self.time.horizon
+    
+    @property
+    def network(self) -> Location:
+        """Encompassing Location"""
+        return self.space.network
+
+    @property
+    def indicators(self) -> Impact:
+        """Impact indicators"""
+        return self.impact.indicators
+
+    @property
+    def operations(self) -> System:
+        """System operations"""
+        return self.system.operations
+
+    @property
+    def aspects(self) -> Problem:
+        """Problem aspects"""
+        return self.problem.aspects
+    
+    @property
+    def domains(self) -> Problem:
+        """Problem domains"""
+        return self.problem.domains
+    
     # -------------------------------------------------------------------
     # * Onboard Component and Send to Family
     # -------------------------------------------------------------------
