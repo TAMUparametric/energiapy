@@ -85,9 +85,9 @@ class Time(_Dimension):
         if size not in self.tree:
             # if no math make a default period
             logger.info(
-                "💡  %s does not match the size of any data set passed, generating 't%s'.)",
-                size,
+                "💡  Generating period set t%s of size %s",
                 len(self.periods),
+                size,
             )
             _ = self.model._t0(size=size)
 

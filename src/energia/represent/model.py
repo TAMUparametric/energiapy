@@ -433,7 +433,6 @@ class Model:
         """The active scenario"""
         return self.scenarios[-1]
 
-
     # -------------------------------------------------------------------
     # * Dimensional Properties and Collections
     # -------------------------------------------------------------------
@@ -442,7 +441,7 @@ class Model:
     def horizon(self) -> Periods:
         """Time horizon"""
         return self.time.horizon
-    
+
     @property
     def network(self) -> Location:
         """Encompassing Location"""
@@ -462,12 +461,12 @@ class Model:
     def aspects(self) -> Problem:
         """Problem aspects"""
         return self.problem.aspects
-    
+
     @property
     def domains(self) -> Problem:
         """Problem domains"""
         return self.problem.domains
-    
+
     # -------------------------------------------------------------------
     # * Onboard Component and Send to Family
     # -------------------------------------------------------------------
@@ -918,11 +917,26 @@ class Model:
         """
 
         if not self.periods:
-            # if no periods exits yet, make the horizon
-            self.t0 = Periods()
+            if size > 1:
+                self.t1 = Periods()
+                self.t0 = size * self.t1
+                return self.t1
 
         if size > 1:
             setattr(self, f"t{len(self.periods)}", self.horizon / size)
+            return self.periods[-1]
+
+        self.t0 = Periods()
+        return self.t0
+
+        #     # if no periods exits yet, make the horizon
+        #     self.t0 = Periods()
+        #     if size == 1:
+        #         return self.periods[-1]
+
+        # if size > 1:
+        #     hrz = self.horizon
+        #     setattr(self, f"t{len(self.periods)}", self.horizon / size)
 
         return self.periods[-1]
 
