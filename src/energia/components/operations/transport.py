@@ -63,7 +63,6 @@ class Transport(Operation):
             add="ship_in",
             sub="ship_out",
             attr_name="freight",
-            onlinkage=True,
         )
 
         self.production = Conversion(

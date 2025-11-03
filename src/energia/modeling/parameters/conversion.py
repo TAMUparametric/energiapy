@@ -67,7 +67,6 @@ class Conversion(Mapping, _Hash):
         attr_name: str = "",
         symbol: str = "η",
         use_max_time: bool = False,
-        onlinkage: bool = False,
     ):
 
         self.resource = resource
@@ -100,8 +99,6 @@ class Conversion(Mapping, _Hash):
         self.attr_name = attr_name
 
         self.use_max_time = use_max_time
-
-        self.onlinkage = onlinkage
 
     @property
     def args(self) -> dict[str, str | Operation | Commodity | None]:
@@ -240,14 +237,6 @@ class Conversion(Mapping, _Hash):
         self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
     ):
         """Writes equations for conversion balance"""
-
-        if self.onlinkage:
-
-            rhs_space = space.source
-            lhs_space = space.sink
-        else:
-            rhs_space = lhs_space = space
-
         for res, par in self.items():
 
             if res in self.model.balances:
@@ -269,13 +258,13 @@ class Conversion(Mapping, _Hash):
                 dependent = getattr(res, self.add)
 
             if modes:
-                rhs = dependent(decision, rhs_space, modes, time)
+                rhs = dependent(decision, space, modes, time)
 
-                lhs = decision(lhs_space, modes, time)
+                lhs = decision(space, modes, time)
             else:
-                rhs = dependent(decision, rhs_space, time)
+                rhs = dependent(decision, space, time)
 
-                lhs = decision(lhs_space, time)
+                lhs = decision(space, time)
 
             _ = lhs[rhs] == eff
 
@@ -542,3 +531,11 @@ class PWLConversion(Mapping, _Hash):
 
         for mode, conv in self.items():
             conv.write(space, time, mode)
+
+
+# class Production(Conversion):
+
+#     def __init__(
+#             operation: Operation | Storage | None = None,
+
+#     )
