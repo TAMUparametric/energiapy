@@ -532,10 +532,3 @@ class PWLConversion(Mapping, _Hash):
         for mode, conv in self.items():
             conv.write(space, time, mode)
 
-
-# class Production(Conversion):
-
-#     def __init__(
-#             operation: Operation | Storage | None = None,
-
-#     )

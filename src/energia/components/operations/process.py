@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conversion
+from ...modeling.parameters.conversions import Production
 from ...utils.decorators import timer
 from .operation import Operation
 
@@ -56,13 +57,17 @@ class Process(Operation):
 
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
 
-        self.primary_conversion = Conversion(
+        self.primary_conversion = Production(
             operation=self,
-            aspect='operate',
-            add="produce",
-            sub="expend",
-            attr_name="production",
         )
+
+        # self.primary_conversion = Conversion(
+        #     operation=self,
+        #     aspect='operate',
+        #     add="produce",
+        #     sub="expend",
+        #     attr_name="production",
+        # )
 
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.
@@ -128,4 +133,3 @@ class Process(Operation):
             self.space_times.append((space, time))
 
         return self, self.locations
-
