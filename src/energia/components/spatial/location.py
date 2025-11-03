@@ -82,6 +82,10 @@ class Location(_X):
                     if locin not in self.has:
                         self.alsohas += (locin,)
 
+        # default multiplier
+        # helps accomodate distance for Linkages
+        self.multiplier = 1
+
     def __setattr__(self, name, value):
 
         if name == "currency" and value:

@@ -150,6 +150,7 @@ def economic(model: Model):
         IndStream,
         primary_type=(Currency, Economic),
         neg="spend",
+        use_multiplier=True,
     )
 
 

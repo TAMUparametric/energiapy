@@ -562,6 +562,7 @@ class Model:
         bound: str = "",
         ispos: bool = True,
         nn: bool = True,
+        use_multiplier: bool = False,
     ):
         """Creates a Recipe and updates recipes
 
@@ -599,6 +600,8 @@ class Model:
         :type ispos: bool, optional
         :param nn: whether the aspect is non-negative. Defaults to True.
         :type nn: bool, optional
+        :param use_multiplier: Use a scaler (such as distance) for calculations
+        :type use_multiplier: bool
         """
         if name in self.cookbook:
             logger.warning("⛔ Overriding existing recipe: %s ⛔", name)
@@ -614,6 +617,7 @@ class Model:
             nn=nn,
             primary_type=primary_type,
             latex=latex,
+            use_multiplier=use_multiplier,
         )
 
         if add:
@@ -647,6 +651,7 @@ class Model:
                 nn=nn,
                 primary_type=primary_type,
                 latex=neg_latex or neg,
+                use_multiplier=use_multiplier,
             )
             self.cookbook[neg] = neg_recipe
 

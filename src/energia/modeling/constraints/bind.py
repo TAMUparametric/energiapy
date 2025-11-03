@@ -170,7 +170,17 @@ class Bind:
         if self.of:
             # if the dependent variable is not set, creates issues.
             # ------if a calculation is being done
-            return self.parameter * self.of(*self.domain.index_spatiotemporal).V(
+            if self.aspect.use_multiplier:
+                if isinstance(self.parameter, list):
+                    _parameter = [
+                        p * self.domain.space.multiplier for p in self.parameter
+                    ]
+                else:
+                    _parameter = self.parameter * self.domain.space.multiplier
+            else:
+                _parameter = self.parameter
+
+            return _parameter * self.of(*self.domain.index_spatiotemporal).V(
                 self.parameter
             )
 
