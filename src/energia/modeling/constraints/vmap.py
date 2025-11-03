@@ -180,7 +180,7 @@ class Map:
         :param time: Time at which the domain is defined
         :type time: Periods
         """
-        parent_loc = self.domain.location.isin
+        parent_loc = self.domain.space.isin
 
         if parent_loc:
             if (

@@ -25,8 +25,8 @@ def m():
     _ = _m.proc.construction == [_m.conv1, _m.conv2, _m.conv3, _m.conv4]
 
     _ = _m.proc2.construction == {
-        _m.proc2.production.modes[0]: _m.conv1,
-        _m.proc2.production.modes[1]: _m.conv2,
+        _m.proc2.primary_conversion.modes[0]: _m.conv1,
+        _m.proc2.primary_conversion.modes[1]: _m.conv2,
     }
 
     return _m

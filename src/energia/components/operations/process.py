@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from ...modeling.parameters.conversion import Conversion
 from ...utils.decorators import timer
 from .operation import Operation
 
@@ -55,6 +56,14 @@ class Process(Operation):
 
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
 
+        self.primary_conversion = Conversion(
+            operation=self,
+            aspect='operate',
+            add="produce",
+            sub="expend",
+            attr_name="production",
+        )
+
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.
         # once balanced at a location for a particular time,
@@ -66,11 +75,21 @@ class Process(Operation):
         """Locations at which the process is balanced"""
         return self.locations
 
+    @property
+    def production(self):
+        """Alias for primary_conversion"""
+        return self.primary_conversion
+
+    @production.setter
+    def production(self, value):
+        """Set primary_conversion"""
+        self.primary_conversion = value
+
     @timer(logger, kind="production")
     def write_production(self, space_times: list[tuple[Location, Periods]]):
         """Write the production constraints for the process"""
 
-        if not self.production:
+        if not self.primary_conversion:
             logger.warning(
                 "%s: Production not defined, no Constraints generated",
                 self.name,
@@ -79,7 +98,7 @@ class Process(Operation):
 
         # This makes the production consistent
         # check conv_test.py in tests for examples
-        self.production.balancer()
+        self.primary_conversion.balancer()
 
         #! PWL
         # if self.conversion.pwl:
@@ -109,7 +128,7 @@ class Process(Operation):
                 # if the process is already balanced for the space , Skip
                 continue
 
-            self.production.write(space, time)
+            self.primary_conversion.write(space, time)
 
             # update the locations at which the process exists
             self.locations.append(space)

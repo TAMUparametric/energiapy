@@ -61,13 +61,6 @@ class Operation(_Component):
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
-        self.production = Conversion(
-            operation=self,
-            aspect='operate',
-            add="produce",
-            sub="expend",
-            attr_name="production",
-        )
 
         self.construction = Conversion(
             operation=self,
@@ -109,17 +102,17 @@ class Operation(_Component):
     @property
     def basis(self) -> Resource:
         """Base resource"""
-        return self.production.resource
+        return self.primary_conversion.resource
 
     @property
     def balance(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
-        return self.production.balance
+        return self.primary_conversion.balance
 
     @property
     def lag(self) -> Lag:
         """Lag of the process"""
-        return self.production.lag
+        return self.primary_conversion.lag
 
     def write_production(
         self,
@@ -216,10 +209,10 @@ class Operation(_Component):
         self, resource: Resource | Conversion, lag: Lag | None = None
     ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
-        self.production.resource = resource
+        self.primary_conversion.resource = resource
         if lag:
-            return self.production(resource, lag)
-        return self.production(resource)
+            return self.primary_conversion(resource, lag)
+        return self.primary_conversion(resource)
 
     def __setattr__(self, name, value):
 
@@ -228,7 +221,7 @@ class Operation(_Component):
                 conv.operation = self
 
             if len(self.conversions) == 1:
-                self.production += self.conversions[0]
-                self.production.resource = self.conversions[0].resource
+                self.primary_conversion += self.conversions[0]
+                self.primary_conversion.resource = self.conversions[0].resource
 
         super().__setattr__(name, value)
