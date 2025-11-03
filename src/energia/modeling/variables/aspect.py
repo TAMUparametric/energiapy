@@ -443,7 +443,8 @@ class Aspect:
                                 f"For component {self} of type {type(self)}: "
                                 f"{comp} of type {type(comp)} not recognized as an index",
                             )
-                        args[attr] = comp
+                        if not args[attr]:
+                            args[attr] = comp
                         if flag == "timed":
                             timed = True
                         elif flag == "spaced":
@@ -464,6 +465,7 @@ class Aspect:
 
         else:
             timed = spaced = True
+
 
         return Sample(
             aspect=self, domain=domain, timed=timed, spaced=spaced, report=report

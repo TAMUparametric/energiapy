@@ -272,6 +272,7 @@ class Map:
             return True
         else:
             self.maps[what][to_domain].append(from_domain)
+            return True
         if what in ["samples", "modes"]:
             return True
 
@@ -299,8 +300,8 @@ class Map:
     def _give_cname(
         self,
         var,
-        from_domain,
-        to_domain,
+        from_domain: Domain,
+        to_domain: Domain,
         tsum: bool = False,
         msum: bool = False,
     ) -> str:

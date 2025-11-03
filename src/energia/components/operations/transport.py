@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conversion
+from ...modeling.parameters.conversions import Production, Transportation
 from ...utils.decorators import timer
 from .operation import Operation
 
@@ -57,20 +58,12 @@ class Transport(Operation):
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
-        self.primary_conversion = Conversion(
+        self.primary_conversion = Transportation(
             operation=self,
-            aspect='operate',
-            add="ship_in",
-            sub="ship_out",
-            attr_name="freight",
         )
 
-        self.production = Conversion(
+        self.production = Production(
             operation=self,
-            aspect='operate',
-            add="produce",
-            sub="expend",
-            attr_name="production",
         )
 
     @property
@@ -99,9 +92,8 @@ class Transport(Operation):
             _transportation_balance = {
                 self.basis: self.primary_conversion.balance[self.basis]
             }
-            print(_transportation_balance, self.primary_conversion.args)
 
-            self.transportation = Conversion.from_balance(
+            self.transportation = Transportation.from_balance(
                 balance=_transportation_balance,
                 **self.primary_conversion.args,
             )
@@ -114,7 +106,7 @@ class Transport(Operation):
                 if k != self.basis
             }
 
-            self.production = Conversion.from_balance(
+            self.production = Production.from_balance(
                 balance=_production_balance,
                 **self.primary_conversion.args,
             )

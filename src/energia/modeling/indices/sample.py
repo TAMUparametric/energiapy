@@ -271,7 +271,6 @@ class Sample:
             self.model.dispositions,
             {self.aspect: self.domain.tree},
         )
-
         # for the same aspect, map variables with higher order indices
         # to variables with lower order indices
         self.aspect.update(self.domain)

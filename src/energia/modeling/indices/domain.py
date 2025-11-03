@@ -242,9 +242,7 @@ class Domain(_Hash):
         :rtype: list[X]
         """
         return [self.primary] + [
-            i
-            for i in [self.location, self.linkage, self.periods, self.lag]
-            if i is not None
+            i for i in [self.space, self.periods, self.lag] if i is not None
         ]
 
     @property

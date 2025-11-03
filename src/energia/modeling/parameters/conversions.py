@@ -101,37 +101,29 @@ class Transportation(Conversion):
         )
 
     # overwrite, since transportation balance is slightly different
-    def write(
-        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
-    ):
+    def write(self, space: Linkage, time: Periods | Lag, modes: Modes | None = None):
         """Writes equations for conversion balance"""
-        for res, par in self.items():
 
-            if res in self.model.balances:
-                time = self.time_checker(res, space, time)
-                _ = self.model.balances[res].get(space, {})
+        res = list(self)[0]
 
-            eff = par if isinstance(par, list) else [par]
+        par = self[res]
 
-            decision = getattr(self.operation, self.aspect)
+        eff = par if isinstance(par, list) else [par]
 
-            if eff[0] < 0:
-                # Resources are consumed (expendend by Process) immediately
+        decision = getattr(self.operation, self.aspect)
 
-                dependent = getattr(res, self.sub)
-                eff = [-e for e in eff]
-            else:
-                # Production — may occur after lag
-                time = self.lag.of if self.lag else time
-                dependent = getattr(res, self.add)
+        ship_in = getattr(res, self.add)
+        ship_out = getattr(res, self.sub)
 
-            if modes:
-                rhs = dependent(decision, space, modes, time)
+        if modes:
+            lhs = decision(space, modes, time)
+            rhs_in = ship_in(decision, space.source, modes, time)
+            rhs_out = ship_out(decision, space.sink, modes, time)
 
-                lhs = decision(space, modes, time)
-            else:
-                rhs = dependent(decision, space, time)
+        else:
+            lhs = decision(space, time)
+            rhs_in = ship_in(decision, space.source, time)
+            rhs_out = ship_out(decision, space.sink, time)
 
-                lhs = decision(space, time)
-
-            _ = lhs[rhs] == eff
+        _ = lhs[rhs_in] == eff
+        _ = lhs[rhs_out] == [-i for i in eff]
