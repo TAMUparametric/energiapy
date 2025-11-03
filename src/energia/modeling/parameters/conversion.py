@@ -190,61 +190,61 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
+    def time_checker(self, res: Commodity, space: Location | Linkage, time: Periods):
+        """This checks if it is actually necessary
+        to write conversion at denser temporal scales
+        """
+        # This checks whether some other aspect is defined at
+        # a lower temporal scale
+
+        if space not in self.model.balances[res]:
+            # if not defined for that location, check for a lower order location
+            # i.e. location at a lower hierarchy,
+            # e.g. say if space being passed is a city, and a grb has not been defined for it
+            # then we need to check at a higher order
+            parent = self.model.space.split(space)[
+                1
+            ]  # get location at one hierarchy above
+            if parent:
+                # if that indeed exists, then make the parent the space
+                # the conversion Balance variables will feature in grb for parent location
+                space = parent
+
+        _ = self.model.balances[res][space][time]
+
+        if res.inv_of:
+            # for inventoried resources, the conversion is written
+            # using the time of the base resource's grb
+            res = res.inv_of
+
+        try:
+            times = list(
+                [
+                    t
+                    for t in self.model.balances[res][space]
+                    if self.model.balances[res][space][t]
+                ],
+            )
+        except KeyError:
+            times = []
+        # write the conversion balance at
+        # densest temporal scale in that space
+        if times:
+            if self.use_max_time:
+                return max(times)
+            return min(times)
+
+        return time.horizon
+
     def write(
         self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
     ):
         """Writes equations for conversion balance"""
 
-        def time_checker(res: Commodity, space: Location | Linkage, time: Periods):
-            """This checks if it is actually necessary
-            to write conversion at denser temporal scales
-            """
-            # This checks whether some other aspect is defined at
-            # a lower temporal scale
-
-            if space not in self.model.balances[res]:
-                # if not defined for that location, check for a lower order location
-                # i.e. location at a lower hierarchy,
-                # e.g. say if space being passed is a city, and a grb has not been defined for it
-                # then we need to check at a higher order
-                parent = self.model.space.split(space)[
-                    1
-                ]  # get location at one hierarchy above
-                if parent:
-                    # if that indeed exists, then make the parent the space
-                    # the conversion Balance variables will feature in grb for parent location
-                    space = parent
-
-            _ = self.model.balances[res][space][time]
-
-            if res.inv_of:
-                # for inventoried resources, the conversion is written
-                # using the time of the base resource's grb
-                res = res.inv_of
-
-            try:
-                times = list(
-                    [
-                        t
-                        for t in self.model.balances[res][space]
-                        if self.model.balances[res][space][t]
-                    ],
-                )
-            except KeyError:
-                times = []
-            # write the conversion balance at
-            # densest temporal scale in that space
-            if times:
-                if self.use_max_time:
-                    return max(times)
-                return min(times)
-
-            return time.horizon
-
         for res, par in self.items():
 
             if res in self.model.balances:
-                time = time_checker(res, space, time)
+                time = self.time_checker(res, space, time)
                 _ = self.model.balances[res].get(space, {})
 
             eff = par if isinstance(par, list) else [par]
