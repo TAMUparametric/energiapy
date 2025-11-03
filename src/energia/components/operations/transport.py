@@ -63,12 +63,12 @@ class Transport(Operation):
         )
 
     @property
-    def freight(self):
+    def transportation(self):
         """Alias for primary_conversion"""
         return self.primary_conversion
 
-    @freight.setter
-    def freight(self, value):
+    @transportation.setter
+    def transportation(self, value):
         """Set primary_conversion"""
         self.primary_conversion = value
 
