@@ -14,6 +14,8 @@ energia.library.examples.energy
       design_scheduling_w_attrs
       design_scheduling_w_gattr
       scheduling
+      scheduling_w_attrs
+      scheduling_wo_time
       supermarket
    
    .. rubric:: Classes

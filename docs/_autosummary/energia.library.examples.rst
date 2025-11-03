@@ -11,3 +11,4 @@ energia.library.examples
    :recursive:
 
    energy
+   supply_chain

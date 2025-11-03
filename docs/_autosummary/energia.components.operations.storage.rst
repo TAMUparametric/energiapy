@@ -15,6 +15,7 @@ energia.components.operations.storage
    .. autosummary::
    
       Charge
+      Construction
       Conversion
       Discharge
       Process
