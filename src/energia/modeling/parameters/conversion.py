@@ -531,4 +531,3 @@ class PWLConversion(Mapping, _Hash):
 
         for mode, conv in self.items():
             conv.write(space, time, mode)
-

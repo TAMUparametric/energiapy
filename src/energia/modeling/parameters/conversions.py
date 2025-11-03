@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from ...components.operations.storage import Storage
     from ...components.spatial.linkage import Linkage
     from ...components.spatial.location import Location
+    from ...components.temporal.lag import Lag
+    from ...components.temporal.modes import Modes
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..indices.sample import Sample
@@ -50,6 +52,7 @@ class Construction(Conversion):
     def __init__(
         self,
         operation: Operation | Storage | None = None,
+        aspect: str = "capacity",
         resource: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
@@ -59,7 +62,7 @@ class Construction(Conversion):
         Conversion.__init__(
             self,
             operation=operation,
-            aspect="capacity",
+            aspect=aspect,
             add="dispose",
             sub="use",
             resource=resource,
@@ -69,3 +72,66 @@ class Construction(Conversion):
             symbol=symbol,
             use_max_time=use_max_time,
         )
+
+
+class Transportation(Conversion):
+    """Transport Conversion"""
+
+    def __init__(
+        self,
+        operation: Operation | Storage | None = None,
+        resource: Commodity | None = None,
+        balance: dict[Commodity, float | list[float]] | None = None,
+        hold: int | float | None = None,
+        symbol: str = "τ",
+        use_max_time: bool = False,
+    ):
+        Conversion.__init__(
+            self,
+            operation=operation,
+            aspect="operate",
+            add="ship_in",
+            sub="ship_out",
+            resource=resource,
+            balance=balance,
+            hold=hold,
+            attr_name="transportation",
+            symbol=symbol,
+            use_max_time=use_max_time,
+        )
+
+    # overwrite, since transportation balance is slightly different
+    def write(
+        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+    ):
+        """Writes equations for conversion balance"""
+        for res, par in self.items():
+
+            if res in self.model.balances:
+                time = self.time_checker(res, space, time)
+                _ = self.model.balances[res].get(space, {})
+
+            eff = par if isinstance(par, list) else [par]
+
+            decision = getattr(self.operation, self.aspect)
+
+            if eff[0] < 0:
+                # Resources are consumed (expendend by Process) immediately
+
+                dependent = getattr(res, self.sub)
+                eff = [-e for e in eff]
+            else:
+                # Production — may occur after lag
+                time = self.lag.of if self.lag else time
+                dependent = getattr(res, self.add)
+
+            if modes:
+                rhs = dependent(decision, space, modes, time)
+
+                lhs = decision(space, modes, time)
+            else:
+                rhs = dependent(decision, space, time)
+
+                lhs = decision(space, time)
+
+            _ = lhs[rhs] == eff
