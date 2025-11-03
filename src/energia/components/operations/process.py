@@ -89,13 +89,6 @@ class Process(Operation):
     def write_production(self, space_times: list[tuple[Location, Periods]]):
         """Write the production constraints for the process"""
 
-        if not self.primary_conversion:
-            logger.warning(
-                "%s: Production not defined, no Constraints generated",
-                self.name,
-            )
-            return
-
         # This makes the production consistent
         # check conv_test.py in tests for examples
         self.primary_conversion.balancer()

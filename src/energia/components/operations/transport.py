@@ -10,9 +10,7 @@ from .operation import Operation
 if TYPE_CHECKING:
     # from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
-    from ..spatial.location import Location
-
-    # from ..temporal.periods import Periods
+    from ..temporal.periods import Periods
 
 
 class Transport(Operation):
@@ -62,6 +60,14 @@ class Transport(Operation):
             attr_name="freight",
         )
 
+        self.production = Conversion(
+            operation=self,
+            aspect='operate',
+            add="produce",
+            sub="expend",
+            attr_name="production",
+        )
+
     @property
     def transportation(self):
         """Alias for primary_conversion"""
@@ -73,9 +79,14 @@ class Transport(Operation):
         self.primary_conversion = value
 
     @property
-    def spaces(self) -> list[Location]:
+    def spaces(self) -> list[Linkage]:
         """Locations at which the process is balanced"""
         return self.linkages
+
+    def write_transportation(self, link_times: list[tuple[Linkage, Periods]]):
+        """Write Transportation constraints for the transport"""
+
+        
 
     # def write_production(self, link_times: list[tuple[Linkage, Periods]]):
     #     """Write the conversion constraints for the transport"""
