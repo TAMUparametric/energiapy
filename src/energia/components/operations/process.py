@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from ...modeling.parameters.conversion import Conversion
 from ...modeling.parameters.conversions import Production
 from ...utils.decorators import timer
 from .operation import Operation
