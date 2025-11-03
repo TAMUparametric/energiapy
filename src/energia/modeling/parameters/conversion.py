@@ -241,6 +241,13 @@ class Conversion(Mapping, _Hash):
     ):
         """Writes equations for conversion balance"""
 
+        if self.onlinkage:
+
+            rhs_space = space.source
+            lhs_space = space.sink
+        else:
+            rhs_space = lhs_space = space
+
         for res, par in self.items():
 
             if res in self.model.balances:
@@ -262,13 +269,13 @@ class Conversion(Mapping, _Hash):
                 dependent = getattr(res, self.add)
 
             if modes:
-                rhs = dependent(decision, space, modes, time)
+                rhs = dependent(decision, rhs_space, modes, time)
 
-                lhs = decision(space, modes, time)
+                lhs = decision(lhs_space, modes, time)
             else:
-                rhs = dependent(decision, space, time)
+                rhs = dependent(decision, rhs_space, time)
 
-                lhs = decision(space, time)
+                lhs = decision(lhs_space, time)
 
             _ = lhs[rhs] == eff
 
