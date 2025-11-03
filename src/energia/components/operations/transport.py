@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from ...modeling.parameters.conversion import Conversion
+from ...utils.decorators import timer
 from .operation import Operation
+
+logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
     # from ..commodities.resource import Resource
     from ..spatial.linkage import Linkage
+    from ..spatial.location import Location
     from ..temporal.periods import Periods
 
 
@@ -83,10 +88,17 @@ class Transport(Operation):
         """Locations at which the process is balanced"""
         return self.linkages
 
-    def write_transportation(self, link_times: list[tuple[Linkage, Periods]]):
-        """Write Transportation constraints for the transport"""
+    # @timer(logger, kind="production")
+    # def write_primary_conversion(self, space_times: list[tuple[Location, Periods]]):
+    #     """Write the production constraints for the process"""
 
-        
+    #     # This makes the production consistent
+    #     # check conv_test.py in tests for examples
+    #     self.production.balancer()
+
+    # def write_transportation(self, link_times: list[tuple[Linkage, Periods]]):
+    #     """Write Transportation constraints for the transport"""
+    #     self.transportation.balancer()
 
     # def write_production(self, link_times: list[tuple[Linkage, Periods]]):
     #     """Write the conversion constraints for the transport"""

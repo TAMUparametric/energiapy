@@ -61,7 +61,6 @@ class Operation(_Component):
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
-
         self.construction = Conversion(
             operation=self,
             aspect='capacity',
@@ -114,7 +113,7 @@ class Operation(_Component):
         """Lag of the process"""
         return self.primary_conversion.lag
 
-    def write_production(
+    def write_primary_conversion(
         self,
         space_times: list[tuple[Location | Linkage, Periods]],
     ):
@@ -198,7 +197,7 @@ class Operation(_Component):
                     if space_time not in space_times:
                         space_times.append(space_time)
 
-        self.write_production(space_times)
+        self.write_primary_conversion(space_times)
 
         if self.construction is not None:
             self.write_construction(self.space_times)

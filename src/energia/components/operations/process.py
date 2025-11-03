@@ -86,12 +86,12 @@ class Process(Operation):
         self.primary_conversion = value
 
     @timer(logger, kind="production")
-    def write_production(self, space_times: list[tuple[Location, Periods]]):
+    def write_primary_conversion(self, space_times: list[tuple[Location, Periods]]):
         """Write the production constraints for the process"""
 
         # This makes the production consistent
         # check conv_test.py in tests for examples
-        self.primary_conversion.balancer()
+        self.production.balancer()
 
         #! PWL
         # if self.conversion.pwl:

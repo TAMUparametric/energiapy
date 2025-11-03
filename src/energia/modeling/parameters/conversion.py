@@ -67,6 +67,7 @@ class Conversion(Mapping, _Hash):
         attr_name: str = "",
         symbol: str = "η",
         use_max_time: bool = False,
+        onlinkage: bool = False,
     ):
 
         self.resource = resource
@@ -99,6 +100,8 @@ class Conversion(Mapping, _Hash):
         self.attr_name = attr_name
 
         self.use_max_time = use_max_time
+
+        self.onlinkage = onlinkage
 
     @property
     def args(self) -> dict[str, str | Operation | Commodity | None]:
