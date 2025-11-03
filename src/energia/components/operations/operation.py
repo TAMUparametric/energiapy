@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
+from ...modeling.parameters.conversions import Construction
 from ...utils.decorators import timer
 
 logger = logging.getLogger("energia")
@@ -61,20 +62,10 @@ class Operation(_Component):
     ):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
-        self.production = Conversion(
-            operation=self,
-            aspect='operate',
-            add="produce",
-            sub="expend",
-            attr_name="production",
-        )
+        self.primary_conversion: Conversion | None = None
 
-        self.construction = Conversion(
+        self.construction = Construction(
             operation=self,
-            aspect='capacity',
-            add="dispose",
-            sub="use",
-            attr_name="construction",
             use_max_time=True,
         )
 
@@ -109,19 +100,22 @@ class Operation(_Component):
     @property
     def basis(self) -> Resource:
         """Base resource"""
-        return self.production.resource
+        if self.primary_conversion is not None:
+            return self.primary_conversion.resource
 
     @property
     def balance(self) -> dict[Resource, int | float]:
         """Conversion of commodities"""
-        return self.production.balance
+        if self.primary_conversion is not None:
+            return self.primary_conversion.balance
 
     @property
     def lag(self) -> Lag:
         """Lag of the process"""
-        return self.production.lag
+        if self.primary_conversion is not None:
+            return self.primary_conversion.lag
 
-    def write_production(
+    def write_primary_conversion(
         self,
         space_times: list[tuple[Location | Linkage, Periods]],
     ):
@@ -205,7 +199,7 @@ class Operation(_Component):
                     if space_time not in space_times:
                         space_times.append(space_time)
 
-        self.write_production(space_times)
+        self.write_primary_conversion(space_times)
 
         if self.construction is not None:
             self.write_construction(self.space_times)
@@ -216,10 +210,10 @@ class Operation(_Component):
         self, resource: Resource | Conversion, lag: Lag | None = None
     ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
-        self.production.resource = resource
+        self.primary_conversion.resource = resource
         if lag:
-            return self.production(resource, lag)
-        return self.production(resource)
+            return self.primary_conversion(resource, lag)
+        return self.primary_conversion(resource)
 
     def __setattr__(self, name, value):
 
@@ -228,7 +222,7 @@ class Operation(_Component):
                 conv.operation = self
 
             if len(self.conversions) == 1:
-                self.production += self.conversions[0]
-                self.production.resource = self.conversions[0].resource
+                self.primary_conversion += self.conversions[0]
+                self.primary_conversion.resource = self.conversions[0].resource
 
         super().__setattr__(name, value)

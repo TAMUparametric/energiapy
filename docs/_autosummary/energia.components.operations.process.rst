@@ -14,6 +14,8 @@ energia.components.operations.process
 
    .. autosummary::
    
+      Conversion
       Operation
       Process
+      Production
    

@@ -72,6 +72,8 @@ class Aspect:
     :type bound: str
     :param label: Label for the decision. Defaults to "".
     :type label: str
+    :param use_multiplier: Use a scaler (such as distance) for calculations
+    :type use_multiplier: bool
 
     :ivar model: Model to which the Aspect belongs.
     :vartype model: Model
@@ -84,6 +86,7 @@ class Aspect:
     :ivar domains: List of domains associated with the Aspect.
     :vartype domains: list[Domain]
 
+
     :raises ValueError: If `primary_type` is not defined.
     """
 
@@ -94,6 +97,7 @@ class Aspect:
     latex: str = ""
     bound: str = ""
     label: str = ""
+    use_multiplier: bool = False
 
     def __post_init__(self):
         # will be set when added to model
@@ -443,7 +447,8 @@ class Aspect:
                                 f"For component {self} of type {type(self)}: "
                                 f"{comp} of type {type(comp)} not recognized as an index",
                             )
-                        args[attr] = comp
+                        if not args[attr]:
+                            args[attr] = comp
                         if flag == "timed":
                             timed = True
                         elif flag == "spaced":

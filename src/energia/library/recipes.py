@@ -70,6 +70,7 @@ def operating(model: Model):
         label="Resource Imported into Location",
         latex=r"{impt}",
         neg="ship_out",
+        neg_latex=r"{expt}",
         neg_label="Resource Exported out of Location",
     )
 
@@ -149,6 +150,7 @@ def economic(model: Model):
         IndStream,
         primary_type=(Currency, Economic),
         neg="spend",
+        use_multiplier=True,
     )
 
 

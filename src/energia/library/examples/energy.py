@@ -19,7 +19,7 @@ def scheduling():
     m.q = Periods()
     m.y = 4 * m.q
     m.usd = Currency()
-    m.power, m.wind = Resource(), Resource()
+    m.wind, m.power = Resource(), Resource()
     _ = m.wind.consume <= 400
     _ = m.power.release.prep(100) >= [0.6, 0.7, 1, 0.3]
     m.wf = Process()
@@ -27,9 +27,49 @@ def scheduling():
     _ = m.wf.operate.prep(200, norm=False) <= [0.9, 0.8, 0.5, 0.7]
     _ = m.usd.spend(m.wf.operate) == [4000, 4200, 4300, 3900]
     m.network.locate(m.wf)
-
     return m
 
+
+def scheduling_w_attrs():
+    """A small scheduling example with attributes"""
+    m = Model("scheduling")
+    m.q = Periods()
+    m.y = 4 * m.q
+    m.usd = Currency()
+    m.wind = Resource(consume_max=400)
+    m.power = Resource(demand_nominal=100, demand_min=[0.6, 0.7, 1, 0.3])
+    m.wf = Process(
+        m.power == -1 * m.wind,
+        operate_nominal=200,
+        operate_normalize=False,
+        operate_max=[0.9, 0.8, 0.5, 0.7],
+        opex=[4000, 4200, 4300, 3900],
+    )
+    m.network.locate(m.wf)
+    return m
+
+
+
+def scheduling_wo_time():
+    """A small scheduling example with attributes"""
+    m = Model("scheduling")
+    # m.q = Periods()
+    # m.y = 4 * m.q
+    m.usd = Currency()
+    # TODO: does not work if order changed
+    m.wind = Resource(consume_max=400)
+    m.power = Resource(demand_nominal=100, demand_min=[0.6, 0.7, 1, 0.3])
+    # TODO:
+    m.wf = Process(
+        m.power == -1 * m.wind,
+        operate_nominal=200,
+        operate_normalize=False,
+        operate_max=[0.9, 0.8, 0.5, 0.7],
+        opex=[4000, 4200, 4300, 3900],
+    )
+    m.network.locate(m.wf)
+    # TODO: solution error
+    return m
 
 def design_scheduling_w_gattr():
     """A small design and scheduling example"""

@@ -33,6 +33,7 @@ Energia on Python
    examples/design_scheduling
    examples/design_scheduling_material
    examples/material_process_modes
+   examples/seattle_topeka
 
 
 .. toctree::

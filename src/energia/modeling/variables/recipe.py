@@ -36,6 +36,8 @@ class Recipe:
     :type ispos: bool
     :param nn: If the aspect is non-negative. Defaults to True.
     :type nn: bool
+    :param use_multiplier: Use a scaler (such as distance) for calculations
+    :type use_multiplier: bool
     :param latex: LaTeX representation. Defaults to "".
     :type latex: str
 
@@ -53,6 +55,7 @@ class Recipe:
     ctrl: str = ""
     ispos: bool = True
     nn: bool = True
+    use_multiplier: bool = False
     latex: str = ""
 
     def __post_init__(self):

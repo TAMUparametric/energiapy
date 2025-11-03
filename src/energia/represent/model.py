@@ -292,15 +292,7 @@ class Model:
 
         self.reserved_names += _program_matrices
 
-        self.properties = {
-            "horizon": self.time,
-            "network": self.space,
-            "indicators": self.impact,
-            "operations": self.system,
-            "aspects": self.problem,
-            "domains": self.problem,
-            **{i: self.program for i in _program_matrices},
-        }
+        self.properties = {i: self.program for i in _program_matrices}
 
         # --------------------------------------------------------------------
         # * Default Components
@@ -442,6 +434,40 @@ class Model:
         return self.scenarios[-1]
 
     # -------------------------------------------------------------------
+    # * Dimensional Properties and Collections
+    # -------------------------------------------------------------------
+
+    @property
+    def horizon(self) -> Periods:
+        """Time horizon"""
+        return self.time.horizon
+
+    @property
+    def network(self) -> Location:
+        """Encompassing Location"""
+        return self.space.network
+
+    @property
+    def indicators(self) -> Impact:
+        """Impact indicators"""
+        return self.impact.indicators
+
+    @property
+    def operations(self) -> System:
+        """System operations"""
+        return self.system.operations
+
+    @property
+    def aspects(self) -> Problem:
+        """Problem aspects"""
+        return self.problem.aspects
+
+    @property
+    def domains(self) -> Problem:
+        """Problem domains"""
+        return self.problem.domains
+
+    # -------------------------------------------------------------------
     # * Onboard Component and Send to Family
     # -------------------------------------------------------------------
 
@@ -536,6 +562,7 @@ class Model:
         bound: str = "",
         ispos: bool = True,
         nn: bool = True,
+        use_multiplier: bool = False,
     ):
         """Creates a Recipe and updates recipes
 
@@ -573,6 +600,8 @@ class Model:
         :type ispos: bool, optional
         :param nn: whether the aspect is non-negative. Defaults to True.
         :type nn: bool, optional
+        :param use_multiplier: Use a scaler (such as distance) for calculations
+        :type use_multiplier: bool
         """
         if name in self.cookbook:
             logger.warning("⛔ Overriding existing recipe: %s ⛔", name)
@@ -588,6 +617,7 @@ class Model:
             nn=nn,
             primary_type=primary_type,
             latex=latex,
+            use_multiplier=use_multiplier,
         )
 
         if add:
@@ -621,6 +651,7 @@ class Model:
                 nn=nn,
                 primary_type=primary_type,
                 latex=neg_latex or neg,
+                use_multiplier=use_multiplier,
             )
             self.cookbook[neg] = neg_recipe
 
@@ -722,7 +753,7 @@ class Model:
         :param names: Names of the discretizations. Defaults to [t<i>] for each discretization.
         :type names: list[str], optional
         """
-        # set the root period:
+        # set the root periods
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
@@ -891,11 +922,26 @@ class Model:
         """
 
         if not self.periods:
-            # if no periods exits yet, make the horizon
-            self.t0 = Periods()
+            if size > 1:
+                self.t1 = Periods()
+                self.t0 = size * self.t1
+                return self.t1
 
         if size > 1:
             setattr(self, f"t{len(self.periods)}", self.horizon / size)
+            return self.periods[-1]
+
+        self.t0 = Periods()
+        return self.t0
+
+        #     # if no periods exits yet, make the horizon
+        #     self.t0 = Periods()
+        #     if size == 1:
+        #         return self.periods[-1]
+
+        # if size > 1:
+        #     hrz = self.horizon
+        #     setattr(self, f"t{len(self.periods)}", self.horizon / size)
 
         return self.periods[-1]
 

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
+from ...modeling.parameters.conversions import Construction
 from ...utils.decorators import timer
 from ..commodities.resource import Resource
 from .process import Process
@@ -118,13 +119,9 @@ class Storage(_Component):
 
         self.conversions = args
 
-        self.construction = Conversion(
+        self.construction = Construction(
             operation=self,
             aspect='invcapacity',
-            add="dispose",
-            sub="use",
-            attr_name="construction",
-            use_max_time=True,
         )
 
     @cached_property
@@ -165,7 +162,7 @@ class Storage(_Component):
     @property
     def basis(self) -> Resource:
         """Base resource"""
-        return self.discharge.production.basis
+        return self.discharge.primary_conversion.basis
 
     @property
     def storage_cost(self) -> Sample:
@@ -352,7 +349,7 @@ class Storage(_Component):
 
         _ = self.charge(self.stored) == -resource
 
-        self.discharge.production.expect = self.stored
+        self.discharge.primary_conversion.expect = self.stored
 
         self.stored.inv_of = resource
 

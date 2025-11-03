@@ -15,6 +15,7 @@ energia.components.operations.operation
 
    .. autosummary::
    
+      Construction
       Conversion
       Operation
       cached_property

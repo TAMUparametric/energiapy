@@ -68,6 +68,9 @@ class Linkage(_X):
 
         self.hierarchy = 1
 
+        # default multiplier
+        self.multiplier = dist or 1.0
+
     @cached_property
     def space(self) -> Space:
         """Space to which the Location belongs"""
