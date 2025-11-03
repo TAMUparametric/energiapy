@@ -126,4 +126,4 @@ class Transportation(Conversion):
             rhs_out = ship_out(decision, space.sink, time)
 
         _ = lhs[rhs_in] == eff
-        _ = lhs[rhs_out] == [-i for i in eff]
+        _ = lhs[rhs_out] == eff

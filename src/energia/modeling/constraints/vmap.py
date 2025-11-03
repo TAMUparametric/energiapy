@@ -193,32 +193,32 @@ class Map:
                 self.domain.change({"location": parent_loc}),
             )
 
-        # contained_locs, parent_loc = self.model.space.split(self.space)
-        # for location in contained_locs:
-        #     if location not in dispositions or time not in dispositions[location]:
-        #         # the aspect is already defined at this location
-        #         # we need to check if it is defined for any periods sparser than time
-        #         continue
-        #     # samples = dispositions[location][time]
-        #     # if not samples:
+        for space in self.domain.space.has:
+            if space in self.dispositions and self.time in self.dispositions[space]:
 
-        #     self.writecons_map(self.domain.change({"location": location}), self.domain)
-        # else:
-        #     new_binds = [k(list(v)[0]) for k, v in samples.items()]
-        #     # consider the case where overall consumption for water in some location and time is defined
-        #     # now user defines consumption due to using cement during construction
-        #     # we should have the constraint consume(water, goa, 2025) = consume(water, goa, 2025, use, cement)
-        #     # in that case, samples is just []
-        #     self.writecons_map(
-        #         self.domain.change({"location": location, "samples": new_binds}),
-        #         self.domain,
-        #     )
+                # get deciding samples if they exist
+                samples = [
+                    aspect(component)
+                    for aspect, components in self.dispositions[space][
+                        self.time
+                    ].items()
+                    for component in components
+                ]
+                for sample in samples:
 
-        # if parent_loc in dispositions:
+                    if self.domain.linkage:
+                        self.write(
+                            self.domain.change({"linkage": space, "samples": [sample]}),
+                            self.domain,
+                        )
 
-        #     self.writecons_map(
-        #         self.domain, self.domain.change({"location": parent_loc})
-        #     )
+                    elif self.domain.location:
+                        self.write(
+                            self.domain.change(
+                                {"location": space, "samples": [sample]}
+                            ),
+                            self.domain,
+                        )
 
     def _map_across_samples(self):
         if self.domain.samples or not self.dispositions[self.space][self.time]:
