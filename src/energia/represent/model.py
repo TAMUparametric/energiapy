@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -37,9 +38,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -748,7 +757,7 @@ class Model:
         :param names: Names of the discretizations. Defaults to [t<i>] for each discretization.
         :type names: list[str], optional
         """
-        # set the root period:
+        # set the root periods
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
