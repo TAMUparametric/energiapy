@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ...modeling.parameters.conversion import Conversion
 from .operation import Operation
 
 if TYPE_CHECKING:
@@ -52,6 +53,24 @@ class Transport(Operation):
 
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
+
+        self.primary_conversion = Conversion(
+            operation=self,
+            aspect='operate',
+            add="ship_in",
+            sub="ship_out",
+            attr_name="freight",
+        )
+
+    @property
+    def freight(self):
+        """Alias for primary_conversion"""
+        return self.primary_conversion
+
+    @freight.setter
+    def freight(self, value):
+        """Set primary_conversion"""
+        self.primary_conversion = value
 
     @property
     def spaces(self) -> list[Location]:
