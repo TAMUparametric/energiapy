@@ -42,3 +42,30 @@ class Production(Conversion):
             symbol=symbol,
             use_max_time=use_max_time,
         )
+
+
+class Construction(Conversion):
+    """Operation Construction Conversion"""
+
+    def __init__(
+        self,
+        operation: Operation | Storage | None = None,
+        resource: Commodity | None = None,
+        balance: dict[Commodity, float | list[float]] | None = None,
+        hold: int | float | None = None,
+        symbol: str = "γ",
+        use_max_time: bool = True,
+    ):
+        Conversion.__init__(
+            self,
+            operation=operation,
+            aspect="capacity",
+            add="dispose",
+            sub="use",
+            resource=resource,
+            balance=balance,
+            hold=hold,
+            attr_name="construction",
+            symbol=symbol,
+            use_max_time=use_max_time,
+        )

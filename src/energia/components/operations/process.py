@@ -61,14 +61,6 @@ class Process(Operation):
             operation=self,
         )
 
-        # self.primary_conversion = Conversion(
-        #     operation=self,
-        #     aspect='operate',
-        #     add="produce",
-        #     sub="expend",
-        #     attr_name="production",
-        # )
-
         # at which locations the process is balanced
         # Note that we do not need a conversion at every temporal scale.
         # once balanced at a location for a particular time,
