@@ -14,7 +14,7 @@ def m():
 
 def test_supermarket(m):
     # obj 0
-    assert m.solution[0]._['consume']['values'] == pytest.approx(
+    assert m.solutions[0]._['consume']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -23,7 +23,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[0]._['spend']['values'] == pytest.approx(
+    assert m.solutions[0]._['spend']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -45,7 +45,7 @@ def test_supermarket(m):
             167714.31528571434,
         ]
     )
-    assert m.solution[0]._['release']['values'] == pytest.approx(
+    assert m.solutions[0]._['release']['values'] == pytest.approx(
         [
             1799.9856001185253,
             2516.6666666717515,
@@ -53,7 +53,7 @@ def test_supermarket(m):
             100.00000000018477,
         ]
     )
-    assert m.solution[0]._['capacity']['values'] == pytest.approx(
+    assert m.solutions[0]._['capacity']['values'] == pytest.approx(
         [
             0.0,
             800.0,
@@ -65,10 +65,10 @@ def test_supermarket(m):
             2500.0000000046193,
         ]
     )
-    assert m.solution[0]._['x_capacity']['values'] == pytest.approx(
+    assert m.solutions[0]._['x_capacity']['values'] == pytest.approx(
         [0.0, 1.0, 0.0, 0.0]
     )
-    assert m.solution[0]._['operate']['values'] == pytest.approx(
+    assert m.solutions[0]._['operate']['values'] == pytest.approx(
         [
             0.0,
             32.142600002116524,
@@ -80,7 +80,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[0]._['expend']['values'] == pytest.approx(
+    assert m.solutions[0]._['expend']['values'] == pytest.approx(
         [
             0.0,
             32.142600002116524,
@@ -92,7 +92,7 @@ def test_supermarket(m):
             2500.0000000046193,
         ]
     )
-    assert m.solution[0]._['produce']['values'] == pytest.approx(
+    assert m.solutions[0]._['produce']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -109,7 +109,7 @@ def test_supermarket(m):
         ]
     )
     # obj 1
-    assert m.solution[1]._['consume']['values'] == pytest.approx(
+    assert m.solutions[1]._['consume']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -118,7 +118,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[1]._['spend']['values'] == pytest.approx(
+    assert m.solutions[1]._['spend']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -140,7 +140,7 @@ def test_supermarket(m):
             25546380.981952146,
         ]
     )
-    assert m.solution[1]._['release']['values'] == pytest.approx(
+    assert m.solutions[1]._['release']['values'] == pytest.approx(
         [
             1799.9856001151993,
             2516.6666666666665,
@@ -148,7 +148,7 @@ def test_supermarket(m):
             100.0,
         ]
     )
-    assert m.solution[1]._['capacity']['values'] == pytest.approx(
+    assert m.solutions[1]._['capacity']['values'] == pytest.approx(
         [
             0.0,
             1000000.0,
@@ -160,10 +160,10 @@ def test_supermarket(m):
             2500.0,
         ]
     )
-    assert m.solution[1]._['x_capacity']['values'] == pytest.approx(
+    assert m.solutions[1]._['x_capacity']['values'] == pytest.approx(
         [0.0, 1.0, 0.0, 0.0]
     )
-    assert m.solution[1]._['operate']['values'] == pytest.approx(
+    assert m.solutions[1]._['operate']['values'] == pytest.approx(
         [
             0.0,
             32.14260000205713,
@@ -175,7 +175,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[1]._['expend']['values'] == pytest.approx(
+    assert m.solutions[1]._['expend']['values'] == pytest.approx(
         [
             0.0,
             32.14260000205713,
@@ -187,7 +187,7 @@ def test_supermarket(m):
             2500.0,
         ]
     )
-    assert m.solution[1]._['produce']['values'] == pytest.approx(
+    assert m.solutions[1]._['produce']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -204,7 +204,7 @@ def test_supermarket(m):
         ]
     )
     # obj 2
-    assert m.solution[2]._['consume']['values'] == pytest.approx(
+    assert m.solutions[2]._['consume']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -213,7 +213,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[2]._['spend']['values'] == pytest.approx(
+    assert m.solutions[2]._['spend']['values'] == pytest.approx(
         [
             0.0,
             0.0,
@@ -235,7 +235,7 @@ def test_supermarket(m):
             25546380.981952146,
         ]
     )
-    assert m.solution[2]._['release']['values'] == pytest.approx(
+    assert m.solutions[2]._['release']['values'] == pytest.approx(
         [
             1799.9856001151993,
             2516.6666666666665,
@@ -243,7 +243,7 @@ def test_supermarket(m):
             100.0,
         ]
     )
-    assert m.solution[2]._['capacity']['values'] == pytest.approx(
+    assert m.solutions[2]._['capacity']['values'] == pytest.approx(
         [
             0.0,
             1000000.0,
@@ -255,10 +255,10 @@ def test_supermarket(m):
             2500.0,
         ]
     )
-    assert m.solution[2]._['x_capacity']['values'] == pytest.approx(
+    assert m.solutions[2]._['x_capacity']['values'] == pytest.approx(
         [0.0, 1.0, 0.0, 0.0]
     )
-    assert m.solution[2]._['operate']['values'] == pytest.approx(
+    assert m.solutions[2]._['operate']['values'] == pytest.approx(
         [
             0.0,
             32.14260000205713,
@@ -270,7 +270,7 @@ def test_supermarket(m):
             0.0,
         ]
     )
-    assert m.solution[2]._['expend']['values'] == pytest.approx(
+    assert m.solutions[2]._['expend']['values'] == pytest.approx(
         [
             0.0,
             32.14260000205713,
@@ -282,7 +282,7 @@ def test_supermarket(m):
             2500.0,
         ]
     )
-    assert m.solution[2]._['produce']['values'] == pytest.approx(
+    assert m.solutions[2]._['produce']['values'] == pytest.approx(
         [
             0.0,
             0.0,

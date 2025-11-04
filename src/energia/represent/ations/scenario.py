@@ -72,3 +72,6 @@ class Scenario(_Hash):
             self.inc_calcs = merge_trees(
                 self.inc_calcs, {sample.aspect: sample.domain.param_tree(parameter)}
             )
+
+    def __getitem__(self, item):
+        return self._[item]

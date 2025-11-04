@@ -8,3 +8,4 @@ Additional Features
    :hidden:
 
    fetch_nsrdb_data
+   plotting

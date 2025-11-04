@@ -92,3 +92,9 @@ class _X(ABC, _Hash):
         else:
             for c in self.cons:
                 c.show(descriptive)
+
+    def __eq__(self, other: object) -> bool:
+        try:
+            return str(self) == str(other)
+        except Exception:
+            super().__eq__(other)

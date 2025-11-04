@@ -218,5 +218,5 @@ def test_multistreams(m):
         ],
     }
 
-    assert m.solution[0].asdict() == _wrap_with_approx(expected0)
-    assert m.solution[1].asdict() == _wrap_with_approx(expected1)
+    assert m.solutions[0].asdict() == _wrap_with_approx(expected0)
+    assert m.solutions[1].asdict() == _wrap_with_approx(expected1)

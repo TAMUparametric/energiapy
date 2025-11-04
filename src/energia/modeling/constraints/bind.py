@@ -7,7 +7,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
-
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
@@ -325,7 +324,7 @@ class Bind:
         # a constraint with this name contains it
         self.domain.inform_indices(self.cons_name)
 
-        self.model.scenario.update(self.sample, self.rel, self.parameter)
+        self.model.scenario.update(self.sample, self.rel, self.P)
 
     def _handshake(self):
         """Borrow attributes from sample"""
@@ -338,3 +337,19 @@ class Bind:
         self.report = self.sample.report
         self.program = self.sample.program
         self.of = self.sample.of
+
+    @property
+    def P(self):
+        """Gets the parameter set"""
+        if self.iscalc:
+            return self.cons.two.one
+        return self.cons.two
+
+        # if self.leq:
+        #     _bound = r"\overline{"
+        # elif self.geq:
+        #     _bound = r"\underline{"
+        # else:
+        #     _bound = r"{"
+        # _p._ltx = _bound + r"\mathrm{" + self.lhs.ltx.capitalize() + r"}}"
+        # return _p

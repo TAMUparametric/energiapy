@@ -333,7 +333,6 @@ class Aspect:
         t = [t for t in ds if isinstance(t, Periods)]
         return t
 
-
     def __neg__(self):
         """Negative Consequence"""
 
@@ -349,8 +348,7 @@ class Aspect:
         return len(self.domains)
 
     def __eq__(self, other: Self) -> bool:
-        if isinstance(other, Aspect):
-            return self.name == other.name
+        return str(self) == str(other)
 
     def __getitem__(self, item: _X) -> Sample:
         return self.dispositions[item]
@@ -452,6 +450,7 @@ class Aspect:
     def __init_subclass__(cls):
         cls.__repr__ = Aspect.__repr__
         cls.__hash__ = Aspect.__hash__
+        cls.__eq__ = Aspect.__eq__
 
     def __iter__(self):
         """Iterate over domains"""

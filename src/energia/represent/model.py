@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
+from gana import I as Idx
+from gana import P as Param
+from gana import T as MParam
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency
@@ -18,7 +21,6 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
-
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -38,17 +40,9 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -56,8 +50,6 @@ from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
 from .ations.scenario import Scenario
-from gana import P as Param
-from gana import T as MParam
 
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)
@@ -270,7 +262,13 @@ class Model:
         self.program_attrs += [
             w + s for w in self.program_attrs for s in ['s', '_sets']
         ]
-        self.program_attrs += ["solution", "formulation", "evaluation"]
+        self.program_attrs += [
+            "solution",
+            "solutions",
+            "formulation",
+            "formulations",
+            "evaluation",
+        ]
         # word -> n_word
         self.program_attrs += ['n_' + w for w in self.program_attrs]
         self.program_attrs += [
@@ -713,18 +711,16 @@ class Model:
 
     def P(
         self,
+        *index: Idx | tuple[Idx],
         data: float | tuple[float, float] | list[float | tuple[float, float]],
-        index: I | tuple[I] = None,
     ) -> Param:
-
-        if not index:
-            index = ()
+        """Makes a gana.P or gana.T from data and index"""
 
         if isinstance(data, (float, int)) or (
             isinstance(data, list) and isinstance(data[0], (float, int))
         ):
-            return Param(*index, data)
-        return MParam(*index, data)
+            return Param(*index, _=data)
+        return MParam(*index, _=data)
 
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components
