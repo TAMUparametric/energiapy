@@ -32,8 +32,6 @@ class State(Aspect):
 
         self.Map(domain=domain, reporting=reporting)
 
-    
-
 
 @dataclass
 class Inventory(Aspect):

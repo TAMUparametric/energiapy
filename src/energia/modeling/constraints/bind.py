@@ -7,13 +7,13 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
-# from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
-    from gana import P, V
+    from gana import V
+    from gana import P as Param
     from gana.sets.constraint import C
     from gana.sets.function import F
 
@@ -165,7 +165,7 @@ class Bind:
         return self.sample.V(self.parameter)
 
     @property
-    def rhs(self) -> V | F | P:
+    def rhs(self) -> V | F | Param:
         """Right hand side of the bind constraint"""
         if self.of:
             # if the dependent variable is not set, creates issues.
