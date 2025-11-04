@@ -52,7 +52,7 @@ To check your Energia version, run:
 
 .. code-block:: console
     
-    2.1.3
+    2.1.4
 
 Older versions use *energiapy* as the package name.
 
