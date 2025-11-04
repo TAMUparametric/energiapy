@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "Energia: A data-informed decision making and risk assessment framework for energy transition scenario analysis"
+message: "If you use this package, please cite it as below."
+authors:
+  - family-names: "Kakodkar"
+    given-names: "Rahul"
+  - family-names: "Pistikopoulos"
+    given-names: "Efstratios N."
+version: "2.1.1"
+date-released: "2025-10-29"
+repository-code: "https://github.com/TAMUparametric/energiapy"
+url: "https://energiapy.readthedocs.io/en/latest/"
+license: "MIT"
+keywords:
+  - energy systems
+  - optimization
+  - decision-making
+abstract: >
+  Energia is a Python-based modeling framework for the multi-scale 
+  modeling and optimization of energy systems under uncertainty

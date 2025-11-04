@@ -1,0 +1,153 @@
+"""Fetch data from NREL's NSRDB database"""
+
+import logging
+
+from numpy import array, average
+from pandas import DataFrame, to_datetime
+from scipy.spatial import cKDTree
+
+logger = logging.getLogger("energia")
+
+try:
+    import h5pyd
+
+    import_all = False
+except ImportError:
+    import_all = True
+
+
+def fetch_nsrdb_data(
+    attrs: list[str],
+    year: int,
+    lat_lon: tuple[float] | None = None,
+    state: str = "",
+    county: str = "",
+    resolution: str = "",
+    get: str = "max-population",
+    save: str | None = None,
+) -> DataFrame | tuple:
+    """
+    Fetches nsrdb data from nearest coordinates (latitude, longitude)
+    or from county in a state matching a particular 'get' metric
+
+    :param attrs: attributes to fetch
+    :type attrs: list[str]
+    :param year: year of choice, e.g. 2019
+    :type year: int
+    :param lat_lon: (latitude, longitude) to fetch closest data point. Defaults to None.
+    :type lat_lon: tuple[float] | None
+    :param state: capitalized state name, e.g. 'Texas' . Defaults to ''.
+    :type state: str
+    :param county: capitalized county name, e.g. 'Brazos' . Defaults to ''.
+    :type county: str
+    :param resolution: choose from 'halfhourly', 'hourly', 'daily'. Defaults to ''.
+    :type resolution: str
+    :param get: Defaults to 'max-population'. From within county choose the data point that matches one of the following. 'max-population', 'max-elevation', 'max-landcover' 'min-population', 'min-elevation', 'min-landcover'
+    :type get: str
+    :param save: path to save the data. Defaults to None.
+    :type save: str | None
+
+    :return: DataFrame with output data, (latitude, longitude)
+    :rtype: DataFrame | tuple
+    """
+
+    if import_all:
+        logger.warning(
+            "⚠ This is an optional feature. Please install h5pyd, or pip install energiapy[all] ⚠",
+        )
+        return None
+
+    # fetches nsrdb data for the year
+    nsrdb_data = h5pyd.File(f"/nrel/nsrdb/v3/nsrdb_{year!s}.h5", "r")
+    time_index = to_datetime(nsrdb_data["time_index"][...].astype(str))
+
+    if lat_lon is not None:
+        # get coordinates for all locations
+        coords = nsrdb_data["coordinates"][...]
+
+        tree = cKDTree(coords)
+
+        # find the data point closest to latitude and longitude
+        def nearest_site(tree, latitude, longitude):
+            lat_lon_query = array([latitude, longitude])
+            # dist, pos = tree.query(lat_lon_query)
+            return tree.query(lat_lon_query)[1]
+
+        idx = nearest_site(tree=tree, latitude=lat_lon[0], longitude=lat_lon[1])
+
+    else:
+        # gets coordinates and associated data
+        meta = DataFrame(nsrdb_data["meta"][...])
+        # data matching state coordinates
+        state_data = meta.loc[meta["state"] == str.encode(state)]
+        county_data = state_data.loc[
+            state_data["county"] == str.encode(county)
+        ]  # data matching county
+
+        # splits the get string, e.g. max - population, gives [max,
+        # population(get_metric)]
+        get_metric = get.split("-")[1]
+
+        if get.split("-")[0] == "min":
+            latitude = float(
+                county_data["latitude"][
+                    county_data[get_metric] == min(county_data[get_metric])
+                ].iloc[0],
+            )
+            longitude = float(
+                county_data["longitude"][
+                    county_data[get_metric] == min(county_data[get_metric])
+                ].iloc[0],
+            )
+            loc_data = county_data.loc[
+                (county_data["latitude"] == latitude)
+                & (county_data["longitude"] == longitude)
+            ]
+
+        if get.split("-")[0] == "max":
+            latitude = float(
+                county_data["latitude"][
+                    county_data[get_metric] == max(county_data[get_metric])
+                ].iloc[0],
+            )
+            longitude = float(
+                county_data["longitude"][
+                    county_data[get_metric] == max(county_data[get_metric])
+                ].iloc[0],
+            )
+            loc_data = county_data.loc[
+                (county_data["latitude"] == latitude)
+                & (county_data["longitude"] == longitude)
+            ]
+
+        idx = loc_data.index[0]
+        lat_lon = (latitude, longitude)
+
+    timestep_dict = {
+        "halfhourly": 1,  # native data set at 30 mins
+        "hourly": 2,  # averages over the hour
+        "daily": 48,  # averages over the day
+    }
+    averaged_output = DataFrame()
+
+    psm_scale_dict = {
+        attr: nsrdb_data[attr].attrs["psm_scale_factor"] for attr in attrs
+    }
+
+    for attr in attrs:
+        full_output = nsrdb_data[attr][:, idx]  # native data set at 30 mins
+        averaged_output[attr] = average(
+            full_output.reshape(-1, timestep_dict[resolution]),
+            axis=1,
+        )  # averages over resolution
+    averaged_output = averaged_output.set_index(
+        time_index[:: timestep_dict[resolution]],
+    )
+
+    for attr in attrs:
+        averaged_output[attr] = averaged_output[attr] / psm_scale_dict[attr]
+
+    if save is not None:
+        averaged_output.to_csv(save + ".csv")
+
+    return lat_lon, averaged_output

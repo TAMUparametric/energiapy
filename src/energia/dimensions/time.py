@@ -1,0 +1,101 @@
+"""Time"""
+
+import logging
+from dataclasses import dataclass
+
+from .._core._dimension import _Dimension
+from ..components.temporal.modes import Modes
+from ..components.temporal.periods import Periods
+
+logger = logging.getLogger("energia")
+
+
+@dataclass
+class Time(_Dimension):
+    """
+    Temporal representation of a system.
+
+    All time periods are attached to this object.
+
+    :param model: Model to which the representation belongs.
+    :type model: Model
+
+    :ivar name: Name of the dimension, generated based on the class and model name.
+    :vartype name: str
+    :ivar periods: List of time periods. Defaults to [].
+    :vartype periods: list[Periods]
+    :ivar modes: List of modes. Defaults to [].
+    :vartype modes: list[Modes]
+
+    .. note::
+        - name is generated based on the Class and Model name
+        - periods are populated as the program is built.
+        - _indexed is made the first time Time is indexed.
+    """
+
+    def __post_init__(self):
+        self.periods: list[Periods] = []
+        self.modes: list[Modes] = []
+        _Dimension.__post_init__(self)
+
+    # -----------------------------------------------------
+    #                    Helpers
+    # -----------------------------------------------------
+
+    @property
+    def tree(self) -> dict[int | float, Periods]:
+        """Return the tree of periods"""
+        hrz = self.horizon
+        return {int(hrz.howmany(prd)): prd for prd in self.periods}
+
+    @property
+    def sorted_periods(self) -> list[Periods]:
+        """Sorted periods from densest to sparsest"""
+        return sorted(self.periods)
+
+    # -----------------------------------------------------
+    #                    Superlatives
+    # -----------------------------------------------------
+
+    @property
+    def densest(self) -> Periods:
+        """The densest period"""
+        if self.periods:
+            return min(self.periods, key=lambda x: x.true_size)
+        return self.horizon
+
+    @property
+    def sparsest(self) -> Periods:
+        """The sparsest period"""
+        if self.periods:
+            return max(self.periods, key=lambda x: x.true_size)
+        return self.horizon
+
+    @property
+    def horizon(self) -> Periods:
+        """The sparsest scale is treated as the horizon"""
+        if self.periods:
+            return self.sparsest
+        # if nothing found, make a default period
+        return self.model._t0()
+
+    def find(self, size: int | float) -> Periods:
+        """Find the period that has the length"""
+
+        if size not in self.tree:
+            # if no math make a default period
+            logger.info(
+                "💡  Generating period set t%s of size %s",
+                len(self.periods),
+                size,
+            )
+            _ = self.model._t0(size=size)
+
+        return self.tree[size]
+
+    def split(self, period: Periods) -> tuple[list[Periods], list[Periods]]:
+        """Gives a list of periods which are denser and sparser than period"""
+
+        periods = self.sorted_periods
+        index = periods.index(period)
+        return periods[:index], periods[index + 1 :]

@@ -1,35 +1,67 @@
-.. energiapy documentation master file, created by
-   sphinx-quickstart on Mon May  8 14:16:22 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Energia on Python
+=================
 
-.. mdinclude:: ../README.md
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
-Welcome to energiapy's documentation!
-=====================================
 
-Tutorial
---------
+.. seealso::
+
+   `Gana <https://gana.readthedocs.io/en/latest/>`_, an Algebraic Modeling Language (AML)
+   for Multiscale Modeling and Optimization which serves as the backend
 
 .. toctree::
    :maxdepth: 2
-   :caption: Example Implementation:
+   :caption: Tutorials
+   :hidden:
 
-   notebooks/small/small
-   notebooks/sl-sp-milp/sl-sp-milp
-   notebooks/ml-sp-milp/ml-sp-milp
-   notebooks/material/material
-   notebooks/mplp/mpLP
-   example_ahc
-   
-API
----
+   tutorials/getting_started/index
+   tutorials/defining_components/index
+   tutorials/additional_features/index
+   tutorials/troubleshooting/index
+   tutorials/handling_attributes/index
+   tutorials/mathematical_program/index
+
 
 .. toctree::
-    :maxdepth: 5
-    :caption: API
+   :maxdepth: 1
+   :caption: Examples
+   :hidden:
 
-    energiapy
+   examples/scheduling
+   examples/design_scheduling_attrs
+   examples/design_scheduling
+   examples/design_scheduling_material
+   examples/material_process_modes
+   examples/seattle_topeka
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Information
+   :hidden:
+
+   frameworks
+   license
+   changelog
+   
+
+References
+----------
+
+.. bibliography::
+
+
+API Reference
+=============
+
+.. autosummary:: 
+   :toctree: _autosummary
+   :recursive:
+   :caption: API
+   :nosignatures:
+
+   energia
 
 Indices and tables
 ==================

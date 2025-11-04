@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "energiapy"
+version = "2.1.3"
+authors = [
+  { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
+  {name = "Efstratios N. Pistikopoulos", email = "stratos@tamu.edu"}
+]
+maintainers = [
+  { name="Rahul Kakodkar", email="cacodcar@gmail.com" },
+]
+description = "For multiscale modeling and optimization of energy systems"
+requires-python = ">=3.12"
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["modeling", "optimization", "energy systems", "ems", "multiscale"]
+classifiers = [
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = ["gana", "ppopt", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy"]
+
+[project.optional-dependencies]
+all = ["pvlib", "windpowerlib", "h5pyd"]
+test = ["coverage", "pytest", "hypothesis", "flake8"]
+docs = [
+    "sphinx",            
+    "sphinx-book-theme",  
+    "nbsphinx",          
+    "sphinx_mdinclude",     
+    "myst-nb", 
+    "sphinxcontrib-bibtex",
+    "sphinx-copybutton",
+    "sphinx-togglebutton",
+    "sphinx-thebe",
+    "sphinx-design",
+    "sphinx-examples",          
+    "sphinx-tabs",
+    "sphinxext-opengraph",
+]
+
+[project.urls]
+Homepage = "https://github.com/TAMUparametric/energiapy"
+Issues = "https://github.com/TAMUparametric/energiapy/issues"
+Changelog = "https://github.com/yourusername/yourrepo/blob/main/CHANGELOG.md"

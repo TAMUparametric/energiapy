@@ -1,0 +1,8 @@
+engines:
+  python:
+    enabled: true
+
+exclude_paths:
+  - "tests/**"
+  - "src/energia/library/examples/**"
+  - "docs/**"

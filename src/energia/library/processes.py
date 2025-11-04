@@ -1,0 +1,192 @@
+"""Process conversion models (external libraries)"""
+
+import logging
+
+import numpy as np
+from pandas import DataFrame
+
+logger = logging.getLogger("energia")
+
+try:
+    from pvlib.location import Location as PVLocation
+    from pvlib.modelchain import ModelChain as PVModelChain
+    from pvlib.pvsystem import PVSystem, retrieve_sam
+    from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
+
+    import_all = False
+except ImportError:
+    import_all = True
+
+try:
+    from windpowerlib import ModelChain as WModelChain
+    from windpowerlib import WindTurbine
+
+    import_all = False
+except ImportError:
+    import_all = True
+
+
+def pv(
+    data: DataFrame,
+    coord: tuple[float, float],
+    sam: str = "cecmod",
+    module_params: str = "Canadian_Solar_Inc__CS5P_220M",
+    inverter: str = "cecinverter",
+    inverter_params: str = "ABB__MICRO_0_25_I_OUTD_US_208__208V_",
+    temperature_params: str = "open_rack_glass_glass",
+    aoi_model: str = "no_loss",
+    ac_model: str = "sandia",
+    spectral_model: str = "no_loss",
+) -> list[float] | None:
+    """
+    Calculates solar power output using weather data
+    Relevant factors include DHI (W/m2), DNI (W/m2), GHI (W/m2),
+    Temperature (C), Dewpoint (C), Relative humidity (%)
+
+    :param data: weather data input with dni, dhi, wind_speed, ghi, air_temperature, dew_point, relative_humidity
+    :type data: DataFrame
+    :param coord: latitude and longitude
+    :type coord: tuple[float, float]
+    :param sam: Defaults to 'cecmod'.
+    :type sam: str, optional
+    :param module_parameters: Defaults to 'Canadian_Solar_Inc__CS5P_220M'.
+    :type module_parameters: str, optional
+    :param inverter:  Defaults to 'cecinverter'.
+    :type inverter: str, optional
+    :param inverter_parameters: Defaults to 'ABB__MICRO_0_25_I_OUTD_US_208__208V_'.
+    :type inverter_parameters: str, optional
+    :param temperature_params: Defaults to 'open_rack_glass_glass'.
+    :type temperature_params: str, optional
+    :param aoi_model: Defaults to 'no_loss'.
+    :type aoi_model: str, optional
+    :param ac_model: Defaults to 'sandia'.
+    :type ac_model: str, optional
+    :param spectral_model: Defaults to 'no_loss'.
+    :type spectral_model: str, optional
+
+    :returns: a list with solar power outputs
+    :rtype: list[float] | None
+    """
+    # data = data.resample('H').mean()
+
+    if import_all:
+        logger.warning(
+            "⚠ This is an optional feature. Please install pvlib, or pip install energiapy[all] ⚠",
+        )
+        return None
+
+    modules = retrieve_sam(sam)
+    module_parameters = modules[module_params]
+    inverters = retrieve_sam(inverter)
+    inverter_parameters = inverters[inverter_params]
+    tparams = TEMPERATURE_MODEL_PARAMETERS["sapm"][temperature_params]
+    system = PVSystem(
+        module_parameters=module_parameters,
+        inverter_parameters=inverter_parameters,
+        temperature_model_parameters=tparams,
+    )
+    location = PVLocation(latitude=coord[0], longitude=coord[1])
+    mc = PVModelChain(
+        system,
+        location,
+        aoi_model=aoi_model,
+        ac_model=ac_model,
+        spectral_model=spectral_model,
+    )
+    mc.run_model(weather=data)
+    # make a list, avoid np.float64
+    array = np.maximum(0, np.nan_to_num(np.array(mc.results.ac)))
+    return [float(i) for i in array]
+
+
+def wf(
+    data: DataFrame,
+    roughness_length: float = 0.1,
+    turbine_type: str = "V100/1800",
+    hub_height: float = 92,
+    wind_speed_model: str = "logarithmic",
+    density_model: str = "ideal_gas",
+    temperature_model: str = "linear_gradient",
+    power_output_model: str = "power_coefficient_curve",
+    density_correction: bool = True,
+    obstacle_height: float = 0,
+    observation_height: float = 10,
+) -> list[float] | None:
+    """
+    Calculates wind power output using weather data
+    Relevant factors include wind speeds (m/s), temperature (K), and pressure(Pa)
+
+    :param data: weather data input with wind_speed, air_temperature, surface_pressure
+    :type data: DataFrame
+    :param roughness_length: Defaults to 0.1.
+    :type roughness_length: float, optional
+    :param turbine_type: Defaults to 'V100/1800'.
+    :type turbine_type: str, optional
+    :param hub_height: Defaults to 92.
+    :type hub_height: float, optional
+    :param wind_speed_model: Defaults to 'logarithmic'.
+    :type wind_speed_model: str, optional
+    :param density_model: Defaults to 'ideal_gas'.
+    :type density_model: str, optional
+    :param temperature_model: Defaults to 'linear_gradient'.
+    :type temperature_model: str, optional
+    :param power_output_model: Defaults to power_coefficient_curve.
+    :type power_output_model: str, optional
+    :param density_correction: Defaults to True.
+    :type density_correction: bool, optional
+    :param obstacle_height: Defaults to 0.
+    :type obstacle_height: float, optional
+    :param observation_height: Defaults to 10.
+    :type observation_height: float, optional
+
+    :returns: a dataframe with hourly wind power outputs
+    :rtype: list[float] | None
+    """
+
+    # df_ = df_.dropna()
+    if import_all:
+        logger.warning(
+            "⚠ This is an optional feature. Please install windpowerlib, or pip install energiapy[all] ⚠",
+        )
+        return None
+    data["pressure"] = 100 * data["surface_pressure"]
+    data["temperature"] = data["air_temperature"] + 273.15
+    data["roughness_length"] = roughness_length
+
+    # data = data.resample('H').mean()
+    data = DataFrame(
+        data[["wind_speed", "temperature", "pressure", "roughness_length"]].to_numpy(),
+        index=data.index,
+        columns=[
+            np.array(["wind_speed", "temperature", "pressure", "roughness_length"]),
+            np.array([observation_height, observation_height, observation_height, 0]),
+        ],
+    )
+    # specification of wind turbine where power curve is provided in the
+    # oedb turbine library
+    turbine_type_ = {
+        "turbine_type": turbine_type,  # Vestas
+        "hub_height": hub_height,  # in m
+    }
+    # initialize WindTurbine object
+    turbine = WindTurbine(**turbine_type_)
+
+    modelchain_data = {
+        "wind_speed_model": wind_speed_model,  # 'logarithmic' (default),
+        # 'hellman' or
+        # 'interpolation_extrapolation'
+        "density_model": density_model,  # 'barometric' (default), 'ideal_gas'
+        # or 'interpolation_extrapolation'
+        "temperature_model": temperature_model,  # 'linear_gradient' (def.) or
+        # 'interpolation_extrapolation'
+        # 'power_curve' (default) or
+        "power_output_model": power_output_model,
+        # 'power_coefficient_curve'
+        "density_correction": density_correction,  # False (default) or True
+        "obstacle_height": obstacle_height,  # default: 0
+        "hellman_exp": None,
+    }  # None (default) or None
+    # initialize ModelChain with own specifications and use run_model method to
+    # calculate power output
+    mc_turbine = WModelChain(turbine, **modelchain_data).run_model(data)
+    return list(mc_turbine.power_output)

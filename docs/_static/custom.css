@@ -1,0 +1,67 @@
+/* Hides dark/light mode switch button */
+button.theme-switch-button {
+    display: none !important;
+}
+
+/* Import the web font (Latin Modern from fonts.cdnfonts.com) */
+@import url("https://fonts.cdnfonts.com/css/latin-modern-roman");
+
+/* Base font stack */
+:root {
+  --main-font: "Latin Modern Roman", "Computer Modern", "Georgia", serif;
+  --mono-font: "JetBrains Mono", "Fira Code", monospace;
+  --text-color: #2b2b2b;
+  --accent-color: #0044aa;
+  --code-bg: #f8f9fa;
+}
+
+
+/* Body text */
+body {
+  font-family: var(--main-font);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+
+
+/* -------------------------------
+   Headings (bold Computer Modern)
+-------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--main-font);
+  font-weight: 1200;           /* Makes headings bold */
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+/* margin-top: 1em; */
+/* line-height: 1.2; */
+
+/* Optional: slightly different colors by level */
+h1 { color: #002e8a; }  /* Deep blue for main title */
+h2 { color: #0044aa; }
+h3, h4, h5, h6 { color: #222; }
+
+/* Links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Code and monospace text */
+code, pre {
+  font-family: var(--mono-font);
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+
+
+/* Adjust sidebar width */
+:root {
+  --sb-width: 320px;  /* or whatever width you like */
+}
