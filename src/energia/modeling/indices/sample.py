@@ -642,10 +642,49 @@ class Sample:
             return f
         return calculate(self(), *self.domain.index_spatiotemporal)
 
-    def draw(self, **kwargs):
-        """Draws the variable"""
+    def bar(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a bar chart"""
         v = self.V()
-        v.draw(**kwargs)
+        v.bar(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
+
+    def line(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a line chart"""
+        v = self.V()
+        v.line(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
 
     def __str__(self):
         return self.name

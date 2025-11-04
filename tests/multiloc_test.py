@@ -64,4 +64,4 @@ def test_seattle_topeka(m):
         'ship_out': [50.0, 300.0, 0.0, 275.0, 0.0, 275.0],
     }
 
-    assert m.solution[0].asdict() == _wrap_with_approx(expected)
+    assert m.solutions[0].asdict() == _wrap_with_approx(expected)

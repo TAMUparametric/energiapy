@@ -1,4 +1,4 @@
-energia.represent.model
+﻿energia.represent.model
 =======================
 
 .. automodule:: energia.represent.model
@@ -35,15 +35,18 @@ energia.represent.model
       Emission
       Environ
       Graph
+      Idx
       Impact
       Instruction
       Interact
       Land
       Linkage
       Location
+      MParam
       Material
       Model
       Modes
+      Param
       Periods
       Player
       Problem

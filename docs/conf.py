@@ -25,7 +25,7 @@ sys.setrecursionlimit(10000)
 project = 'Energia'
 copyright = str(datetime.now().year)
 author = 'Rahul Kakodkar, Efstratios N. Pistikopoulos'
-release = '2.1.3'
+release = '2.1.4'
 
 
 html_logo = "_static/logo2.jpg"

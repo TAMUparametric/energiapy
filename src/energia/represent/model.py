@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
+from gana import I as Idx
+from gana import P as Param
+from gana import T as MParam
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency
@@ -259,7 +262,13 @@ class Model:
         self.program_attrs += [
             w + s for w in self.program_attrs for s in ['s', '_sets']
         ]
-        self.program_attrs += ["solution", "formulation", "evaluation"]
+        self.program_attrs += [
+            "solution",
+            "solutions",
+            "formulation",
+            "formulations",
+            "evaluation",
+        ]
         # word -> n_word
         self.program_attrs += ['n_' + w for w in self.program_attrs]
         self.program_attrs += [
@@ -699,6 +708,19 @@ class Model:
             label=label,
             latex=latex,
         )
+
+    def P(
+        self,
+        *index: Idx | tuple[Idx],
+        data: float | tuple[float, float] | list[float | tuple[float, float]],
+    ) -> Param:
+        """Makes a gana.P or gana.T from data and index"""
+
+        if isinstance(data, (float, int)) or (
+            isinstance(data, list) and isinstance(data[0], (float, int))
+        ):
+            return Param(*index, _=data)
+        return MParam(*index, _=data)
 
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components
