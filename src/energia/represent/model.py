@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -37,9 +38,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -47,6 +56,8 @@ from ..modeling.variables.states import Consequence, State, Stream
 from .ations.graph import Graph
 from .ations.program import Program
 from .ations.scenario import Scenario
+from gana import P as Param
+from gana import T as MParam
 
 logger = logging.getLogger("energia")
 logger.setLevel(logging.INFO)
@@ -699,6 +710,21 @@ class Model:
             label=label,
             latex=latex,
         )
+
+    def P(
+        self,
+        data: float | tuple[float, float] | list[float | tuple[float, float]],
+        index: I | tuple[I] = None,
+    ) -> Param:
+
+        if not index:
+            index = ()
+
+        if isinstance(data, (float, int)) or (
+            isinstance(data, list) and isinstance(data[0], (float, int))
+        ):
+            return Param(*index, data)
+        return MParam(*index, data)
 
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components

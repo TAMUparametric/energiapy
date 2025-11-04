@@ -49,7 +49,6 @@ def scheduling_w_attrs():
     return m
 
 
-
 def scheduling_wo_time():
     """A small scheduling example with attributes"""
     m = Model("scheduling")
@@ -70,6 +69,7 @@ def scheduling_wo_time():
     m.network.locate(m.wf)
     # TODO: solution error
     return m
+
 
 def design_scheduling_w_gattr():
     """A small design and scheduling example"""

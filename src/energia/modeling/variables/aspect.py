@@ -124,9 +124,9 @@ class Aspect:
 
         # upper/lower/exact bounds are set on these locations/periods
 
-        self.ubs: dict[Location | Linkage, Periods] = {}
-        self.lbs: dict[Location | Linkage, Periods] = {}
-        self.eqs: dict[Location | Linkage, Periods] = {}
+        # self.ubs: dict[Location | Linkage, Periods] = {}
+        # self.lbs: dict[Location | Linkage, Periods] = {}
+        # self.eqs: dict[Location | Linkage, Periods] = {}
 
         # Domains of the decision
         self.domains: list[Domain] = []
@@ -162,17 +162,37 @@ class Aspect:
         }
         return self.model.maps_report[self]
 
-    # @cached_property
-    # def maps(self) -> dict[Aspect, dict[str, list[Domain]]]:
-    #     """Maps of the decision"""
-    #     self.model.maps[self] = {}
-    #     return self.model.maps[self]
+    @property
+    def ubs(self):
+        """Upper bounds"""
+        try:
+            return self.model.scenario.ubs[self]
+        except KeyError:
+            return {}
 
-    # @cached_property
-    # def maps_report(self) -> dict[Aspect, dict[str, list[Domain]]]:
-    #     """Maps of the decision"""
-    #     self.model.maps_report[self] = {s}
-    #     return self.model.maps_report[self]
+    @property
+    def lbs(self):
+        """Lower bounds"""
+        try:
+            return self.model.scenario.lbs[self]
+        except KeyError:
+            return {}
+
+    @property
+    def eqs(self):
+        """Exact bounds"""
+        try:
+            return self.model.scenario.eqs[self]
+        except KeyError:
+            return {}
+
+    @property
+    def calcs(self):
+        """Calculated aspects"""
+        try:
+            return self.model.scenario.calcs[self]
+        except KeyError:
+            return {}
 
     @cached_property
     def isneg(self) -> bool:
@@ -313,63 +333,6 @@ class Aspect:
         t = [t for t in ds if isinstance(t, Periods)]
         return t
 
-    def draw(
-        self,
-        x: _X,
-        y: tuple[_X] | _X,
-        z: tuple[_X] | _X = None,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-    ):
-        """Plot the decision"""
-        if not isinstance(y, tuple):
-            y = (y,)
-        if not z:
-            index = [i.I for i in y + (x,)]
-        elif not isinstance(z, tuple):
-            z = (z,)
-
-        if usetex:
-            rc(
-                "font",
-                **{"family": "serif", "serif": ["Computer Modern"], "size": font_size},
-            )
-            rc("text", usetex=usetex)
-        else:
-            rc("font", **{"size": font_size})
-
-        _, ax = plt.subplots(figsize=fig_size)
-
-        if not z:
-            ax.plot(
-                [i.name for i in x.I._],
-                self.V(*index).output(True),
-                linewidth=linewidth,
-                color=color,
-            )
-        else:
-            for z_ in z:
-                index = [i.I for i in (z_,) + y + (x,)]
-                ax.plot(
-                    [i.name for i in x.I._],
-                    self.V(*index).output(True),
-                    linewidth=linewidth,
-                    label=z_.label if z_.label else z_.name,
-                )
-
-        label_ = [i.label if i.label else i.name for i in y]
-        label_ = str(label_).replace("[", "").replace("]", "").replace("'", "")
-        plt.title(f"{self.label} - {label_}")
-        plt.ylabel("Values")
-        plt.xlabel(f"{x.label or x.name}")
-        plt.grid(alpha=grid_alpha)
-        if z:
-            plt.legend()
-        plt.rcdefaults()
 
     def __neg__(self):
         """Negative Consequence"""
@@ -388,6 +351,9 @@ class Aspect:
     def __eq__(self, other: Self) -> bool:
         if isinstance(other, Aspect):
             return self.name == other.name
+
+    def __getitem__(self, item: _X) -> Sample:
+        return self.dispositions[item]
 
     def __call__(
         self, *index: _X, domain: Domain | None = None, report=False

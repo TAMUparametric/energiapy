@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ...utils.decorators import timer
+
 # from ...components.temporal.modes import Modes
 from ...utils.math import normalize
 
