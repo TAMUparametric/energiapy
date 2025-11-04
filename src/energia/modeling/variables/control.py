@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Self
 
-from ..constraints.vmap import Map
 from .aspect import Aspect
 
 if TYPE_CHECKING:

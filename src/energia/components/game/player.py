@@ -1,13 +1,6 @@
 """Player"""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from ..._core._component import _Component
-
-if TYPE_CHECKING:
-    from ..measure.unit import Unit
 
 
 class Player(_Component):
@@ -36,10 +29,6 @@ class Player(_Component):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
-        self,  label: str = "", citations: str = "", **kwargs
-    ):
+    def __init__(self, label: str = "", citations: str = "", **kwargs):
 
-        _Component.__init__(
-            self, label=label, citations=citations, **kwargs
-        )
+        _Component.__init__(self, label=label, citations=citations, **kwargs)
