@@ -6,9 +6,6 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Self, Type
 
-import matplotlib.pyplot as plt
-from matplotlib import rc
-
 from ...components.commodities.commodity import Commodity
 from ...components.game.couple import Interact
 from ...components.game.player import Player
