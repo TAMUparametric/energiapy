@@ -365,8 +365,8 @@ class Model:
         ] = {}
 
         # * Drawn Maps
-        self.maps: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
-        self.maps_report: dict[Aspect, dict[Domain, dict[str, list[Domain]]]] = {}
+        self.maps: dict[Aspect, dict[str, dict[Domain, list[Domain]]]] = {}
+        self.maps_report: dict[Aspect, dict[str, dict[Domain, list[Domain]]]] = {}
 
         # * Generated Modes
         self.modes_dict: dict[Sample, Modes] = {}

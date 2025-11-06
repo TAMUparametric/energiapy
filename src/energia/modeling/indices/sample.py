@@ -82,18 +82,14 @@ class Sample:
         # the domain is passed when the aspect is called using __call__()
         self.domain = domain
 
+        self._handshake()
+
         self.label = label
         # if the temporal index is predetermined
         self.timed = timed
         # if the spatial index is predetermined
         self.spaced = spaced
 
-        self.model = self.aspect.model
-        self.program = self.model.program
-        self.balances = self.model.balances
-
-        # if the aspect is bound (operate for example)
-        self.bound = self.aspect.bound
 
         # this is set if the aspect needs a reporting binary variable
         self.report = report
@@ -685,6 +681,15 @@ class Sample:
             usetex=usetex,
             str_idx_lim=str_idx_lim,
         )
+
+    def _handshake(self):
+        """Take what is needed from aspect"""
+
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.balances = self.model.balances
+        # if the aspect is bound (operate for example)
+        self.bound = self.aspect.bound
 
     def __str__(self):
         return self.name
