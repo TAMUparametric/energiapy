@@ -30,8 +30,6 @@ class Balance(_Hash):
     :type aspect: Aspect
     :param domain: Domain over which the aspect is defined
     :type domain: Domain
-    :param label: Label for the constraint. Defaults to "".
-    :type label: str
 
     :ivar model: The model to which the component belongs.
     :vartype model: Model

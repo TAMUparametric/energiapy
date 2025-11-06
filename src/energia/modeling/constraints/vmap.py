@@ -132,7 +132,9 @@ class Map:
 
     @cached_property
     def maps(self) -> dict[Domain, list[Domain]]:
-        return self.aspect.maps_report if self.reporting else self.aspect.maps
+        return (
+            self.aspect.maps_report if self.reporting is not None else self.aspect.maps
+        )
 
     def _map_across_time(self):
         """
@@ -281,18 +283,18 @@ class Map:
         Checks if constraints have been written for child modes
         or for parent modes
         """
-        if to_domain in self.aspect.maps["modes"]:
+        if to_domain in self.maps["modes"]:
             if from_domain.modes.parent:
                 if (
                     from_domain.change({"modes": from_domain.modes.parent})
-                    in self.aspect.maps["modes"][to_domain]
+                    in self.maps["modes"][to_domain]
                 ):
                     return False
             else:
                 for modes in from_domain.modes._:
                     if (
                         from_domain.change({"modes": modes})
-                        in self.aspect.maps["modes"][to_domain]
+                        in self.maps["modes"][to_domain]
                     ):
                         return False
         return True

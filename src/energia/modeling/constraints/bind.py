@@ -10,12 +10,12 @@ from ...utils.decorators import timer
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
+from gana import V
+from gana.sets.function import F
 
 if TYPE_CHECKING:
-    from gana import V
     from gana import P as Param
     from gana.sets.constraint import C
-    from gana.sets.function import F
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -341,15 +341,9 @@ class Bind:
     @property
     def P(self):
         """Gets the parameter set"""
-        if self.iscalc:
-            return self.cons.two.one
-        return self.cons.two
 
-        # if self.leq:
-        #     _bound = r"\overline{"
-        # elif self.geq:
-        #     _bound = r"\underline{"
-        # else:
-        #     _bound = r"{"
-        # _p._ltx = _bound + r"\mathrm{" + self.lhs.ltx.capitalize() + r"}}"
-        # return _p
+        if isinstance(self.cons.two, F):
+            return self.cons.two.one
+        if isinstance(self.cons.two, V):
+            return 1.0
+        return self.cons.two
