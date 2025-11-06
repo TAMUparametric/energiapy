@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from ..._core._hash import _Hash
@@ -20,23 +21,11 @@ class Scenario(_Hash):
         self.model = model
         self.name = rf"Scenario({self.model})"
 
-        # Bounds, upper, lower, and equality
-        self.ubs = {}
-        self.lbs = {}
-        self.eqs = {}
-
-        # Calculations
-        self.calcs = {}
-        # incidental calculations
-        self.inc_calcs = {}
-
         self._ = {}
-
 
     def update(
         self,
         sample: Sample,
-        # domain: Domain,
         rel: str,
         parameter: float | list[float],
     ):
@@ -45,7 +34,6 @@ class Scenario(_Hash):
         self._ = merge_trees(
             self._, {sample.aspect: sample.domain.param_tree(parameter, rel)}
         )
-
 
     def __getitem__(self, item):
         return self._[item]
