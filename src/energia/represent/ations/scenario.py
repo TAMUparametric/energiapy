@@ -30,16 +30,8 @@ class Scenario(_Hash):
         # incidental calculations
         self.inc_calcs = {}
 
-    @property
-    def _(self):
-        """Returns the scenario representation as a dictionary"""
-        return {
-            "ubs": self.ubs,
-            "lbs": self.lbs,
-            "eqs": self.eqs,
-            "calcs": self.calcs,
-            "inc_calcs": self.inc_calcs,
-        }
+        self._ = {}
+
 
     def update(
         self,
@@ -50,28 +42,10 @@ class Scenario(_Hash):
     ):
         """Update the scenario representation"""
 
-        if rel == 'ub':
-            self.ubs = merge_trees(
-                self.ubs, {sample.aspect: sample.domain.param_tree(parameter)}
-            )
+        self._ = merge_trees(
+            self._, {sample.aspect: sample.domain.param_tree(parameter, rel)}
+        )
 
-        elif rel == 'lb':
-            self.lbs = merge_trees(
-                self.lbs, {sample.aspect: sample.domain.param_tree(parameter)}
-            )
-        elif rel == 'eq':
-            self.eqs = merge_trees(
-                self.eqs, {sample.aspect: sample.domain.param_tree(parameter)}
-            )
-
-        elif rel == 'calc':
-            self.calcs = merge_trees(
-                self.calcs, {sample.aspect: sample.domain.param_tree(parameter)}
-            )
-        elif rel == 'inc_calc':
-            self.inc_calcs = merge_trees(
-                self.inc_calcs, {sample.aspect: sample.domain.param_tree(parameter)}
-            )
 
     def __getitem__(self, item):
         return self._[item]

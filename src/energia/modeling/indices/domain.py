@@ -285,14 +285,16 @@ class Domain(_Hash):
             node = node[key]
         return tree
 
-    def param_tree(self, parameter: float | list[float]) -> dict:
+    def param_tree(self, parameter: float | list[float], rel: str) -> dict:
         """Tree representation of the Domain"""
         tree = {}
         node = tree
         n_last = len(self.index) - 1
         for n, key in enumerate(self.index):
             if n == n_last:
-                node[key] = parameter
+                if not node:
+                    node[key] = {}
+                node[key][rel] = parameter
             else:
                 node[key] = {}
                 node = node[key]

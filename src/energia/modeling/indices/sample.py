@@ -90,7 +90,6 @@ class Sample:
         # if the spatial index is predetermined
         self.spaced = spaced
 
-
         # this is set if the aspect needs a reporting binary variable
         self.report = report
 
@@ -209,37 +208,14 @@ class Sample:
 
         return self.domain.location
 
-    def Vlag(self):
-        """Handles lagged domains"""
-        # with lag it is assumed that the variable of which this is a lagged subset is
-        # already defined
-        # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
-        try:
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
+    def _handshake(self):
+        """Take what is needed from aspect"""
 
-        except AttributeError:
-            _ = self == True
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
-
-        except KeyError:
-            # the variable has not been defined yet
-            lag = self.domain.lag
-            self.domain = self.domain.change(
-                {"lag": None, "periods": self.domain.lag.of},
-            )
-            args = (self.parameter, self.length)
-
-            if self.hasinc:
-                _ = self.Vinc(*args)
-
-            if self.report:
-                _ = self.X(*args)
-
-            else:
-                _ = self.V(*args)
-
-            self.domain = self.domain.change({"lag": lag, "periods": None})
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.balances = self.model.balances
+        # if the aspect is bound (operate for example)
+        self.bound = self.aspect.bound
 
     def _inform(self):
         """Informs the aspect and domain about the sample"""
@@ -272,6 +248,10 @@ class Sample:
         self.aspect.update(self.domain)
 
         self.aspect.domains.append(self.domain)
+
+    # ---------------------------------------------------------------------------
+    #               Variable Birthing
+    # ---------------------------------------------------------------------------
 
     def _init_V(self, parameter: float | list = None, length: int = None):
         """Initialize making a variable"""
@@ -486,6 +466,38 @@ class Sample:
         self.aspect.reporting = v_rpt
         return v_rpt(*self.I)
 
+    def Vlag(self):
+        """Handles lagged domains"""
+        # with lag it is assumed that the variable of which this is a lagged subset is
+        # already defined
+        # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
+        try:
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except AttributeError:
+            _ = self == True
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except KeyError:
+            # the variable has not been defined yet
+            lag = self.domain.lag
+            self.domain = self.domain.change(
+                {"lag": None, "periods": self.domain.lag.of},
+            )
+            args = (self.parameter, self.length)
+
+            if self.hasinc:
+                _ = self.Vinc(*args)
+
+            if self.report:
+                _ = self.X(*args)
+
+            else:
+                _ = self.V(*args)
+
+            self.domain = self.domain.change({"lag": lag, "periods": None})
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
     def obj(self, maximize: bool = False):
         """
         Set the sample itself as the objective
@@ -681,15 +693,6 @@ class Sample:
             usetex=usetex,
             str_idx_lim=str_idx_lim,
         )
-
-    def _handshake(self):
-        """Take what is needed from aspect"""
-
-        self.model = self.aspect.model
-        self.program = self.model.program
-        self.balances = self.model.balances
-        # if the aspect is bound (operate for example)
-        self.bound = self.aspect.bound
 
     def __str__(self):
         return self.name
