@@ -123,7 +123,7 @@ class Aspect:
         # reporting variable
         self.reporting: Var | None = None
 
-        self.constraints: list[str] = []
+        self.constraints: set[str] = set()
 
     @cached_property
     def maps(self) -> dict[str, dict[Domain, list[Domain]]]:

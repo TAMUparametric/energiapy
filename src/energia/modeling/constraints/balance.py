@@ -234,8 +234,7 @@ class Balance(_Hash):
         """
         self.domain.inform_indices(self._name)
 
-        if self._name not in self.aspect.constraints:
-            self.aspect.constraints.append(self._name)
+        self.aspect.constraints.add(self._name)
 
         # update the GRB aspects
         self.existing_aspects.append(self)

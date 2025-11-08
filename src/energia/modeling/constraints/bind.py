@@ -319,8 +319,7 @@ class Bind:
         """Informs the aspect and domain about the bind constraint"""
 
         # let the aspect know about the new constraint
-        if self.cons_name not in self.aspect.constraints:
-            self.aspect.constraints.append(self.cons_name)
+        self.aspect.constraints.add(self.cons_name)
 
         # let all objects in the domain know that
         # a constraint with this name contains it

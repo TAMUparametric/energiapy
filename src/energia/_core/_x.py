@@ -57,7 +57,7 @@ class _X(ABC, _Hash):
         self.name: str = ""
 
         # constraint pnames associated with the component
-        self.constraints: list[str] = []
+        self.constraints: set[str] = set()
         # domains associated with the component
         self.domains: list[Domain] = []
         # aspects associated with the component with domains

@@ -414,8 +414,7 @@ class Domain(_Hash):
     def inform_indices(self, cons_name: str):
         """Update the constraints declared at every index"""
         for j in self.index:
-            if cons_name not in j.constraints:
-                j.constraints.append(cons_name)
+            j.constraints.add(cons_name)
 
     def update_domains(self, aspect: Aspect):
         """

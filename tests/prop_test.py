@@ -31,7 +31,7 @@ def test_props(m):
     assert str(m.space) == "Space(test)"
     assert repr(m.space) == "Space(test)"
     assert hash(m.space) == hash("Space(test)")
-    assert m.t.cons == m.constraint_sets
+    assert set(m.t.cons) == set(m.constraint_sets)
     assert not m.r.conversions
     assert m.r.balance == {m.r: 1.0}
     assert m.r_in.balance == {m.r_in: 1.0}

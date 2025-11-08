@@ -359,8 +359,7 @@ class Map:
             return True
 
     def _inform(self, from_domain: Domain):
-        if self.cons_name not in self.aspect.constraints:
-            self.aspect.constraints.append(self.cons_name)
+        self.aspect.constraints.add(self.cons_name)
 
         from_domain.inform_indices(self.cons_name)
 
