@@ -116,6 +116,7 @@ class Bind:
         else:
             return False
 
+        self._categorize()
         self._inform()
 
         # set the constraint
@@ -326,8 +327,6 @@ class Bind:
 
     def _inform(self):
         """Informs the aspect and domain about the bind constraint"""
-
-        self._categorize()
 
         # let the aspect know about the new constraint
         if self.cons_name not in self.aspect.constraints:
