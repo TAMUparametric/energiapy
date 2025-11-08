@@ -211,14 +211,12 @@ class Bind:
         """Constraint name suffix"""
         if self.leq:
             return "ub"
-        elif self.eq:
-            if self.of is not None:
-                if self.report:
-                    return "inc_calc"
-                return "calc"
-            return "eq"
         elif self.geq:
             return "lb"
+        # equality
+        if self.of is not None:
+            return "inc_calc" if self.report else "calc"
+        return "eq"
 
     @cached_property
     def cons_name(self):
