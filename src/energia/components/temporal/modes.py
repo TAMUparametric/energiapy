@@ -26,11 +26,19 @@ class Modes(_X):
     :type sample: Sample | None
     :param parent: Parent mode, if any. Defaults to None.
     :type parent: Self | None
-    :param pos: Position in the parent mode set. Defaults to None.
-    :type pos: int | None
+    :param n: Position in the parent mode set. Defaults to None.
+    :type n: int | None
 
-    :ivar name: The name of the mode, usually a number.
-    :vartype name: str | float | int
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
     """
 
     def __init__(
@@ -39,20 +47,16 @@ class Modes(_X):
         sample: Sample | None = None,
         parent: Self | None = None,
         n: int | None = None,
-        label: str = "",
-        citations: str = "",
     ):
         self.size = size
         self.sample = sample
         self.parent = parent
         self.n = n
 
-        _X.__init__(self, label=label, citations=citations)
-
-        if self.n is not None:
-            self.name = f"{self.parent}[{self.n}]"
+        _X.__init__(self)
 
         if self.parent:
+            self.name = f"{self.parent}[{self.n}]"
             self.model = self.parent.model
 
     @cached_property
