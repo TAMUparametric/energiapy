@@ -335,10 +335,11 @@ class Sample(_Hash):
         #   calc = v * param
         #   calc_incidental = v_reporting * param_incidental
         # named with a superscript inc
-        if self.aspect.latex:
-            ltx = self.aspect.latex + r"^{inc}"
-        else:
-            ltx = self.aspect.name + r"^{inc}"
+        ltx = (
+            self.aspect.latex + r"^{inc}"
+            if self.aspect.latex
+            else self.aspect.name + r"^{inc}"
+        )
 
         # create an incidental variable (continuous)
         setattr(
@@ -581,7 +582,7 @@ class Sample(_Hash):
 
         for c in (
             set(chain.from_iterable(i.constraints for i in self.index))
-            | self.aspect.constraints
+            & self.aspect.constraints
         ):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
