@@ -105,9 +105,11 @@ class Sample(_Hash):
         """Sample being calculated"""
         return self.domain.samples[0] if self.domain.samples else None
 
-    @property
+    @cached_property
     def name(self) -> str:
         """Name of the constraint"""
+        # can have a sample without aspect or primary
+        # safe to cache
         return f"{self.domain.primary}.{self.aspect.name}"
 
     @property
@@ -152,6 +154,16 @@ class Sample(_Hash):
         return self.aspect.constraints
 
     @cached_property
+    def space(self):
+        """Assigns to network is spatial index is not given"""
+        if not self.spaced:
+            # if spatial index is not explicity given
+            # default to the network
+            self.domain.location = self.aspect.network
+
+        return self.domain.location
+
+    @cached_property
     def time(self):
         """Matches an appropriate temporal scale
         Sets domain.periods if needed and
@@ -161,15 +173,23 @@ class Sample(_Hash):
             self.domain.periods = self._match_time()
         return self.domain.periods
 
-    @cached_property
-    def space(self):
-        """Assigns to network is spatial index is not given"""
-        if not self.spaced:
-            # if spatial index is not explicity given
-            # default to the network
-            self.domain.location = self.aspect.network
+    def _match_time(self):
+        """Matches an appropriate temporal scale"""
+        if isinstance(self.parameter, list):
+            # if list is given, find using length of the list
+            if self.domain.modes is not None:
+                return self.aspect.time.find(
+                    len(self.parameter) / len(self.domain.modes),
+                )
+            return self.aspect.time.find(len(self.parameter))
 
-        return self.domain.location
+        if isinstance(self.length, int):
+            # if length is given, use it directly
+            return self.aspect.time.find(self.length)
+        # else the size of parameter set is exactly one
+        # or nothing is given, meaning the variable is not time dependent
+        # thus, index by horizon
+        return self.aspect.horizon
 
     def _handshake(self):
         """Take what is needed"""
@@ -211,24 +231,6 @@ class Sample(_Hash):
 
         self.aspect.domains.append(self.domain)
 
-    def _match_time(self):
-        """Matches an appropriate temporal scale"""
-        if isinstance(self.parameter, list):
-            # if list is given, find using length of the list
-            if self.domain.modes is not None:
-                return self.aspect.time.find(
-                    len(self.parameter) / len(self.domain.modes),
-                )
-            return self.aspect.time.find(len(self.parameter))
-
-        if isinstance(self.length, int):
-            # if length is given, use it directly
-            return self.aspect.time.find(self.length)
-        # else the size of parameter set is exactly one
-        # or nothing is given, meaning the variable is not time dependent
-        # thus, index by horizon
-        return self.aspect.horizon
-
     # ---------------------------------------------------------------------------
     #               Variable Birthing
     # ---------------------------------------------------------------------------
@@ -241,9 +243,7 @@ class Sample(_Hash):
 
         if self.domain.primary not in self.aspect.bound_spaces:
             self.aspect.bound_spaces[self.domain.primary] = {
-                "ub": [],
-                "lb": [],
-                "eq": [],
+                rel: [] for rel in ["ub", "lb", "eq"]
             }
 
         # Sample will figure these out if needed
@@ -498,7 +498,6 @@ class Sample(_Hash):
         if len(v) == 1:
             _obj = v
         else:
-
             _obj = sigma(v)
 
         if self.hasinc:
@@ -578,7 +577,7 @@ class Sample(_Hash):
         return self
 
     def show(self, descriptive=False):
-        """Pretty print the component"""
+        """Pretty print constraints"""
 
         for c in (
             set(chain.from_iterable(i.constraints for i in self.index))
@@ -767,4 +766,4 @@ class FuncOfSamples:
         """
 
         setattr(self.program, f"min_{self.F.name}", inf(self.F))
-        self.program.opt()
+        self.program.opt(maximize=maximize)
