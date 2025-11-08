@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self
 from gana import I as Idx
 from gana import V, inf, sigma, sup
 
+from ..._core._hash import _Hash
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 # ------------------------------------------------------------------------------
 
 
-class Sample:
+class Sample(_Hash):
     """
     Sets a bound on a variable (V) within a particular domain.
 
@@ -45,6 +46,8 @@ class Sample:
     :type timed: bool | None
     :param spaced: If the spatial index is predetermined. Defaults to None.
     :type spaced: bool | None
+    :param report: If a reporting binary variable is needed. Defaults to False.
+    :type report: bool, optional
 
     :ivar name: Name of the bind.
     :vartype name: str | None
@@ -71,41 +74,29 @@ class Sample:
         self,
         aspect: Aspect,
         domain: Domain,
-        label: str = "",
         timed: bool = False,
         spaced: bool = False,
         report: bool = False,
     ):
 
-        # this is the aspect for which the constraint is being defined
         self.aspect = aspect
-        # the domain is passed when the aspect is called using __call__()
         self.domain = domain
+        self.timed = timed
+        self.spaced = spaced
+        self.report = report
 
         self._handshake()
 
-        self.label = label
-        # if the temporal index is predetermined
-        self.timed = timed
-        # if the spatial index is predetermined
-        self.spaced = spaced
-
-        # this is set if the aspect needs a reporting binary variable
-        self.report = report
-
         # if incidental calculation is generated
         self.hasinc: bool = False
-
         # if nominal is provided
         # and multiplied by the nominal value
         self.nominal: float | None = None
         # the input argument is normalized if True
         self.norm: bool = False
-
         # the bound is set for all indices
         self._forall: list[_X] = []
-
-        # parameters
+        # parameter and length
         self.parameter: P = None
         self.length: int = 0
 
@@ -166,12 +157,13 @@ class Sample:
 
     def show(self, descriptive=False):
         """Pretty print the component"""
-        constraints = list(chain.from_iterable(i.constraints for i in self.index))
 
-        for c in constraints:
-            if c in self.aspect.constraints:
-                cons: C = getattr(self.program, c)
-                cons.show(descriptive)
+        for c in (
+            set(chain.from_iterable(i.constraints for i in self.index))
+            | self.aspect.constraints
+        ):
+            cons: C = getattr(self.program, c)
+            cons.show(descriptive)
 
     @cached_property
     def time(self):
@@ -693,15 +685,6 @@ class Sample:
             usetex=usetex,
             str_idx_lim=str_idx_lim,
         )
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
 
     # This is for binding sample operations, eg. sample + sample or sample - sample
 
