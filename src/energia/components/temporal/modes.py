@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from gana import I
+from gana import I as Idx
 
 from ..._core._x import _X
 
@@ -65,7 +65,7 @@ class Modes(_X):
         return [Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)]
 
     @cached_property
-    def I(self) -> I:
+    def I(self) -> Idx:
         """Index set of modes"""
 
         if self.parent:
@@ -73,7 +73,7 @@ class Modes(_X):
             # do not set a new index set, get from parent
             return getattr(self.parent.program, self.parent.name)[self.n]
 
-        _index = I(size=self.size, tag=f"Modes of {self.sample.aspect}")
+        _index = Idx(size=self.size, tag=f"Modes of {self.sample.aspect}")
 
         setattr(
             self.program,
