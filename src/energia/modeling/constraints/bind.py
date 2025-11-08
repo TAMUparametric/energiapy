@@ -214,7 +214,7 @@ class Bind:
         elif self.geq:
             return "lb"
         # equality
-        if self.of is not None:
+        if self.iscalc:
             return "inc_calc" if self.report else "calc"
         return "eq"
 
@@ -236,8 +236,7 @@ class Bind:
             lhs = self.sample(idx)
 
             try:
-                # if a list is passed
-                # or any iterable vector
+                # if any iterable vector
                 rhs = self.parameter[n]
             except TypeError:
                 # if not repeat the same value
@@ -315,9 +314,8 @@ class Bind:
             # )
         return False
 
-    def _inform(self):
-        """Informs the aspect and domain about the bind constraint"""
-
+    def _categorize(self):
+        """Categorizes the constraint"""
         # categorize the constraint
         if self.iscalc:
             self.cons.categorize("Calculations")
@@ -325,6 +323,11 @@ class Bind:
             self.cons.categorize("Piecewise Linear")
         else:
             self.cons.categorize("Binds")
+
+    def _inform(self):
+        """Informs the aspect and domain about the bind constraint"""
+
+        self._categorize()
 
         # let the aspect know about the new constraint
         if self.cons_name not in self.aspect.constraints:
