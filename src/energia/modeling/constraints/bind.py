@@ -293,26 +293,16 @@ class Bind:
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
-        if not self.iscalc:
-            if not self.domain.modes:
-                try:
-                    if self.model.scenario[self.aspect][self.domain.primary][
-                        self.domain.space
-                    ][self.domain.time][self.rel]:
-                        return True
+        if not self.iscalc and not self.domain.modes:
+            try:
+                if self.model.scenario[self.aspect][self.domain.primary][
+                    self.domain.space
+                ][self.domain.time][self.rel]:
+                    return True
 
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
-            # if (
-            #     (self.domain.space, self.domain.time)
-            #     in self.aspect.bound_spaces[self.domain.primary][self.rel]
-            # ) and not self.domain.modes:
-            #     return True
-
-            # self.aspect.bound_spaces[self.domain.primary][self.rel].append(
-            #     (self.domain.space, self.domain.time)
-            # )
         return False
 
     def _categorize(self):
