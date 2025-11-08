@@ -165,29 +165,16 @@ class Sample(_Hash):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
 
+
+
     @cached_property
     def time(self):
-        """Matches an appropriate temporal scale"""
+        """Matches an appropriate temporal scale
+        Sets domain.periods if needed and
+        returns domain.periods
+        """
         if not self.timed:
-
-            if isinstance(self.parameter, list):
-                # if list is given, find using length of the list
-                if self.domain.modes is not None:
-                    self.domain.periods = self.aspect.time.find(
-                        len(self.parameter) / len(self.domain.modes),
-                    )
-                else:
-                    self.domain.periods = self.aspect.time.find(len(self.parameter))
-
-            elif isinstance(self.length, int):
-                # if length is given, use it directly
-                self.domain.periods = self.aspect.time.find(self.length)
-            else:
-                # else the size of parameter set is exactly one
-                # or nothing is given, meaning the variable is not time dependent
-                # thus, index by horizon
-                self.domain.periods = self.aspect.horizon
-
+            self.domain.periods = self._match_time()
         return self.domain.periods
 
     @cached_property
@@ -241,6 +228,25 @@ class Sample(_Hash):
 
         self.aspect.domains.append(self.domain)
 
+
+
+    def _match_time(self):
+        """Matches an appropriate temporal scale"""
+        if isinstance(self.parameter, list):
+            # if list is given, find using length of the list
+            if self.domain.modes is not None:
+                return self.aspect.time.find(
+                    len(self.parameter) / len(self.domain.modes),
+                )
+            return self.aspect.time.find(len(self.parameter))
+
+        if isinstance(self.length, int):
+            # if length is given, use it directly
+            return self.aspect.time.find(self.length)
+        # else the size of parameter set is exactly one
+        # or nothing is given, meaning the variable is not time dependent
+        # thus, index by horizon
+        return self.aspect.horizon
     # ---------------------------------------------------------------------------
     #               Variable Birthing
     # ---------------------------------------------------------------------------
