@@ -187,14 +187,15 @@ class Bind:
 
         if self.aspect.bound:
             # ------if variable bound
-            if self.report:
-                # ------if variable bound and reported
-                # we do not want a bi-linear term
-                return self.parameter * self.sample.X(self.parameter)
+            # ------if variable bound and reported
+            # we do not want a bi-linear term
+            return (
+                self.parameter * self.sample.X(self.parameter)
+                if self.report
+                else self.parameter * self.sample.Vb()
+            )
 
             # ------if just variable bound
-
-            return self.parameter * self.sample.Vb()
 
         if self.report or self.domain.modes is not None:
             # ------if  self.parameter bound and reported or has modes
