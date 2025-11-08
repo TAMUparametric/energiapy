@@ -49,18 +49,16 @@ class Sample(_Hash):
     :param report: If a reporting binary variable is needed. Defaults to False.
     :type report: bool, optional
 
-    :ivar name: Name of the bind.
-    :vartype name: str | None
-    :ivar model: Model to which the generator belongs.
-    :vartype model: Model | None
-    :ivar program: Gana Program to which the generated constraint belongs.
-    :vartype program: Prg | None
-    :ivar opr: Operation to bind (in lieu of a single variable). Defaults to None.
-    :vartype opr: F | None
-    :ivar domains: Set of domains over which the Bind is applied. Defaults to [].
-    :vartype domains: Domain
-    :ivar hasinc: If the Bind has some incidental calculation. Defaults to False.
+    :ivar hasinc: If incidental calculation is generated.
     :vartype hasinc: bool
+    :ivar nominal: If nominal is provided and multiplied by the nominal value.
+    :vartype nominal: float | None
+    :ivar norm: The input argument is normalized if True.
+    :vartype norm: bool
+    :ivar parameter: Parameter
+    :vartype parameter: P
+    :ivar length: Length of the parameter set.
+    :vartype length: int
 
     .. note::
         - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
@@ -94,11 +92,12 @@ class Sample(_Hash):
         self.nominal: float | None = None
         # the input argument is normalized if True
         self.norm: bool = False
-        # the bound is set for all indices
-        self._forall: list[_X] = []
         # parameter and length
         self.parameter: P = None
         self.length: int = 0
+
+        # the bound is set for all indices
+        self._forall: list[_X] = []
 
     @property
     def of(self) -> Self | None:
