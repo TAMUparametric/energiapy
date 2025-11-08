@@ -103,9 +103,7 @@ class Sample(_Hash):
     @property
     def of(self) -> Self | None:
         """Sample being calculated"""
-        if self.domain.samples:
-            return self.domain.samples[0]
-        return None
+        return self.domain.samples[0] if self.domain.samples else None
 
     @property
     def name(self) -> str:
@@ -146,26 +144,12 @@ class Sample(_Hash):
     @property
     def F(self):
         """Function"""
-        if self.report:
-            return self.X(1)
-        return self.V(1)
+        return self.X(1) if self.report else self.V(1)
 
     @property
     def constraints(self):
         """Constraints"""
         return self.aspect.constraints
-
-    def show(self, descriptive=False):
-        """Pretty print the component"""
-
-        for c in (
-            set(chain.from_iterable(i.constraints for i in self.index))
-            | self.aspect.constraints
-        ):
-            cons: C = getattr(self.program, c)
-            cons.show(descriptive)
-
-
 
     @cached_property
     def time(self):
@@ -188,8 +172,7 @@ class Sample(_Hash):
         return self.domain.location
 
     def _handshake(self):
-        """Take what is needed from aspect"""
-
+        """Take what is needed"""
         self.model = self.aspect.model
         self.program = self.model.program
         self.balances = self.model.balances
@@ -228,8 +211,6 @@ class Sample(_Hash):
 
         self.aspect.domains.append(self.domain)
 
-
-
     def _match_time(self):
         """Matches an appropriate temporal scale"""
         if isinstance(self.parameter, list):
@@ -247,6 +228,7 @@ class Sample(_Hash):
         # or nothing is given, meaning the variable is not time dependent
         # thus, index by horizon
         return self.aspect.horizon
+
     # ---------------------------------------------------------------------------
     #               Variable Birthing
     # ---------------------------------------------------------------------------
@@ -324,8 +306,7 @@ class Sample(_Hash):
             )
             self._inform()
 
-        var = getattr(self.program, self.aspect.name)(*self.I)
-        return var
+        return getattr(self.program, self.aspect.name)(*self.I)
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
         """
@@ -594,6 +575,16 @@ class Sample(_Hash):
         """Returns the function at the given index"""
         self._forall = index
         return self
+
+    def show(self, descriptive=False):
+        """Pretty print the component"""
+
+        for c in (
+            set(chain.from_iterable(i.constraints for i in self.index))
+            | self.aspect.constraints
+        ):
+            cons: C = getattr(self.program, c)
+            cons.show(descriptive)
 
     def __getattr__(self, other):
         aspect = getattr(self.model, other)
