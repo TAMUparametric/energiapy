@@ -108,11 +108,6 @@ class Domain(_Hash):
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
 
-    # @property
-    # def I(self) -> tuple[Idx, ...]:
-    #     """Compound index"""
-    #     return prod(self.Ilist)
-
     # -----------------------------------------------------
     #                    Components
     # -----------------------------------------------------
@@ -411,12 +406,12 @@ class Domain(_Hash):
     #                    Helpers
     # -----------------------------------------------------
 
-    def inform_indices(self, cons_name: str):
+    def _inform_indices(self, cons_name: str):
         """Update the constraints declared at every index"""
         for j in self.index:
             j.constraints.add(cons_name)
 
-    def update_domains(self, aspect: Aspect):
+    def _update_domains(self, aspect: Aspect):
         """
         Update all elements in the domains with the aspects
         that they have been modeled in

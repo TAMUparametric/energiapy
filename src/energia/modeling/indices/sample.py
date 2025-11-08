@@ -214,7 +214,7 @@ class Sample(_Hash):
 
         # this lets all self.I elements in the domain know
         # that the aspect was sampled
-        self.domain.update_domains(self.aspect)
+        self.domain._update_domains(self.aspect)
 
         # ------Update the disposition ---------------
 

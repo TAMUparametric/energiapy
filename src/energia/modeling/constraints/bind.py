@@ -323,7 +323,7 @@ class Bind:
 
         # let all objects in the domain know that
         # a constraint with this name contains it
-        self.domain.inform_indices(self.cons_name)
+        self.domain._inform_indices(self.cons_name)
 
         self.model.scenario.update(self.sample, self.rel, self.P)
 

@@ -361,7 +361,7 @@ class Map:
     def _inform(self, from_domain: Domain):
         self.aspect.constraints.add(self.cons_name)
 
-        from_domain.inform_indices(self.cons_name)
+        from_domain._inform_indices(self.cons_name)
 
     def _handshake(self):
         """Borrow attributes from aspect"""
