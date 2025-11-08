@@ -55,28 +55,10 @@ class Modes(_X):
         if self.parent:
             self.model = self.parent.model
 
-        # have child modes been made
-        self._birthed = False
-        # where child modes are stored
-        self._ = []
-
-    @property
-    def cons(self) -> list[C]:
-        """Constraints"""
-        # overwrite X.cons property
-        # this gets the actual constraint objects from the program
-        # based on the pname (attribute name) in the program
-        if self.parent:
-            return [getattr(self.program, c) for c in self.constraints]
-        return list(
-            set(
-                [getattr(self.program, c) for c in self.constraints]
-                + sum(
-                    [m.cons for m in self],
-                    [],
-                )
-            )
-        )
+    @cached_property
+    def _(self) -> list[Self]:
+        """Child modes"""
+        return [Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)]
 
     @cached_property
     def I(self) -> I:
@@ -97,28 +79,36 @@ class Modes(_X):
 
         return _index
 
+    @property
+    def cons(self) -> list[C]:
+        """Constraints"""
+        # overwrite X.cons property
+        # this gets the actual constraint objects from the program
+        # based on the pname (attribute name) in the program
+        if self.parent:
+            return [getattr(self.program, c) for c in self.constraints]
+        return list(
+            set(
+                [getattr(self.program, c) for c in self.constraints]
+                + sum(
+                    [m.cons for m in self],
+                    [],
+                )
+            )
+        )
+
     def __eq__(self, other: Modes) -> bool:
-        """Equality operator"""
         if isinstance(other, Modes):
             if other.name == self.name:
                 return True
         return False
 
     def __len__(self) -> int:
-        """Length of the modes"""
         return self.size
 
     def __getitem__(self, key: int) -> _X:
-        """Get a mode by index"""
-        if not self._birthed:
-            self._ = [
-                Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)
-            ]
-            self._birthed = True
-
         return self._[key]
 
     def __iter__(self):
-        """Iterate over modes"""
         for i in range(self.size):
             yield self[i]
