@@ -102,9 +102,8 @@ class Modes(_X):
         )
 
     def __eq__(self, other: Modes) -> bool:
-        if isinstance(other, Modes):
-            if other.name == self.name:
-                return True
+        if isinstance(other, Modes) and other.name == self.name:
+            return True
         return False
 
     def __len__(self) -> int:
