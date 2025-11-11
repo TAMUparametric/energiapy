@@ -47,7 +47,7 @@ class Balance(_Hash):
 
         self.write()
 
-    def write(self) -> bool | None:
+    def write(self) -> Domain | bool | None:
         """Writes the stream balance constraint"""
 
         if self._check_existing():
@@ -58,15 +58,12 @@ class Balance(_Hash):
         if not self.stored:
             self._init_sample()
 
-        if not self.existing_aspects:
-            # this checks whether a general self.commodity balance has been defined
-            # for the self.commodity in that space and self.time
+        if self.existing_aspects:
+            # if exists, update
+            return self._update_constraint()
 
-            return self._create_constraint()
-
-        # -add aspect to GRB if not added already ----
-
-        return self._update_constraint()
+        # else, create new
+        return self._birth_constraint()
 
     @cached_property
     def stored(self):
@@ -77,12 +74,12 @@ class Balance(_Hash):
         """Initializes the sample for the balance constraint
         if needed
         """
-        if self.balances[self.commodity][self.space]:
+
+        _balances = self.balances[self.commodity][self.space]
+        if _balances:
             # If a GRB exists at a lower temporal order, append to that
 
-            lower_times = [
-                t for t in self.balances[self.commodity][self.space] if t > self.time
-            ]
+            lower_times = [t for t in _balances if t > self.time]
 
             if lower_times:
                 _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
@@ -119,7 +116,7 @@ class Balance(_Hash):
         return self.balances[self.commodity][self.space][self.time]
 
     @timer(logger, "balance-init")
-    def _create_constraint(self) -> Domain | bool:
+    def _birth_constraint(self) -> Domain | bool:
         """
         Creates a new GRB constraint
 
