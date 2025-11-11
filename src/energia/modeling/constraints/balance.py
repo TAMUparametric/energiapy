@@ -14,7 +14,9 @@ from ...utils.decorators import timer
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from gana import V
     from gana.sets.constraint import C
+    from gana.sets.function import F
 
     from ..._core._x import _X
     from ...components.spatial.linkage import Linkage
@@ -159,7 +161,7 @@ class Balance(_Hash):
     @timer(logger, "balance-update")
     def _update_constraint(
         self,
-    ) -> bool:
+    ) -> tuple[Domain, Aspect]:
         """
         Updates an existing GRB constraint with the new aspect
 
@@ -174,6 +176,25 @@ class Balance(_Hash):
 
         cons_grb: C = getattr(self.program, self._name)
 
+        setattr(
+            self.program,
+            self._name,
+            (
+                cons_grb + self.fresh_part
+                if self.aspect.ispos
+                else cons_grb - self.fresh_part
+            ),
+        )
+
+        self._inform()
+
+        # this is returned for logging purposes
+        return self.domain, self.aspect
+
+    @cached_property
+    def fresh_part(self) -> V | F:
+        """Returns the part of the constraint that is new"""
+
         if self.stored and self.aspect.name == "inventory":
 
             if len(self.time) == 1:
@@ -181,34 +202,12 @@ class Balance(_Hash):
 
             # if inventory is being add to GRB
 
-            lagged_domain = self.domain.edit({"lag": -1 * self.time, "periods": None})
+            return (
+                self(*self.domain).V()
+                - self(*self.domain.edit({"lag": -1 * self.time, "periods": None})).V()
+            )
 
-            _update = self(*self.domain).V() - self(*lagged_domain).V()
-
-        else:
-
-            _update = self(*self.domain).V()
-
-        setattr(
-            self.program,
-            self._name,
-            cons_grb + _update if self.aspect.ispos else cons_grb - _update,
-        )
-
-        # else:
-        #     setattr(
-        #         self.program,
-        #         self._name,
-        #         (
-        #             cons_grb + self(*self.domain).V()
-        #             if self.aspect.ispos
-        #             else cons_grb - self(*self.domain).V()
-        #         ),
-        #     )
-
-        self._inform()
-
-        return self.domain, self.aspect
+        return self(*self.domain).V()
 
     def _check_existing(self) -> bool:
         """Checks if the balance constraint already exists"""
