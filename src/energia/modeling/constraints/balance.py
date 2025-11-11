@@ -62,11 +62,11 @@ class Balance(_Hash):
             # this checks whether a general self.commodity balance has been defined
             # for the self.commodity in that space and self.time
 
-            return self._create_constraint(self.stored)
+            return self._create_constraint()
 
         # -add aspect to GRB if not added already ----
 
-        return self._update_constraint(self.stored, getattr(self.program, self._name))
+        return self._update_constraint(getattr(self.program, self._name))
 
     @cached_property
     def stored(self):
@@ -80,7 +80,11 @@ class Balance(_Hash):
         if self.balances[self.commodity][self.space]:
             # If a GRB exists at a lower temporal order, append to that
 
-            if [t for t in self.balances[self.commodity][self.space] if t > self.time]:
+            lower_times = [
+                t for t in self.balances[self.commodity][self.space] if t > self.time
+            ]
+
+            if lower_times:
                 _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
 
     @cached_property
@@ -115,7 +119,7 @@ class Balance(_Hash):
         return self.balances[self.commodity][self.space][self.time]
 
     @timer(logger, "balance-init")
-    def _create_constraint(self, stored: bool) -> Domain | bool:
+    def _create_constraint(self) -> Domain | bool:
         """
         Creates a new GRB constraint
 
@@ -132,7 +136,7 @@ class Balance(_Hash):
         # inv(t) = #charge_eff*p_charge - #charge_eff*p_dcharge
         # if inv cost is not provided, this can become unbounded
         # or bounded to the max capacity
-        if stored and self.aspect.name == "inventory":
+        if self.stored and self.aspect.name == "inventory":
 
             if len(self.time) == 1:
                 return False
@@ -172,7 +176,6 @@ class Balance(_Hash):
     @timer(logger, "balance-update")
     def _update_constraint(
         self,
-        stored: bool,
         cons_grb: C,
     ) -> bool:
         """
@@ -186,7 +189,7 @@ class Balance(_Hash):
         :returns: If the constraint was updated
         :rtype: bool
         """
-        if stored and self.aspect.name == "inventory":
+        if self.stored and self.aspect.name == "inventory":
 
             if len(self.time) == 1:
                 return False
