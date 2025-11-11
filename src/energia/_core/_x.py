@@ -61,7 +61,7 @@ class _X(ABC, _Hash):
         # domains associated with the component
         self.domains: list[Domain] = []
         # aspects associated with the component with domains
-        self.aspects: dict[Aspect, list[Domain]] = {}
+        self.aspects: dict[Aspect, set[Domain]] = {}
 
     @cached_property
     def program(self) -> Prg:

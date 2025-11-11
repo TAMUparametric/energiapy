@@ -430,10 +430,10 @@ class Domain(_Hash):
             # if the variable is not in the list of variables at the index
             # update those
             if aspect not in j.aspects:
-                # first time (variable) is a dict {aspect: [..aspects..]}
-                j.aspects[aspect] = [self]
-            elif self not in j.aspects[aspect]:
-                j.aspects[aspect].append(self)
+                # first time (variable) is a dict {aspect: {..domain..}}
+                j.aspects[aspect] = {self}
+
+            j.aspects[aspect].add(self)
 
     def copy(self) -> Self:
         """Make a copy of self"""
