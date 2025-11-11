@@ -280,21 +280,6 @@ class Domain(_Hash):
             node = node[key]
         return tree
 
-    def param_tree(self, parameter: float | list[float], rel: str) -> dict:
-        """Tree representation of the Domain"""
-        tree = {}
-        node = tree
-        n_last = len(self.index) - 1
-        for n, key in enumerate(self.index):
-            if n == n_last:
-                if not node:
-                    node[key] = {}
-                node[key][rel] = parameter
-            else:
-                node[key] = {}
-                node = node[key]
-        return tree
-
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
@@ -411,7 +396,7 @@ class Domain(_Hash):
         for idx in self.index:
             idx.constraints.add(cons_name)
 
-    def inform_components_of_aspect(self, aspect: Aspect):
+    def inform_components_of_domain(self, aspect: Aspect):
         """
         Update all components in the domains with the aspects
         that they have been modeled in
@@ -420,15 +405,14 @@ class Domain(_Hash):
         :type aspect: Aspect
         """
         for i, j in self._.items():
-            if (self.lag and i == "time") or i == "samples":
+            if i == "samples" or (self.lag and i == "time"):
                 # lags disappear anyway, so dont bother
                 continue
             # these are dependent variables, so do not update them
             if self not in j.domains:
                 # check and update the domains at each index
                 j.domains.append(self)
-            # if the variable is not in the list of variables at the index
-            # update those
+            # update the domain for the aspect for components
             try:
                 j.aspects[aspect].add(self)
             except KeyError:
@@ -441,6 +425,21 @@ class Domain(_Hash):
     def edit(self, what: dict[str, _X]) -> Self:
         """Change some aspects and return a new Domain"""
         return Domain(**{**self.args, **what})
+
+    def param_tree(self, parameter: float | list[float], rel: str) -> dict:
+        """Tree representation of the Domain"""
+        tree = {}
+        node = tree
+        n_last = len(self.index) - 1
+        for n, key in enumerate(self.index):
+            if n == n_last:
+                if not node:
+                    node[key] = {}
+                node[key][rel] = parameter
+            else:
+                node[key] = {}
+                node = node[key]
+        return tree
 
     # -----------------------------------------------------
     #                    Vector

@@ -214,7 +214,7 @@ class Sample(_Hash):
 
         # this lets all self.I elements in the domain know
         # that the aspect was sampled
-        self.domain.inform_components_of_aspect(self.aspect)
+        self.domain.inform_components_of_domain(self.aspect)
 
         # ------Update the disposition ---------------
 
@@ -229,6 +229,28 @@ class Sample(_Hash):
         self.aspect.update(self.domain)
 
         self.aspect.domains.append(self.domain)
+
+    # ---------------------------------------------------------------------------
+    #               Preparation and Additional Args
+    # ---------------------------------------------------------------------------
+
+    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
+        """
+        Nominal value
+
+        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
+        :type nominal: float, optional
+        :param norm: If the input argument (bounds) are normalized, defaults to True
+        :type norm: bool, optional
+        """
+        self.nominal = nominal
+        self.norm = norm
+        return self
+
+    def forall(self, index) -> Self:
+        """Returns the function at the given index"""
+        self._forall = index
+        return self
 
     # ---------------------------------------------------------------------------
     #               Variable Birthing
@@ -477,6 +499,10 @@ class Sample(_Hash):
             self.domain = self.domain.edit({"lag": lag, "periods": None})
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
+    # ---------------------------------------------------------------------------
+    #               Optimization and Evaluation
+    # ---------------------------------------------------------------------------
+
     def obj(self, maximize: bool = False):
         """
         Set the sample itself as the objective
@@ -519,8 +545,8 @@ class Sample(_Hash):
         """
         Optimize
 
-        :param max: if maximization, defaults to False
-        :type max: bool, optional
+        :param maximize: if maximization, defaults to False
+        :type maximize: bool, optional
         """
         self.obj(maximize)
         # optimize!
@@ -535,18 +561,18 @@ class Sample(_Hash):
         bmax = -self.program.obj()
         return (bmin, bmax)
 
-    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
+    def eval(self, *values: float):
         """
-        Nominal value
+        Evaluate the variable using parametric variable values
 
-        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
-        :type nominal: float, optional
-        :param norm: If the input argument (bounds) are normalized, defaults to True
-        :type norm: bool, optional
+        :param values: values for the parametric variables
+        :type values: float
         """
-        self.nominal = nominal
-        self.norm = norm
-        return self
+        return self.V().eval(*values)
+
+    # ---------------------------------------------------------------------------
+    #               Illustration and Output
+    # ---------------------------------------------------------------------------
 
     def output(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
         """
@@ -561,20 +587,6 @@ class Sample(_Hash):
         """
         return self.V().output(aslist=aslist, asdict=asdict, compare=compare)
 
-    def eval(self, *values: float):
-        """
-        Evaluate the variable using parametric variable values
-
-        :param values: values for the parametric variables
-        :type values: float
-        """
-        return self.V().eval(*values)
-
-    def forall(self, index) -> Self:
-        """Returns the function at the given index"""
-        self._forall = index
-        return self
-
     def show(self, descriptive=False):
         """Pretty print constraints"""
 
@@ -584,6 +596,54 @@ class Sample(_Hash):
         ):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
+
+    def bar(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a bar chart"""
+        v = self.V()
+        v.bar(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
+
+    def line(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a line chart"""
+        v = self.V()
+        v.line(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
+
+    # ---------------------------------------------------------------------------
+    #               Dunders
+    # ---------------------------------------------------------------------------
 
     def __getattr__(self, other):
         aspect = getattr(self.model, other)
@@ -637,52 +697,6 @@ class Sample(_Hash):
             f.report = self.report
             return f
         return calculate(self(), *self.domain.index_spatiotemporal)
-
-    def bar(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a bar chart"""
-        v = self.V()
-        v.bar(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
-
-    def line(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a line chart"""
-        v = self.V()
-        v.line(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
-
-    # This is for binding sample operations, eg. sample + sample or sample - sample
 
     def __add__(self, other: Self | FuncOfSamples):
         if isinstance(other, (int, float)):
