@@ -70,20 +70,6 @@ class Balance(_Hash):
         """If the commodity is a Stored commodity"""
         return isinstance(self.commodity, Stored)
 
-    def _init_sample(self):
-        """Initializes the sample for the balance constraint
-        if needed
-        """
-
-        _balances = self.balances[self.commodity][self.space]
-        if _balances:
-            # If a GRB exists at a lower temporal order, append to that
-
-            lower_times = [t for t in _balances if t > self.time]
-
-            if lower_times:
-                _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
-
     @cached_property
     def space(self) -> Location | Linkage | None:
         """Location or Linkage of the constraint"""
@@ -194,23 +180,31 @@ class Balance(_Hash):
                 return False
 
             # if inventory is being add to GRB
+
             lagged_domain = self.domain.edit({"lag": -1 * self.time, "periods": None})
 
-            setattr(
-                self.program,
-                self._name,
-                cons_grb + self(*lagged_domain).V() - self(*self.domain).V(),
-            )
+            _update = self(*self.domain).V() - self(*lagged_domain).V()
+
         else:
-            setattr(
-                self.program,
-                self._name,
-                (
-                    cons_grb + self(*self.domain).V()
-                    if self.aspect.ispos
-                    else cons_grb - self(*self.domain).V()
-                ),
-            )
+
+            _update = self(*self.domain).V()
+
+        setattr(
+            self.program,
+            self._name,
+            cons_grb + _update if self.aspect.ispos else cons_grb - _update,
+        )
+
+        # else:
+        #     setattr(
+        #         self.program,
+        #         self._name,
+        #         (
+        #             cons_grb + self(*self.domain).V()
+        #             if self.aspect.ispos
+        #             else cons_grb - self(*self.domain).V()
+        #         ),
+        #     )
 
         self._inform()
 
@@ -240,13 +234,31 @@ class Balance(_Hash):
 
     def _handshake(self):
         """Borrow attributes from aspect and domain"""
+        # take from aspect
         self.model = self.aspect.model
+
+        # take from program
         self.program = self.model.program
         self.balances = self.model.balances
 
+        # take from domain
         self.commodity = self.domain.commodity
         self.samples = self.domain.samples
         self.time = self.domain.time
+
+    def _init_sample(self):
+        """Initializes the sample for the balance constraint
+        if needed
+        """
+
+        _balances = self.balances[self.commodity][self.space]
+        if _balances:
+            # If a GRB exists at a lower temporal order, append to that
+
+            lower_times = [t for t in _balances if t > self.time]
+
+            if lower_times:
+                _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain
