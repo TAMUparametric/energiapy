@@ -66,23 +66,25 @@ class Balance(_Hash):
     @cached_property
     def space(self) -> Location | Linkage | None:
         """Location or Linkage of the constraint"""
-        _space = (
-            self.domain.linkage.source
-            if self.aspect.sign == -1 and self.domain.linkage
-            else (
-                self.domain.linkage.sink
-                if self.domain.linkage
-                else self.domain.location
-            )
-        )
-
         if (
-            _space.isin is not None
-            and self.balances[self.commodity][_space.isin][self.time]
+            self._space.isin
+            and self.balances[self.commodity][self._space.isin][self.time]
         ):
+            # if a balance is written for a parent location, write for parent
+            return self._space.isin
+        return self._space
 
-            return _space.isin
-        return _space
+    @cached_property
+    def _space(self):
+        """Location where balance is applied"""
+        if self.domain.linkage:
+            # if outgoing, apply at sink
+            return (
+                self.domain.linkage.sink
+                if self.aspect.sign == 1
+                else self.domain.linkage.source
+            )
+        return self.domain.location
 
     @cached_property
     def name(self) -> str:
@@ -98,6 +100,24 @@ class Balance(_Hash):
     def existing_aspects(self):
         """Exisiting Aspects"""
         return self.balances[self.commodity][self.space][self.time]
+
+    @cached_property
+    def updated_part(self) -> V | F | int:
+        """Returns the part of the constraint that is new"""
+
+        if self.stored and self.aspect == "inventory":
+            # if inventory is being add to GRB
+
+            if len(self.time) == 1:
+                # cannot lag a single time period
+                return 0
+
+            return (
+                self(*self.domain).V()
+                - self(*self.domain.edit({"lag": -1 * self.time, "periods": None})).V()
+            )
+
+        return self(*self.domain).V()
 
     @timer(logger, "balance-init")
     def _birth_constraint(self) -> Domain | bool:
@@ -155,24 +175,6 @@ class Balance(_Hash):
 
         # this is returned for logging purposes
         return self.domain, self.aspect
-
-    @cached_property
-    def updated_part(self) -> V | F | int:
-        """Returns the part of the constraint that is new"""
-
-        if self.stored and self.aspect == "inventory":
-            # if inventory is being add to GRB
-
-            if len(self.time) == 1:
-                # cannot lag a single time period
-                return 0
-
-            return (
-                self(*self.domain).V()
-                - self(*self.domain.edit({"lag": -1 * self.time, "periods": None})).V()
-            )
-
-        return self(*self.domain).V()
 
     def _check_existing(self) -> bool:
         """Checks if the balance constraint already exists"""
