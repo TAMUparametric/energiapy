@@ -55,31 +55,33 @@ class Balance(_Hash):
 
         self._name = f"{self.commodity}_{self.space}_{self.time}_grb"
 
-        if isinstance(self.commodity, Stored):
-            stored = True
-
-        else:
-            stored = False
-            if self.balances[self.commodity][self.space]:
-                # If a GRB exists at a lower temporal order, append to that
-                lower_times = [
-                    t
-                    for t in self.balances[self.commodity][self.space]
-                    if t > self.time
-                ]
-
-                if lower_times:
-                    _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
+        if not self.stored:
+            self._init_sample()
 
         if not self.existing_aspects:
             # this checks whether a general self.commodity balance has been defined
             # for the self.commodity in that space and self.time
 
-            return self._create_constraint(stored)
+            return self._create_constraint(self.stored)
 
         # -add aspect to GRB if not added already ----
 
-        return self._update_constraint(stored, getattr(self.program, self._name))
+        return self._update_constraint(self.stored, getattr(self.program, self._name))
+
+    @cached_property
+    def stored(self):
+        """If the commodity is a Stored commodity"""
+        return isinstance(self.commodity, Stored)
+
+    def _init_sample(self):
+        """Initializes the sample for the balance constraint
+        if needed
+        """
+        if self.balances[self.commodity][self.space]:
+            # If a GRB exists at a lower temporal order, append to that
+
+            if [t for t in self.balances[self.commodity][self.space] if t > self.time]:
+                _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
 
     @cached_property
     def space(self) -> Location | Linkage | None:
@@ -113,7 +115,7 @@ class Balance(_Hash):
         return self.balances[self.commodity][self.space][self.time]
 
     @timer(logger, "balance-init")
-    def _create_constraint(self, stored: bool) -> Domain:
+    def _create_constraint(self, stored: bool) -> Domain | bool:
         """
         Creates a new GRB constraint
 
