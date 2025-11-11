@@ -1,4 +1,4 @@
-energia.represent.ations.scenario
+﻿energia.represent.ations.scenario
 =================================
 
 .. automodule:: energia.represent.ations.scenario
@@ -15,4 +15,5 @@ energia.represent.ations.scenario
    .. autosummary::
    
       Scenario
+      defaultdict
    

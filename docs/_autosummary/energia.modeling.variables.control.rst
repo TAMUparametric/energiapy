@@ -1,4 +1,4 @@
-energia.modeling.variables.control
+﻿energia.modeling.variables.control
 ==================================
 
 .. automodule:: energia.modeling.variables.control
@@ -16,5 +16,4 @@ energia.modeling.variables.control
    
       Aspect
       Control
-      Map
    

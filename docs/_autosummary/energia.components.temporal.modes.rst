@@ -1,4 +1,4 @@
-energia.components.temporal.modes
+﻿energia.components.temporal.modes
 =================================
 
 .. automodule:: energia.components.temporal.modes
@@ -8,7 +8,7 @@ energia.components.temporal.modes
 
    .. autosummary::
    
-      I
+      Idx
       Modes
       cached_property
    

@@ -37,11 +37,11 @@ def timer(
 
                 if kind == 'balance-update':
 
-                    msg = f"⚖   Updated {result[0].commodity} balance with {result[1]}{result[0]}"
+                    msg = f"⚖  Updated {result[0].commodity} balance with {result[1]}{result[0]}"
 
                 elif kind == 'balance-init':
 
-                    msg = f"⚖   Initiated {result.commodity} balance in ({result.space}, {result.time})"
+                    msg = f"⚖  Initiated {result.commodity} balance in ({result.space}, {result.time})"
 
                 elif kind == 'map':
                     msg = f"🧭  Mapped {(result[1] - result[2])[0]} for {result[0]} {result[1]} ⟺ {result[2]}"
@@ -77,7 +77,7 @@ def timer(
                     msg = f"🏭  Operating streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 elif kind == 'construction':
-                    msg = f"🏗   Construction streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
+                    msg = f"🏗  Construction streams introduced for {result[0]} in {', '.join([str(s) for s in result[1]])}"
 
                 else:
                     msg = f"  Executed {func.__name__}"
