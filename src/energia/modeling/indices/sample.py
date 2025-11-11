@@ -93,7 +93,7 @@ class Sample(_Hash):
         # the input argument is normalized if True
         self.norm: bool = False
         # parameter and length
-        self.parameter: P = None
+        self.parameter: P | None = None
         self.length: int = 0
 
         # the bound is set for all indices

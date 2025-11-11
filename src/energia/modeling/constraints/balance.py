@@ -107,11 +107,6 @@ class Balance(_Hash):
         """Name of the constraint"""
         return f"{self.aspect.name}{self.domain}"
 
-    @cached_property
-    def sign(self) -> float:
-        """Returns the aspect"""
-        return self.aspect.sign
-
     @property
     def existing_aspects(self):
         """Exisiting Aspects"""

@@ -342,7 +342,6 @@ class Bind:
     @property
     def P(self):
         """Gets the parameter set"""
-
         if isinstance(self.cons.two, F):
             return self.cons.two.one
         if isinstance(self.cons.two, V):
