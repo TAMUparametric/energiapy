@@ -66,7 +66,7 @@ class Balance(_Hash):
 
         # -add aspect to GRB if not added already ----
 
-        return self._update_constraint(getattr(self.program, self._name))
+        return self._update_constraint()
 
     @cached_property
     def stored(self):
@@ -176,7 +176,6 @@ class Balance(_Hash):
     @timer(logger, "balance-update")
     def _update_constraint(
         self,
-        cons_grb: C,
     ) -> bool:
         """
         Updates an existing GRB constraint with the new aspect
@@ -189,6 +188,9 @@ class Balance(_Hash):
         :returns: If the constraint was updated
         :rtype: bool
         """
+
+        cons_grb: C = getattr(self.program, self._name)
+
         if self.stored and self.aspect.name == "inventory":
 
             if len(self.time) == 1:
