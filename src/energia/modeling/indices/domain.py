@@ -354,7 +354,7 @@ class Domain(_Hash):
         | list[Sample]
         | None,
     ]:
-        """Dictionary of indices"""
+        """Dictionary of Components"""
         return {
             "primary": self.primary,
             "player": self.player,
@@ -406,38 +406,40 @@ class Domain(_Hash):
     #                    Helpers
     # -----------------------------------------------------
 
-    def _inform_indices(self, cons_name: str):
+    def inform_components_of_cons(self, cons_name: str):
         """Update the constraints declared at every index"""
-        for j in self.index:
-            j.constraints.add(cons_name)
+        for idx in self.index:
+            idx.constraints.add(cons_name)
 
-    def _update_domains(self, aspect: Aspect):
+    def inform_components_of_aspect(self, aspect: Aspect):
         """
-        Update all elements in the domains with the aspects
+        Update all components in the domains with the aspects
         that they have been modeled in
+
+        :param aspect: Aspect being modeled
+        :type aspect: Aspect
         """
         for i, j in self._.items():
-            if self.lag and i == "time":
+            if (self.lag and i == "time") or i == "samples":
                 # lags disappear anyway, so dont bother
                 continue
-            if i not in ["samples"]:
-                # these are dependent variables, so do not update them
-                if self not in j.domains:
-                    # check and update the domains at each index
-                    j.domains.append(self)
-                # if the variable is not in the list of variables at the index
-                # update those
-                if aspect not in j.aspects:
-                    # first time (variable) is a dict {aspect: [..aspects..]}
-                    j.aspects[aspect] = [self]
-                elif self not in j.aspects[aspect]:
-                    j.aspects[aspect].append(self)
+            # these are dependent variables, so do not update them
+            if self not in j.domains:
+                # check and update the domains at each index
+                j.domains.append(self)
+            # if the variable is not in the list of variables at the index
+            # update those
+            if aspect not in j.aspects:
+                # first time (variable) is a dict {aspect: [..aspects..]}
+                j.aspects[aspect] = [self]
+            elif self not in j.aspects[aspect]:
+                j.aspects[aspect].append(self)
 
     def copy(self) -> Self:
         """Make a copy of self"""
         return Domain(**self.args)
 
-    def change(self, what: dict[str, _X]) -> Self:
+    def edit(self, what: dict[str, _X]) -> Self:
         """Change some aspects and return a new Domain"""
         return Domain(**{**self.args, **what})
 

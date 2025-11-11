@@ -152,7 +152,7 @@ class Map:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
             if sp in self.dispositions[self.space] and is_(sp.of, self.time):
-                self.write(self.domain, self.domain.change({"periods": sp}), tsum=True)
+                self.write(self.domain, self.domain.edit({"periods": sp}), tsum=True)
 
         for dp in denser_periods:
             if dp in self.dispositions[self.space] and is_(self.time.of, dp):
@@ -192,7 +192,7 @@ class Map:
                 return
             self.write(
                 self.domain,
-                self.domain.change({"location": parent_loc}),
+                self.domain.edit({"location": parent_loc}),
             )
 
         for space in self.domain.space.has:
@@ -210,15 +210,13 @@ class Map:
 
                     if self.domain.linkage:
                         self.write(
-                            self.domain.change({"linkage": space, "samples": [sample]}),
+                            self.domain.edit({"linkage": space, "samples": [sample]}),
                             self.domain,
                         )
 
                     elif self.domain.location:
                         self.write(
-                            self.domain.change(
-                                {"location": space, "samples": [sample]}
-                            ),
+                            self.domain.edit({"location": space, "samples": [sample]}),
                             self.domain,
                         )
 
@@ -252,14 +250,14 @@ class Map:
             return
 
         if not self._special_modes_check(
-            self.domain, self.domain.change({"modes": None})
+            self.domain, self.domain.edit({"modes": None})
         ):
             return
 
         if self.domain.modes.parent:
-            self.write(self.domain, self.domain.change({"modes": None}))
+            self.write(self.domain, self.domain.edit({"modes": None}))
         else:
-            self.write(self.domain, self.domain.change({"modes": None}), msum=True)
+            self.write(self.domain, self.domain.edit({"modes": None}), msum=True)
 
     def _check_existing(self, to_domain: Domain, from_domain: Domain) -> bool:
         """Checks if the map constraint already exists"""
@@ -286,14 +284,14 @@ class Map:
         if to_domain in self.maps["modes"]:
             if from_domain.modes.parent:
                 if (
-                    from_domain.change({"modes": from_domain.modes.parent})
+                    from_domain.edit({"modes": from_domain.modes.parent})
                     in self.maps["modes"][to_domain]
                 ):
                     return False
             else:
                 for modes in from_domain.modes._:
                     if (
-                        from_domain.change({"modes": modes})
+                        from_domain.edit({"modes": modes})
                         in self.maps["modes"][to_domain]
                     ):
                         return False
@@ -318,7 +316,7 @@ class Map:
 
         if from_domain.modes:
             if from_domain.modes.parent:
-                parent_domain = from_domain.change({"modes": from_domain.modes.parent})
+                parent_domain = from_domain.edit({"modes": from_domain.modes.parent})
                 return f"{var}{parent_domain.idxname}_mmap"
             return f"{var}{from_domain.idxname}_mmap"
 
@@ -359,9 +357,9 @@ class Map:
             return True
 
     def _inform(self, from_domain: Domain):
+        """Inform components of new constraint"""
         self.aspect.constraints.add(self.cons_name)
-
-        from_domain._inform_indices(self.cons_name)
+        from_domain.inform_components_of_cons(self.cons_name)
 
     def _handshake(self):
         """Borrow attributes from aspect"""

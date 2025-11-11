@@ -151,7 +151,7 @@ class Balance(_Hash):
                 return False
 
             # if inventory is being add to GRB
-            lagged_domain = self.domain.change({"lag": -1 * self.time, "periods": None})
+            lagged_domain = self.domain.edit({"lag": -1 * self.time, "periods": None})
             cons_grb = -self(*self.domain).V() + self(*lagged_domain).V() == 0
 
         else:
@@ -195,7 +195,7 @@ class Balance(_Hash):
                 return False
 
             # if inventory is being add to GRB
-            lagged_domain = self.domain.change({"lag": -1 * self.time, "periods": None})
+            lagged_domain = self.domain.edit({"lag": -1 * self.time, "periods": None})
 
             setattr(
                 self.program,
@@ -232,7 +232,7 @@ class Balance(_Hash):
         Updates the constraints in all the indices of self.domain
         Add constraint name to aspect
         """
-        self.domain._inform_indices(self._name)
+        self.domain.inform_components_of_cons(self._name)
 
         self.aspect.constraints.add(self._name)
 

@@ -214,7 +214,7 @@ class Sample(_Hash):
 
         # this lets all self.I elements in the domain know
         # that the aspect was sampled
-        self.domain._update_domains(self.aspect)
+        self.domain.inform_components_of_aspect(self.aspect)
 
         # ------Update the disposition ---------------
 
@@ -385,7 +385,7 @@ class Sample(_Hash):
                 self.model.horizon,
             )
 
-            domain = self.domain.change({"periods": self.model.horizon})
+            domain = self.domain.edit({"periods": self.model.horizon})
 
         else:
             # if the bound variable has been defined for the given space
@@ -394,7 +394,7 @@ class Sample(_Hash):
             ]
             time = max(list(times))
             if time >= self.domain.periods:
-                domain = self.domain.change({"periods": time})
+                domain = self.domain.edit({"periods": time})
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
                 raise ValueError(
@@ -460,7 +460,7 @@ class Sample(_Hash):
         except KeyError:
             # the variable has not been defined yet
             lag = self.domain.lag
-            self.domain = self.domain.change(
+            self.domain = self.domain.edit(
                 {"lag": None, "periods": self.domain.lag.of},
             )
             args = (self.parameter, self.length)
@@ -474,7 +474,7 @@ class Sample(_Hash):
             else:
                 _ = self.V(*args)
 
-            self.domain = self.domain.change({"lag": lag, "periods": None})
+            self.domain = self.domain.edit({"lag": lag, "periods": None})
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
     def obj(self, maximize: bool = False):
