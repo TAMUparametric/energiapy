@@ -37,6 +37,20 @@
                 "reveal": "always",
                 "panel": "shared"
             }
+        },
+        {
+            "label": "Run coverage",
+            "type": "shell",
+            "command": "pytest",
+            "args": [
+                "--cov=src", // or your package name
+                "--cov-report=term-missing"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }
