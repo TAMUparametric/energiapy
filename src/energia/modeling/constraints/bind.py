@@ -63,6 +63,7 @@ class Bind:
             | dict[float, float]
             | tuple[float, float]
             | list[tuple[float, float]]
+            | list[dict[float, float]]
         ),
         leq: bool = False,
         geq: bool = False,
@@ -91,7 +92,34 @@ class Bind:
                 self._write_w_modes()
             return
 
-        self.write()
+        try:
+            self.write()
+        except TypeError:
+            # TODO: not yet implemented
+            # TODO: this is essentially mode of a mode
+            # TODO: modes will need to made tuple maybe
+            if any(isinstance(x, dict) for x in self._parameter):
+
+                # Consider something like this:
+                # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
+                #     {100: 1000, 500: 900, 1000: 800},
+                #     {100: 2000, 500: 1800, 1000: 1600},
+                #     {100: 3000, 500: 2700, 1000: 2400},
+                # ]
+                # I don't want to run a check for this every time, so just catch the error
+
+                if self.domain.modes is not None:
+                    for n, p in enumerate(self._parameter):
+                        s = self.sample.aspect(
+                            *self.domain.edit({'modes': self.domain.modes[n]})
+                        )
+
+                        if self.leq:
+                            _ = s <= p
+                        elif self.geq:
+                            _ = s >= p
+                        elif self.eq:
+                            _ = s == p
 
     @timer(logger, kind="bind")
     def write(self):
