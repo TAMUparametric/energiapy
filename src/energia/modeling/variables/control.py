@@ -53,15 +53,15 @@ class Control(Aspect):
         Aspect.__post_init__(self)
 
         # a state that is being controlled
-        self.state: State = None
+        self.state: State | None = None
         # a stream that is being controlled
-        self.stream: Self = None
+        self.stream: Self | None = None
         # an impact that is being controlled
-        self.impact: Self = None
+        self.impact: Self | None = None
         # what increase the state/impact/stream
-        self.more: Self = None
+        self.more: Self | None = None
         # what decreases the state/impact/stream
-        self.less: Self = None
+        self.less: Self | None = None
 
         self.mapped_from: list[Domain] = []
 

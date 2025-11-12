@@ -147,38 +147,6 @@ class Aspect:
         }
         return self.model.maps_report[self]
 
-    @property
-    def ubs(self):
-        """Upper bounds"""
-        try:
-            return self.model.scenario.ubs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def lbs(self):
-        """Lower bounds"""
-        try:
-            return self.model.scenario.lbs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def eqs(self):
-        """Exact bounds"""
-        try:
-            return self.model.scenario.eqs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def calcs(self):
-        """Calculated aspects"""
-        try:
-            return self.model.scenario.calcs[self]
-        except KeyError:
-            return {}
-
     @cached_property
     def isneg(self) -> bool:
         """Does this remove from the domain?"""

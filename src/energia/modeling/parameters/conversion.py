@@ -187,14 +187,16 @@ class Conversion(Mapping, _Hash):
 
         self.balance = _balancer(self.balance)
 
-    def time_checker(self, res: Commodity, space: Location | Linkage, time: Periods):
+    def time_checker(
+        self, commodity: Commodity, space: Location | Linkage, time: Periods
+    ):
         """This checks if it is actually necessary
         to write conversion at denser temporal scales
         """
         # This checks whether some other aspect is defined at
         # a lower temporal scale
 
-        if space not in self.model.balances[res]:
+        if space not in self.model.balances[commodity]:
             # if not defined for that location, check for a lower order location
             # i.e. location at a lower hierarchy,
             # e.g. say if space being passed is a city, and a grb has not been defined for it
@@ -207,19 +209,19 @@ class Conversion(Mapping, _Hash):
                 # the conversion Balance variables will feature in grb for parent location
                 space = parent
 
-        _ = self.model.balances[res][space][time]
+        _ = self.model.balances[commodity][space][time]
 
-        if res.inv_of:
+        if commodity.inv_of:
             # for inventoried resources, the conversion is written
             # using the time of the base resource's grb
-            res = res.inv_of
+            commodity = commodity.inv_of
 
         try:
             times = list(
                 [
                     t
-                    for t in self.model.balances[res][space]
-                    if self.model.balances[res][space][t]
+                    for t in self.model.balances[commodity][space]
+                    if self.model.balances[commodity][space][t]
                 ],
             )
         except KeyError:
@@ -418,6 +420,7 @@ class PWLConversion(Mapping, _Hash):
         self.sample = sample
         self.operation = self.sample.domain.operation or self.sample.domain.primary
         self.model = self.sample.model
+
         if conversions:
 
             self.modes = self.model.Modes(size=len(conversions), sample=sample)
@@ -432,6 +435,20 @@ class PWLConversion(Mapping, _Hash):
         self._aspect = aspect
         self._add = add
         self._sub = sub
+
+    @classmethod
+    def from_balance(
+        cls,
+        balance: dict[Modes, Conversion],
+        sample: Sample,
+    ) -> Self:
+        """Creates PWLConversion from balance dict"""
+        conv = cls([], sample)
+        conv.operation = sample.domain.operation
+        conv.balance = balance
+        conv.modes = (next(iter(balance))).parent
+
+        return conv
 
     @property
     def aspect(self) -> str:
@@ -455,51 +472,15 @@ class PWLConversion(Mapping, _Hash):
     def lag(self) -> str:
         return self[0].lag
 
-    @classmethod
-    def from_balance(
-        cls,
-        balance: dict[Modes, Conversion],
-        sample: Sample,
-    ) -> Self:
-        """Creates PWLConversion from balance dict"""
-        conv = cls([], sample)
-        conv.operation = sample.domain.operation
-        conv.balance = balance
-        conv.modes = (next(iter(balance))).parent
-
-        return conv
-
-    def balancer(self):
-        """Balances all conversions"""
-        for conv in self.balance.values():
-            conv.balancer()
-
     @property
     def name(self) -> str:
         """Name"""
         return f"η_PWL({self.operation}, {self.modes})"
 
-    def __len__(self):
-        """Length of the conversion balance"""
-        return len(self.balance)
-
-    def __iter__(self):
-        return iter(self.balance)
-
-    def __setitem__(self, key: int | str | Modes, value: Conversion):
-
-        if isinstance(key, int):
-            key = self.modes[key]
-
-        self.balance[key] = value
-
-    def __getitem__(self, key: int | str) -> Conversion:
-        """Used to define mode based conversions"""
-
-        if isinstance(key, int):
-            key = self.modes[key]
-
-        return self.balance[key]
+    def balancer(self):
+        """Balances all conversions"""
+        for conv in self.balance.values():
+            conv.balancer()
 
     def items(self):
         """Items of the conversion balance"""
@@ -531,3 +512,25 @@ class PWLConversion(Mapping, _Hash):
 
         for mode, conv in self.items():
             conv.write(space, time, mode)
+
+    def __len__(self):
+        """Length of the conversion balance"""
+        return len(self.balance)
+
+    def __iter__(self):
+        return iter(self.balance)
+
+    def __setitem__(self, key: int | str | Modes, value: Conversion):
+
+        if isinstance(key, int):
+            key = self.modes[key]
+
+        self.balance[key] = value
+
+    def __getitem__(self, key: int | str) -> Conversion:
+        """Used to define mode based conversions"""
+
+        if isinstance(key, int):
+            key = self.modes[key]
+
+        return self.balance[key]
