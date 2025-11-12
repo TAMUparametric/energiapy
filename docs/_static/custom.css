@@ -9,12 +9,11 @@ button.theme-switch-button {
 /* Base font stack */
 :root {
   --main-font: "Latin Modern Roman", "Computer Modern", "Georgia", serif;
-  --mono-font: "JetBrains Mono", "Fira Code", monospace;
+  --mono-font: "JetBrains Mono", "Fira Code", "Segoe UI Emoji", monospace;
   --text-color: #2b2b2b;
   --accent-color: #0044aa;
   --code-bg: #f8f9fa;
 }
-
 
 /* Body text */
 body {

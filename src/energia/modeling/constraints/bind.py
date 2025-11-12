@@ -10,12 +10,12 @@ from ...utils.decorators import timer
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
+from gana import V
+from gana.sets.function import F
 
 if TYPE_CHECKING:
-    from gana import V
     from gana import P as Param
     from gana.sets.constraint import C
-    from gana.sets.function import F
 
     from ..._core._component import _Component
     from ..._core._x import _X
@@ -63,6 +63,7 @@ class Bind:
             | dict[float, float]
             | tuple[float, float]
             | list[tuple[float, float]]
+            | list[dict[float, float]]
         ),
         leq: bool = False,
         geq: bool = False,
@@ -91,7 +92,34 @@ class Bind:
                 self._write_w_modes()
             return
 
-        self.write()
+        try:
+            self.write()
+        except TypeError:
+            # TODO: not yet implemented
+            # TODO: this is essentially mode of a mode
+            # TODO: modes will need to made tuple maybe
+            if any(isinstance(x, dict) for x in self._parameter):
+
+                # Consider something like this:
+                # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
+                #     {100: 1000, 500: 900, 1000: 800},
+                #     {100: 2000, 500: 1800, 1000: 1600},
+                #     {100: 3000, 500: 2700, 1000: 2400},
+                # ]
+                # I don't want to run a check for this every time, so just catch the error
+
+                if self.domain.modes is not None:
+                    for n, p in enumerate(self._parameter):
+                        s = self.sample.aspect(
+                            *self.domain.edit({'modes': self.domain.modes[n]})
+                        )
+
+                        if self.leq:
+                            _ = s <= p
+                        elif self.geq:
+                            _ = s >= p
+                        elif self.eq:
+                            _ = s == p
 
     @timer(logger, kind="bind")
     def write(self):
@@ -116,6 +144,7 @@ class Bind:
         else:
             return False
 
+        self._categorize()
         self._inform()
 
         # set the constraint
@@ -136,11 +165,7 @@ class Bind:
             # this is essentially the expectation
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
-            if self.norm:
-                _parameter = normalize(self._parameter)
-
-            else:
-                _parameter = self._parameter
+            _parameter = normalize(self._parameter) if self.norm else self._parameter
 
             # if the sample needs to be normalized
             _parameter = [
@@ -170,37 +195,37 @@ class Bind:
         if self.of:
             # if the dependent variable is not set, creates issues.
             # ------if a calculation is being done
-            if self.aspect.use_multiplier:
-                if isinstance(self.parameter, list):
-                    _parameter = [
-                        p * self.domain.space.multiplier for p in self.parameter
-                    ]
-                else:
-                    _parameter = self.parameter * self.domain.space.multiplier
-            else:
-                _parameter = self.parameter
+            def _parameter():
+                """Gets the parameter with multiplier if needed"""
+                if self.aspect.use_multiplier:
+                    if isinstance(self.parameter, list):
+                        return [
+                            p * self.domain.space.multiplier for p in self.parameter
+                        ]
 
-            return _parameter * self.of(*self.domain.index_spatiotemporal).V(
+                    return self.parameter * self.domain.space.multiplier
+                return self.parameter
+
+            return _parameter() * self.of(*self.domain.index_spatiotemporal).V(
                 self.parameter
             )
 
         if self.aspect.bound:
             # ------if variable bound
-            if self.report:
-                # ------if variable bound and reported
-                # we do not want a bi-linear term
-                return self.parameter * self.sample.X(self.parameter)
+            # ------if variable bound and reported
+            # we do not want a bi-linear term
+            _bound = self.sample.X(self.parameter) if self.report else self.sample.Vb()
+
+            return self.parameter * _bound
 
             # ------if just variable bound
-
-            return self.parameter * self.sample.Vb()
 
         if self.report or self.domain.modes is not None:
             # ------if  self.parameter bound and reported or has modes
             # create reporting variable write v <= p*x
+            _return = self.parameter * self.sample.X(self.parameter)
             self.aspect.update(self.domain, reporting=True)
-            return self.parameter * self.sample.X(self.parameter)
-
+            return _return
         # ------if just self.parameter bound
         return self.parameter
 
@@ -209,14 +234,12 @@ class Bind:
         """Constraint name suffix"""
         if self.leq:
             return "ub"
-        elif self.eq:
-            if self.of is not None:
-                if self.report:
-                    return "inc_calc"
-                return "calc"
-            return "eq"
         elif self.geq:
             return "lb"
+        # equality
+        if self.iscalc:
+            return "inc_calc" if self.report else "calc"
+        return "eq"
 
     @cached_property
     def cons_name(self):
@@ -236,8 +259,7 @@ class Bind:
             lhs = self.sample(idx)
 
             try:
-                # if a list is passed
-                # or any iterable vector
+                # if any iterable vector
                 rhs = self.parameter[n]
             except TypeError:
                 # if not repeat the same value
@@ -293,21 +315,20 @@ class Bind:
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
-        if not self.iscalc:
-            if (
-                (self.domain.space, self.domain.time)
-                in self.aspect.bound_spaces[self.domain.primary][self.rel]
-            ) and not self.domain.modes:
-                return True
+        if not self.iscalc and not self.domain.modes:
+            try:
+                if self.model.scenario[self.aspect][self.domain.primary][
+                    self.domain.space
+                ][self.domain.time][self.rel]:
+                    return True
 
-            self.aspect.bound_spaces[self.domain.primary][self.rel].append(
-                (self.domain.space, self.domain.time)
-            )
+            except KeyError:
+                pass
+
         return False
 
-    def _inform(self):
-        """Informs the aspect and domain about the bind constraint"""
-
+    def _categorize(self):
+        """Categorizes the constraint"""
         # categorize the constraint
         if self.iscalc:
             self.cons.categorize("Calculations")
@@ -316,13 +337,15 @@ class Bind:
         else:
             self.cons.categorize("Binds")
 
+    def _inform(self):
+        """Informs the aspect and domain about the bind constraint"""
+
         # let the aspect know about the new constraint
-        if self.cons_name not in self.aspect.constraints:
-            self.aspect.constraints.append(self.cons_name)
+        self.aspect.constraints.add(self.cons_name)
 
         # let all objects in the domain know that
         # a constraint with this name contains it
-        self.domain.inform_indices(self.cons_name)
+        self.domain.inform_components_of_cons(self.cons_name)
 
         self.model.scenario.update(self.sample, self.rel, self.P)
 
@@ -341,15 +364,8 @@ class Bind:
     @property
     def P(self):
         """Gets the parameter set"""
-        if self.iscalc:
+        if isinstance(self.cons.two, F):
             return self.cons.two.one
+        if isinstance(self.cons.two, V):
+            return 1.0
         return self.cons.two
-
-        # if self.leq:
-        #     _bound = r"\overline{"
-        # elif self.geq:
-        #     _bound = r"\underline{"
-        # else:
-        #     _bound = r"{"
-        # _p._ltx = _bound + r"\mathrm{" + self.lhs.ltx.capitalize() + r"}}"
-        # return _p

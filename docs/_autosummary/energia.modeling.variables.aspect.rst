@@ -1,4 +1,4 @@
-energia.modeling.variables.aspect
+﻿energia.modeling.variables.aspect
 =================================
 
 .. automodule:: energia.modeling.variables.aspect
@@ -10,7 +10,6 @@ energia.modeling.variables.aspect
    
       dataclass
       merge_tree_levels
-      rc
    
    .. rubric:: Classes
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from gana import I
+from gana import I as Idx
 
 from ..._core._x import _X
 
@@ -26,11 +26,19 @@ class Modes(_X):
     :type sample: Sample | None
     :param parent: Parent mode, if any. Defaults to None.
     :type parent: Self | None
-    :param pos: Position in the parent mode set. Defaults to None.
-    :type pos: int | None
+    :param n: Position in the parent mode set. Defaults to None.
+    :type n: int | None
 
-    :ivar name: The name of the mode, usually a number.
-    :vartype name: str | float | int
+    :ivar model: The model to which the component belongs.
+    :vartype model: Model
+    :ivar name: Set when the component is assigned as a Model attribute.
+    :vartype name: str
+    :ivar constraints: List of constraints associated with the component.
+    :vartype constraints: list[str]
+    :ivar domains: List of domains associated with the component.
+    :vartype domains: list[Domain]
+    :ivar aspects: Aspects associated with the component with domains.
+    :vartype aspects: dict[Aspect, list[Domain]]
     """
 
     def __init__(
@@ -39,26 +47,41 @@ class Modes(_X):
         sample: Sample | None = None,
         parent: Self | None = None,
         n: int | None = None,
-        label: str = "",
-        citations: str = "",
     ):
         self.size = size
         self.sample = sample
         self.parent = parent
         self.n = n
 
-        _X.__init__(self, label=label, citations=citations)
-
-        if self.n is not None:
-            self.name = f"{self.parent}[{self.n}]"
+        _X.__init__(self)
 
         if self.parent:
+            self.name = f"{self.parent}[{self.n}]"
             self.model = self.parent.model
 
-        # have child modes been made
-        self._birthed = False
-        # where child modes are stored
-        self._ = []
+    @cached_property
+    def _(self) -> list[Self]:
+        """Child modes"""
+        return [Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)]
+
+    @cached_property
+    def I(self) -> Idx:
+        """Index set of modes"""
+
+        if self.parent:
+            _ = self.parent.I  # makes sure the parent is indexed
+            # do not set a new index set, get from parent
+            return getattr(self.parent.program, self.parent.name)[self.n]
+
+        _index = Idx(size=self.size, tag=f"Modes of {self.sample.aspect}")
+
+        setattr(
+            self.program,
+            self.name,
+            _index,
+        )
+
+        return _index
 
     @property
     def cons(self) -> list[C]:
@@ -78,47 +101,17 @@ class Modes(_X):
             )
         )
 
-    @cached_property
-    def I(self) -> I:
-        """Index set of modes"""
-
-        if self.parent:
-            _ = self.parent.I  # makes sure the parent is indexed
-            # do not set a new index set, get from parent
-            return getattr(self.parent.program, self.parent.name)[self.n]
-
-        _index = I(size=self.size, tag=f"Modes of {self.sample.aspect}")
-
-        setattr(
-            self.program,
-            self.name,
-            _index,
-        )
-
-        return _index
-
     def __eq__(self, other: Modes) -> bool:
-        """Equality operator"""
-        if isinstance(other, Modes):
-            if other.name == self.name:
-                return True
+        if isinstance(other, Modes) and other.name == self.name:
+            return True
         return False
 
     def __len__(self) -> int:
-        """Length of the modes"""
         return self.size
 
     def __getitem__(self, key: int) -> _X:
-        """Get a mode by index"""
-        if not self._birthed:
-            self._ = [
-                Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)
-            ]
-            self._birthed = True
-
         return self._[key]
 
     def __iter__(self):
-        """Iterate over modes"""
         for i in range(self.size):
             yield self[i]

@@ -1,4 +1,4 @@
-energia.modeling.constraints.bind
+﻿energia.modeling.constraints.bind
 =================================
 
 .. automodule:: energia.modeling.constraints.bind
@@ -16,5 +16,7 @@ energia.modeling.constraints.bind
    .. autosummary::
    
       Bind
+      F
+      V
       cached_property
    

@@ -104,14 +104,7 @@ class Aspect:
         self.model: Model | None = None
 
         if self.label:
-            if self.nn:
-                self.label += " [+]"
-            else:
-                self.label += " [-]"
-        self.indices: list[Location | Linkage | Periods] = []
-
-        # # if a decision is bounded by another decision
-        # self.bound: Self = None
+            self.label += " [+]" if self.nn else " [-]"
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
@@ -119,26 +112,18 @@ class Aspect:
             list[Location | Linkage],
         ] = {}
 
-        # upper/lower/exact bounds are set on these locations/periods
-
-        # self.ubs: dict[Location | Linkage, Periods] = {}
-        # self.lbs: dict[Location | Linkage, Periods] = {}
-        # self.eqs: dict[Location | Linkage, Periods] = {}
-
         # Domains of the decision
         self.domains: list[Domain] = []
+        self.indices: list[tuple[Idx]] = []
 
         # a dictionary of domains and their maps from higher order domains
         # reporting variable
         self.reporting: Var | None = None
 
-        self.constraints: list[str] = []
-
-        # this keeps track of whether GRB has already been added
-        self.balances: dict[tuple[Idx, ...], bool] = {}
+        self.constraints: set[str] = set()
 
     @cached_property
-    def maps(self) -> dict[Aspect, dict[str, list[Domain]]]:
+    def maps(self) -> dict[str, dict[Domain, list[Domain]]]:
         """Maps of the decision"""
         self.model.maps[self] = {
             "time": {},
@@ -149,7 +134,7 @@ class Aspect:
         return self.model.maps[self]
 
     @cached_property
-    def maps_report(self) -> dict[Aspect, dict[str, list[Domain]]]:
+    def maps_report(self) -> dict[str, dict[Domain, list[Domain]]]:
         """Maps of the decision"""
         self.model.maps_report[self] = {
             "time": {},
@@ -158,38 +143,6 @@ class Aspect:
             "samples": {},
         }
         return self.model.maps_report[self]
-
-    @property
-    def ubs(self):
-        """Upper bounds"""
-        try:
-            return self.model.scenario.ubs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def lbs(self):
-        """Lower bounds"""
-        try:
-            return self.model.scenario.lbs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def eqs(self):
-        """Exact bounds"""
-        try:
-            return self.model.scenario.eqs[self]
-        except KeyError:
-            return {}
-
-    @property
-    def calcs(self):
-        """Calculated aspects"""
-        try:
-            return self.model.scenario.calcs[self]
-        except KeyError:
-            return {}
 
     @cached_property
     def isneg(self) -> bool:

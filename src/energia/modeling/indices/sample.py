@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self
 from gana import I as Idx
 from gana import V, inf, sigma, sup
 
+from ..._core._hash import _Hash
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 # ------------------------------------------------------------------------------
 
 
-class Sample:
+class Sample(_Hash):
     """
     Sets a bound on a variable (V) within a particular domain.
 
@@ -45,19 +46,19 @@ class Sample:
     :type timed: bool | None
     :param spaced: If the spatial index is predetermined. Defaults to None.
     :type spaced: bool | None
+    :param report: If a reporting binary variable is needed. Defaults to False.
+    :type report: bool, optional
 
-    :ivar name: Name of the bind.
-    :vartype name: str | None
-    :ivar model: Model to which the generator belongs.
-    :vartype model: Model | None
-    :ivar program: Gana Program to which the generated constraint belongs.
-    :vartype program: Prg | None
-    :ivar opr: Operation to bind (in lieu of a single variable). Defaults to None.
-    :vartype opr: F | None
-    :ivar domains: Set of domains over which the Bind is applied. Defaults to [].
-    :vartype domains: Domain
-    :ivar hasinc: If the Bind has some incidental calculation. Defaults to False.
+    :ivar hasinc: If incidental calculation is generated.
     :vartype hasinc: bool
+    :ivar nominal: If nominal is provided and multiplied by the nominal value.
+    :vartype nominal: float | None
+    :ivar norm: The input argument is normalized if True.
+    :vartype norm: bool
+    :ivar parameter: Parameter
+    :vartype parameter: P
+    :ivar length: Length of the parameter set.
+    :vartype length: int
 
     .. note::
         - ``timed`` and ``spaced`` help skip the calculation of finding the appropriate index.
@@ -71,59 +72,43 @@ class Sample:
         self,
         aspect: Aspect,
         domain: Domain,
-        label: str = "",
         timed: bool = False,
         spaced: bool = False,
         report: bool = False,
     ):
 
-        # this is the aspect for which the constraint is being defined
         self.aspect = aspect
-        # the domain is passed when the aspect is called using __call__()
         self.domain = domain
-
-        self.label = label
-        # if the temporal index is predetermined
         self.timed = timed
-        # if the spatial index is predetermined
         self.spaced = spaced
-
-        self.model = self.aspect.model
-        self.program = self.model.program
-        self.balances = self.model.balances
-
-        # if the aspect is bound (operate for example)
-        self.bound = self.aspect.bound
-
-        # this is set if the aspect needs a reporting binary variable
         self.report = report
+
+        self._handshake()
 
         # if incidental calculation is generated
         self.hasinc: bool = False
-
         # if nominal is provided
         # and multiplied by the nominal value
         self.nominal: float | None = None
         # the input argument is normalized if True
         self.norm: bool = False
+        # parameter and length
+        self.parameter: P | None = None
+        self.length: int = 0
 
         # the bound is set for all indices
         self._forall: list[_X] = []
 
-        # parameters
-        self.parameter: P = None
-        self.length: int = 0
-
     @property
     def of(self) -> Self | None:
         """Sample being calculated"""
-        if self.domain.samples:
-            return self.domain.samples[0]
-        return None
+        return self.domain.samples[0] if self.domain.samples else None
 
-    @property
+    @cached_property
     def name(self) -> str:
         """Name of the constraint"""
+        # can have a sample without aspect or primary
+        # safe to cache
         return f"{self.domain.primary}.{self.aspect.name}"
 
     @property
@@ -160,48 +145,12 @@ class Sample:
     @property
     def F(self):
         """Function"""
-        if self.report:
-            return self.X(1)
-        return self.V(1)
+        return self.X(1) if self.report else self.V(1)
 
     @property
     def constraints(self):
         """Constraints"""
         return self.aspect.constraints
-
-    def show(self, descriptive=False):
-        """Pretty print the component"""
-        constraints = list(chain.from_iterable(i.constraints for i in self.index))
-
-        for c in constraints:
-            if c in self.aspect.constraints:
-                cons: C = getattr(self.program, c)
-                cons.show(descriptive)
-
-    @cached_property
-    def time(self):
-        """Matches an appropriate temporal scale"""
-        if not self.timed:
-
-            if isinstance(self.parameter, list):
-                # if list is given, find using length of the list
-                if self.domain.modes is not None:
-                    self.domain.periods = self.aspect.time.find(
-                        len(self.parameter) / len(self.domain.modes),
-                    )
-                else:
-                    self.domain.periods = self.aspect.time.find(len(self.parameter))
-
-            elif isinstance(self.length, int):
-                # if length is given, use it directly
-                self.domain.periods = self.aspect.time.find(self.length)
-            else:
-                # else the size of parameter set is exactly one
-                # or nothing is given, meaning the variable is not time dependent
-                # thus, index by horizon
-                self.domain.periods = self.aspect.horizon
-
-        return self.domain.periods
 
     @cached_property
     def space(self):
@@ -213,37 +162,41 @@ class Sample:
 
         return self.domain.location
 
-    def Vlag(self):
-        """Handles lagged domains"""
-        # with lag it is assumed that the variable of which this is a lagged subset is
-        # already defined
-        # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
-        try:
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
+    @cached_property
+    def time(self):
+        """Matches an appropriate temporal scale
+        Sets domain.periods if needed and
+        returns domain.periods
+        """
+        if not self.timed:
+            self.domain.periods = self._match_time()
+        return self.domain.periods
 
-        except AttributeError:
-            _ = self == True
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
+    def _match_time(self):
+        """Matches an appropriate temporal scale"""
+        if isinstance(self.parameter, list):
+            # if list is given, find using length of the list
+            if self.domain.modes is not None:
+                return self.aspect.time.find(
+                    len(self.parameter) / len(self.domain.modes),
+                )
+            return self.aspect.time.find(len(self.parameter))
 
-        except KeyError:
-            # the variable has not been defined yet
-            lag = self.domain.lag
-            self.domain = self.domain.change(
-                {"lag": None, "periods": self.domain.lag.of},
-            )
-            args = (self.parameter, self.length)
+        if isinstance(self.length, int):
+            # if length is given, use it directly
+            return self.aspect.time.find(self.length)
+        # else the size of parameter set is exactly one
+        # or nothing is given, meaning the variable is not time dependent
+        # thus, index by horizon
+        return self.aspect.horizon
 
-            if self.hasinc:
-                _ = self.Vinc(*args)
-
-            if self.report:
-                _ = self.X(*args)
-
-            else:
-                _ = self.V(*args)
-
-            self.domain = self.domain.change({"lag": lag, "periods": None})
-            return getattr(self.program, self.aspect.name)(*self.domain.I)
+    def _handshake(self):
+        """Take what is needed"""
+        self.model = self.aspect.model
+        self.program = self.model.program
+        self.balances = self.model.balances
+        # if the aspect is bound (operate for example)
+        self.bound = self.aspect.bound
 
     def _inform(self):
         """Informs the aspect and domain about the sample"""
@@ -261,7 +214,7 @@ class Sample:
 
         # this lets all self.I elements in the domain know
         # that the aspect was sampled
-        self.domain.update_domains(self.aspect)
+        self.domain.inform_components_of_domain(self.aspect)
 
         # ------Update the disposition ---------------
 
@@ -277,7 +230,35 @@ class Sample:
 
         self.aspect.domains.append(self.domain)
 
-    def _init_V(self, parameter: float | list = None, length: int = None):
+    # ---------------------------------------------------------------------------
+    #               Preparation and Additional Args
+    # ---------------------------------------------------------------------------
+
+    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
+        """
+        Nominal value
+
+        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
+        :type nominal: float, optional
+        :param norm: If the input argument (bounds) are normalized, defaults to True
+        :type norm: bool, optional
+        """
+        self.nominal = nominal
+        self.norm = norm
+        return self
+
+    def forall(self, index) -> Self:
+        """Returns the function at the given index"""
+        self._forall = index
+        return self
+
+    # ---------------------------------------------------------------------------
+    #               Variable Birthing
+    # ---------------------------------------------------------------------------
+
+    def _init_V(
+        self, parameter: float | list[float] | None = None, length: int | None = None
+    ):
         """Initialize making a variable"""
 
         self.parameter = parameter
@@ -285,9 +266,7 @@ class Sample:
 
         if self.domain.primary not in self.aspect.bound_spaces:
             self.aspect.bound_spaces[self.domain.primary] = {
-                "ub": [],
-                "lb": [],
-                "eq": [],
+                rel: [] for rel in ["ub", "lb", "eq"]
             }
 
         # Sample will figure these out if needed
@@ -338,6 +317,7 @@ class Sample:
 
         # TODO: run this check for all V types.
         # TODO: Will require separate aspect.indices lists
+
         if str(self.I) not in [str(i) for i in self.aspect.indices]:
 
             # if a variable has not been created for the self.I
@@ -350,8 +330,7 @@ class Sample:
             )
             self._inform()
 
-        var = getattr(self.program, self.aspect.name)(*self.I)
-        return var
+        return getattr(self.program, self.aspect.name)(*self.I)
 
     def Vinc(self, parameters: float | list = None, length: int = None) -> V:
         """
@@ -380,10 +359,11 @@ class Sample:
         #   calc = v * param
         #   calc_incidental = v_reporting * param_incidental
         # named with a superscript inc
-        if self.aspect.latex:
-            ltx = self.aspect.latex + r"^{inc}"
-        else:
-            ltx = self.aspect.name + r"^{inc}"
+        ltx = (
+            self.aspect.latex + r"^{inc}"
+            if self.aspect.latex
+            else self.aspect.name + r"^{inc}"
+        )
 
         # create an incidental variable (continuous)
         setattr(
@@ -430,7 +410,7 @@ class Sample:
                 self.model.horizon,
             )
 
-            domain = self.domain.change({"periods": self.model.horizon})
+            domain = self.domain.edit({"periods": self.model.horizon})
 
         else:
             # if the bound variable has been defined for the given space
@@ -439,7 +419,7 @@ class Sample:
             ]
             time = max(list(times))
             if time >= self.domain.periods:
-                domain = self.domain.change({"periods": time})
+                domain = self.domain.edit({"periods": time})
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
                 raise ValueError(
@@ -448,7 +428,9 @@ class Sample:
                 )
         return bound_aspect(domain=domain).V()
 
-    def X(self, parameters: float | list = None, length: int = None) -> V:
+    def X(
+        self, parameters: float | list[float] | None = None, length: int | None = None
+    ) -> V:
         r"""
         Binary Reporting Variable
         These report whether a variable has been made or not
@@ -490,6 +472,42 @@ class Sample:
         self.aspect.reporting = v_rpt
         return v_rpt(*self.I)
 
+    def Vlag(self):
+        """Handles lagged domains"""
+        # with lag it is assumed that the variable of which this is a lagged subset is
+        # already defined
+        # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
+        try:
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except AttributeError:
+            _ = self == True
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+        except KeyError:
+            # the variable has not been defined yet
+            lag = self.domain.lag
+            self.domain = self.domain.edit(
+                {"lag": None, "periods": self.domain.lag.of},
+            )
+            args = (self.parameter, self.length)
+
+            if self.hasinc:
+                _ = self.Vinc(*args)
+
+            if self.report:
+                _ = self.X(*args)
+
+            else:
+                _ = self.V(*args)
+
+            self.domain = self.domain.edit({"lag": lag, "periods": None})
+            return getattr(self.program, self.aspect.name)(*self.domain.I)
+
+    # ---------------------------------------------------------------------------
+    #               Optimization and Evaluation
+    # ---------------------------------------------------------------------------
+
     def obj(self, maximize: bool = False):
         """
         Set the sample itself as the objective
@@ -510,7 +528,6 @@ class Sample:
         if len(v) == 1:
             _obj = v
         else:
-
             _obj = sigma(v)
 
         if self.hasinc:
@@ -533,8 +550,8 @@ class Sample:
         """
         Optimize
 
-        :param max: if maximization, defaults to False
-        :type max: bool, optional
+        :param maximize: if maximization, defaults to False
+        :type maximize: bool, optional
         """
         self.obj(maximize)
         # optimize!
@@ -549,18 +566,18 @@ class Sample:
         bmax = -self.program.obj()
         return (bmin, bmax)
 
-    def prep(self, nominal: float = 1, norm: bool = True) -> Self:
+    def eval(self, *values: float):
         """
-        Nominal value
+        Evaluate the variable using parametric variable values
 
-        :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
-        :type nominal: float, optional
-        :param norm: If the input argument (bounds) are normalized, defaults to True
-        :type norm: bool, optional
+        :param values: values for the parametric variables
+        :type values: float
         """
-        self.nominal = nominal
-        self.norm = norm
-        return self
+        return self.V().eval(*values)
+
+    # ---------------------------------------------------------------------------
+    #               Illustration and Output
+    # ---------------------------------------------------------------------------
 
     def output(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
         """
@@ -575,19 +592,63 @@ class Sample:
         """
         return self.V().output(aslist=aslist, asdict=asdict, compare=compare)
 
-    def eval(self, *values: float):
-        """
-        Evaluate the variable using parametric variable values
+    def show(self, descriptive=False):
+        """Pretty print constraints"""
 
-        :param values: values for the parametric variables
-        :type values: float
-        """
-        return self.V().eval(*values)
+        for c in (
+            set(chain.from_iterable(i.constraints for i in self.index))
+            & self.aspect.constraints
+        ):
+            cons: C = getattr(self.program, c)
+            cons.show(descriptive)
 
-    def forall(self, index) -> Self:
-        """Returns the function at the given index"""
-        self._forall = index
-        return self
+    def bar(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a bar chart"""
+        v = self.V()
+        v.bar(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
+
+    def line(
+        self,
+        font_size: float = 16,
+        fig_size: tuple[float, float] = (12, 6),
+        linewidth: float = 0.7,
+        color: str = "blue",
+        grid_alpha: float = 0.3,
+        usetex: bool = True,
+        str_idx_lim: int = 10,
+    ):
+        """Draws the variable as a line chart"""
+        v = self.V()
+        v.line(
+            font_size=font_size,
+            fig_size=fig_size,
+            linewidth=linewidth,
+            color=color,
+            grid_alpha=grid_alpha,
+            usetex=usetex,
+            str_idx_lim=str_idx_lim,
+        )
+
+    # ---------------------------------------------------------------------------
+    #               Dunders
+    # ---------------------------------------------------------------------------
 
     def __getattr__(self, other):
         aspect = getattr(self.model, other)
@@ -641,61 +702,6 @@ class Sample:
             f.report = self.report
             return f
         return calculate(self(), *self.domain.index_spatiotemporal)
-
-    def bar(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a bar chart"""
-        v = self.V()
-        v.bar(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
-
-    def line(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a line chart"""
-        v = self.V()
-        v.line(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-    # This is for binding sample operations, eg. sample + sample or sample - sample
 
     def __add__(self, other: Self | FuncOfSamples):
         if isinstance(other, (int, float)):
@@ -778,4 +784,4 @@ class FuncOfSamples:
         """
 
         setattr(self.program, f"min_{self.F.name}", inf(self.F))
-        self.program.opt()
+        self.program.opt(maximize=maximize)

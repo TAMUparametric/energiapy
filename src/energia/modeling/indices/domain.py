@@ -108,11 +108,6 @@ class Domain(_Hash):
         # primary index being modeled in some spatiotemporal context
         self.model: Model = next((i.model for i in self.index_short if i), None)
 
-    # @property
-    # def I(self) -> tuple[Idx, ...]:
-    #     """Compound index"""
-    #     return prod(self.Ilist)
-
     # -----------------------------------------------------
     #                    Components
     # -----------------------------------------------------
@@ -285,19 +280,6 @@ class Domain(_Hash):
             node = node[key]
         return tree
 
-    def param_tree(self, parameter: float | list[float]) -> dict:
-        """Tree representation of the Domain"""
-        tree = {}
-        node = tree
-        n_last = len(self.index) - 1
-        for n, key in enumerate(self.index):
-            if n == n_last:
-                node[key] = parameter
-            else:
-                node[key] = {}
-                node = node[key]
-        return tree
-
     @property
     def aspects(self) -> list[Aspect]:
         """Aspects"""
@@ -357,7 +339,7 @@ class Domain(_Hash):
         | list[Sample]
         | None,
     ]:
-        """Dictionary of indices"""
+        """Dictionary of Components"""
         return {
             "primary": self.primary,
             "player": self.player,
@@ -409,41 +391,55 @@ class Domain(_Hash):
     #                    Helpers
     # -----------------------------------------------------
 
-    def inform_indices(self, cons_name: str):
+    def inform_components_of_cons(self, cons_name: str):
         """Update the constraints declared at every index"""
-        for j in self.index:
-            if cons_name not in j.constraints:
-                j.constraints.append(cons_name)
+        for idx in self.index:
+            idx.constraints.add(cons_name)
 
-    def update_domains(self, aspect: Aspect):
+    def inform_components_of_domain(self, aspect: Aspect):
         """
-        Update all elements in the domains with the aspects
+        Update all components in the domains with the aspects
         that they have been modeled in
+
+        :param aspect: Aspect being modeled
+        :type aspect: Aspect
         """
         for i, j in self._.items():
-            if self.lag and i == "time":
+            if i == "samples" or (self.lag and i == "time"):
                 # lags disappear anyway, so dont bother
                 continue
-            if i not in ["samples"]:
-                # these are dependent variables, so do not update them
-                if self not in j.domains:
-                    # check and update the domains at each index
-                    j.domains.append(self)
-                # if the variable is not in the list of variables at the index
-                # update those
-                if aspect not in j.aspects:
-                    # first time (variable) is a dict {aspect: [..aspects..]}
-                    j.aspects[aspect] = [self]
-                elif self not in j.aspects[aspect]:
-                    j.aspects[aspect].append(self)
+            # these are dependent variables, so do not update them
+            if self not in j.domains:
+                # check and update the domains at each index
+                j.domains.append(self)
+            # update the domain for the aspect for components
+            try:
+                j.aspects[aspect].add(self)
+            except KeyError:
+                j.aspects[aspect] = {self}
 
     def copy(self) -> Self:
         """Make a copy of self"""
         return Domain(**self.args)
 
-    def change(self, what: dict[str, _X]) -> Self:
+    def edit(self, what: dict[str, _X]) -> Self:
         """Change some aspects and return a new Domain"""
         return Domain(**{**self.args, **what})
+
+    def param_tree(self, parameter: float | list[float], rel: str) -> dict:
+        """Tree representation of the Domain"""
+        tree = {}
+        node = tree
+        n_last = len(self.index) - 1
+        for n, key in enumerate(self.index):
+            if n == n_last:
+                if not node:
+                    node[key] = {}
+                node[key][rel] = parameter
+            else:
+                node[key] = {}
+                node = node[key]
+        return tree
 
     # -----------------------------------------------------
     #                    Vector

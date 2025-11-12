@@ -42,7 +42,7 @@ class Lag(_Name):
         self.periods = periods
         self.name = f"-{self.periods}{self.of}"
         self.domains: list[Domain] = []
-        self.constraints: list[str] = []
+        self.constraints: set[str] = set()
 
     @cached_property
     def I(self) -> Idx:

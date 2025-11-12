@@ -29,7 +29,6 @@ class State(Aspect):
 
     def update(self, domain: Domain, reporting: bool = False):
         """Add a domain to the decision variable"""
-
         self.Map(domain=domain, reporting=reporting)
 
 
