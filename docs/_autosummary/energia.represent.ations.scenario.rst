@@ -15,5 +15,4 @@
    .. autosummary::
    
       Scenario
-      defaultdict
    
