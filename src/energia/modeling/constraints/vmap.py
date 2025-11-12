@@ -338,6 +338,7 @@ class Map:
             # if the domain has been mapped to but this is a mode sum
             # we need to first map modes
             # and then add it to an existing map at a lower domain
+
             return sigma(v(*domain.I), domain.modes.I)
         # the copy is important since otherwise, the printing will take
         # the update index if the variable is mutated

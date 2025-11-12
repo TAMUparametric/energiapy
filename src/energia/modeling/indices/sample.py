@@ -256,7 +256,9 @@ class Sample(_Hash):
     #               Variable Birthing
     # ---------------------------------------------------------------------------
 
-    def _init_V(self, parameter: float | list = None, length: int = None):
+    def _init_V(
+        self, parameter: float | list[float] | None = None, length: int | None = None
+    ):
         """Initialize making a variable"""
 
         self.parameter = parameter
@@ -315,6 +317,7 @@ class Sample(_Hash):
 
         # TODO: run this check for all V types.
         # TODO: Will require separate aspect.indices lists
+
         if str(self.I) not in [str(i) for i in self.aspect.indices]:
 
             # if a variable has not been created for the self.I
@@ -425,7 +428,9 @@ class Sample(_Hash):
                 )
         return bound_aspect(domain=domain).V()
 
-    def X(self, parameters: float | list = None, length: int = None) -> V:
+    def X(
+        self, parameters: float | list[float] | None = None, length: int | None = None
+    ) -> V:
         r"""
         Binary Reporting Variable
         These report whether a variable has been made or not

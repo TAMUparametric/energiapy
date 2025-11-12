@@ -137,11 +137,7 @@ class Bind:
             # this is essentially the expectation
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
-            if self.norm:
-                _parameter = normalize(self._parameter)
-
-            else:
-                _parameter = self._parameter
+            _parameter = normalize(self._parameter) if self.norm else self._parameter
 
             # if the sample needs to be normalized
             _parameter = [
@@ -190,20 +186,18 @@ class Bind:
             # ------if variable bound
             # ------if variable bound and reported
             # we do not want a bi-linear term
-            return (
-                self.parameter * self.sample.X(self.parameter)
-                if self.report
-                else self.parameter * self.sample.Vb()
-            )
+            _bound = self.sample.X(self.parameter) if self.report else self.sample.Vb()
+
+            return self.parameter * _bound
 
             # ------if just variable bound
 
         if self.report or self.domain.modes is not None:
             # ------if  self.parameter bound and reported or has modes
             # create reporting variable write v <= p*x
+            _return = self.parameter * self.sample.X(self.parameter)
             self.aspect.update(self.domain, reporting=True)
-            return self.parameter * self.sample.X(self.parameter)
-
+            return _return
         # ------if just self.parameter bound
         return self.parameter
 

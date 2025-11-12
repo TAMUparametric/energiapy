@@ -104,10 +104,7 @@ class Aspect:
         self.model: Model | None = None
 
         if self.label:
-            if self.nn:
-                self.label += " [+]"
-            else:
-                self.label += " [-]"
+            self.label += " [+]" if self.nn else " [-]"
 
         # spaces where the aspect has been already bound
         self.bound_spaces: dict[
