@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -36,11 +37,20 @@ from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
+from ..dimensions.game import Game
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -235,6 +245,8 @@ class Model:
         self.programs = [Program(model=self)]
         # * 4 Scenario, the parameter set or uncertainty realization
         self.scenarios = [Scenario(model=self)]
+        # * 5 Game, the decision-making representation
+        self.games = [Game(model=self)]
 
         # shorthand
         self._ = self.program
@@ -433,6 +445,11 @@ class Model:
     def scenario(self) -> Scenario:
         """The active scenario"""
         return self.scenarios[-1]
+
+    @property
+    def game(self) -> Game:
+        """The active game"""
+        return self.games[-1]
 
     # -------------------------------------------------------------------
     # * Dimensional Properties and Collections

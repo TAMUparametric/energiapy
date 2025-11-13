@@ -43,3 +43,12 @@ def test_link(m):
     assert m.htown.links(m.sd) == m.sd.links(m.htown) == [m.grid]
     assert m.htown.connected(m.sd)
     assert not m.htown.connected(m.mum)
+
+    with pytest.raises(ValueError):
+        Linkage(source=m.htown, sink=m.htown)
+
+    assert m.grid.network == m.network
+
+    assert not m.htown.isnetwork
+    assert m.network.isnetwork
+    assert not m.grid.isnetwork

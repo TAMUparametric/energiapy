@@ -69,3 +69,7 @@ def test_error(m):
 
     with pytest.raises(AttributeError):
         m.rrr = Resource(capacity=10)
+
+    r = Resource()
+    with pytest.raises(AttributeError):
+        r.program

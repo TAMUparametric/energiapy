@@ -60,15 +60,17 @@ class Commodity(_Component, Mapping):
             return {self: 1.0}
         # if there is a conversion, return its parameter in all tasks its
         # associated with
-        return {task: task.balance[self] for task in self.conversions}
+        # TODO: mute when ready to set conversions on commodity
+        # return {task: task.balance[self] for task in self.conversions}
 
-    def __setattr__(self, name, value):
+    # TODO: mute when ready to set conversions on commodity
+    # def __setattr__(self, name, value):
 
-        if isinstance(value, Conversion):
-            # update conversions
-            self.conversions.append(value)
+    #     if isinstance(value, Conversion):
+    #         # update conversions
+    #         self.conversions.append(value)
 
-        super().__setattr__(name, value)
+    #     super().__setattr__(name, value)
 
     def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
