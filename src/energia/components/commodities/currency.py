@@ -86,12 +86,13 @@ class Currency(Commodity):
         elif isinstance(other, Conversion):
 
             currency: Self = list(other.balance.keys())[0]
-            rate = other.balance[currency]
+            rate: float = other.balance[currency]
 
             # set the exchange rate of self against other
             self.exchange[currency] = rate
 
             for ex in currency.exchange:
+
                 if ex not in self.exchange:
                     self.exchange[ex] = rate / currency.exchange[ex]
 
