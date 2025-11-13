@@ -21,7 +21,6 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
-
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -42,17 +41,9 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -783,7 +774,7 @@ class Model:
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
-        root = self.periods[-1]
+        root = getattr(self, "periods")[-1]
         discretizations = list(reversed(discretizations))
 
         names = list(reversed(names[:-1]))
@@ -794,7 +785,7 @@ class Model:
 
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
-            root = self.periods[-1]
+            root = getattr(self, "periods")[-1]
 
     def Modes(self, size: int, sample: Sample):
         """
@@ -805,7 +796,7 @@ class Model:
         :param name: Name of the modes. Defaults to "modes".
         :type name: str, optional
         """
-        modes = Modes(size=size, sample=sample, n=len(self.modes))
+        modes = Modes(size=size, sample=sample, n=len(getattr(self, "modes")))
         periods = sample.domain.periods or self.time.horizon
         setattr(self, f'_{periods}{len(periods.modes)}', modes)
         periods.modes.append(modes)
