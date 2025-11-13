@@ -1,13 +1,20 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python package
 
 on:
   push:
-    branches: [ "main", "test" ]
+    branches: [ "main"]
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    - 'LICENSE'
+    - '*.yml'
   pull_request:
-    branches: [ "main", "test" ]
+    branches: [ "main"]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
+      - '*.yml'
 
 jobs:
   build:
@@ -25,7 +32,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install package (with test extras)
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install -e .[test]
@@ -36,10 +43,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run tests
-      run: pytest --disable-warnings
+      run: pytest --cov=energiapy --junitxml=junit.xml -o junit_family=legacy --cov-report=xml
 
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
