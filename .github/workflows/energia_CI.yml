@@ -39,7 +39,7 @@ jobs:
           pip install .[test]
 
       - name: Run tests
-        run: pytest --cov=energia --cov-report=xml tests
+        run: pytest --cov --cov-report=xml /
 
 
       - name: Upload test results to Codecov
