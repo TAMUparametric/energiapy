@@ -9,9 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
-from gana import I as Idx
-from gana import P as Param
-from gana import T as MParam
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency
@@ -30,6 +27,7 @@ from ..components.operations.storage import Storage
 from ..components.operations.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
+from ..components.temporal.lag import Lag
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
@@ -73,7 +71,7 @@ if TYPE_CHECKING:
 
     BalanceType = DefaultDict[
         Commodity,
-        DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
+        DefaultDict[Location | Linkage, DefaultDict[Periods | Lag, list[Aspect]]],
     ]
 
 
@@ -193,14 +191,8 @@ class Model:
             # *V Indicators (Consequence):
             # scales a stream and projects onto a common metric
             # categories include
-            Environ: (
-                "impact",
-                "environment",
-            ),
-            Social: (
-                "impact",
-                "society",
-            ),
+            Environ: ("impact", "environment"),
+            Social: ("impact", "society"),
             Economic: ("impact", "economy"),
             # * VI Game Components
             # To model Competition
@@ -457,22 +449,22 @@ class Model:
         return self.space.network
 
     @property
-    def indicators(self) -> Impact:
+    def indicators(self) -> list[Environ | Social | Economic]:
         """Impact indicators"""
         return self.impact.indicators
 
     @property
-    def operations(self) -> System:
+    def operations(self) -> list[Process | Storage | Transport]:
         """System operations"""
         return self.system.operations
 
     @property
-    def aspects(self) -> Problem:
+    def aspects(self) -> list[Consequence | Stream | Control | State]:
         """Problem aspects"""
         return self.problem.aspects
 
     @property
-    def domains(self) -> Problem:
+    def domains(self) -> list[Domain]:
         """Problem domains"""
         return self.problem.domains
 
@@ -709,19 +701,6 @@ class Model:
             latex=latex,
         )
 
-    def P(
-        self,
-        *index: Idx | tuple[Idx],
-        data: float | tuple[float, float] | list[float | tuple[float, float]],
-    ) -> Param:
-        """Makes a gana.P or gana.T from data and index"""
-
-        if isinstance(data, (float, int)) or (
-            isinstance(data, list) and isinstance(data[0], (float, int))
-        ):
-            return Param(*index, _=data)
-        return MParam(*index, _=data)
-
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components
     # ------------------------------------------------------------------------
@@ -779,7 +758,7 @@ class Model:
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
-        root = self.periods[-1]
+        root = getattr(self, "periods")[-1]
         discretizations = list(reversed(discretizations))
 
         names = list(reversed(names[:-1]))
@@ -790,7 +769,7 @@ class Model:
 
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
-            root = self.periods[-1]
+            root = getattr(self, "periods")[-1]
 
     def Modes(self, size: int, sample: Sample):
         """
@@ -801,7 +780,7 @@ class Model:
         :param name: Name of the modes. Defaults to "modes".
         :type name: str, optional
         """
-        modes = Modes(size=size, sample=sample, n=len(self.modes))
+        modes = Modes(size=size, sample=sample, n=len(getattr(self, "modes")))
         periods = sample.domain.periods or self.time.horizon
         setattr(self, f'_{periods}{len(periods.modes)}', modes)
         periods.modes.append(modes)
@@ -943,31 +922,20 @@ class Model:
         :rtype: Periods
         """
 
-        if not self.periods:
+        periods = getattr(self, "periods")
+
+        if not periods:
             if size > 1:
                 self.t1 = Periods()
                 self.t0 = size * self.t1
                 return self.t1
 
         if size > 1:
-            setattr(self, f"t{len(self.periods)}", self.horizon / size)
-            return self.periods[-1]
+            setattr(self, f"t{len(periods)}", self.horizon / size)
+            return periods[-1]
 
         self.t0 = Periods()
         return self.t0
-
-        #     # if no periods exits yet, make the horizon
-        #     self.t0 = Periods()
-        #     if size == 1:
-        #         return self.periods[-1]
-
-        # if size > 1:
-        #     hrz = self.horizon
-        #     setattr(self, f"t{len(self.periods)}", self.horizon / size)
-
-        # return self.periods[-1]
-
-        # or create a default period
 
     def _l0(self) -> Location:
         """Return a default location"""
@@ -976,8 +944,9 @@ class Model:
 
     def _cash(self) -> Currency:
         """Return a default currency"""
-        if self.currencies:
-            return self.currencies[0]
+        currencies = getattr(self, "currencies")
+        if currencies:
+            return currencies[0]
         self.cash = Currency(label="$")
         return self.cash
 
