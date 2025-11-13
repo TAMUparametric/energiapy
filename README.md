@@ -6,7 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
-[![Python package](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml/badge.svg)](https://github.com/TAMUparametric/energiapy/actions/workflows/python-package.yml)
+[![Python package](https://github.com/TAMUparametric/energiapy/actions/workflows/energia_CI.yml/badge.svg)](https://github.com/TAMUparametric/energiapy/actions/workflows/energia_CI.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/994d46ab40ac4f0ead5ed9d1ea1b0fab)](https://app.codacy.com/gh/TAMUparametric/energiapy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![DOI](https://zenodo.org/badge/600269309.svg)](https://doi.org/10.5281/zenodo.17478608)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/energiapy.svg)](https://pypi.org/project/energiapy/)
