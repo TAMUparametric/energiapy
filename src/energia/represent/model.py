@@ -616,31 +616,31 @@ class Model:
             bound=bound,
             ispos=ispos,
             nn=nn,
-            primary_type=primary_type,
             latex=latex,
             use_multiplier=use_multiplier,
+            primary_type=primary_type,
         )
 
         if add:
             self.Recipe(
                 name=add,
                 kind=add_kind or sub_kind or Control,
-                primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
                 nn=True,
                 latex=latex or add,
+                primary_type=primary_type,
             )
 
         if sub:
             self.Recipe(
                 name=sub,
                 kind=sub_kind or add_kind or Control,
-                primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
                 nn=True,
                 latex=latex or sub,
+                primary_type=primary_type,
             )
 
         if neg:
@@ -650,9 +650,9 @@ class Model:
                 label=neg_label,
                 ispos=not ispos,
                 nn=nn,
-                primary_type=primary_type,
                 latex=neg_latex or neg,
                 use_multiplier=use_multiplier,
+                primary_type=primary_type,
             )
             self.cookbook[neg] = neg_recipe
 

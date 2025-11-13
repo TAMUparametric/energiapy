@@ -407,12 +407,12 @@ class Aspect:
     def __hash__(self):
         return hash(self.name)
 
-    def __init_subclass__(cls):
-        cls.__repr__ = Aspect.__repr__
-        cls.__hash__ = Aspect.__hash__
-        cls.__eq__ = Aspect.__eq__
-
     def __iter__(self):
         """Iterate over domains"""
         for d in self.domains:
             yield self(domain=d)
+
+    def __init_subclass__(cls):
+        cls.__repr__ = Aspect.__repr__
+        cls.__hash__ = Aspect.__hash__
+        cls.__eq__ = Aspect.__eq__
