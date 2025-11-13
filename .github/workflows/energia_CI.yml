@@ -39,14 +39,14 @@ jobs:
           pip install .[test]
 
       - name: Run tests
-        run: pytest --cov=energia --junitxml=junit.xml -o junit_family=legacy
+        run: pytest --cov=. --cov-report=xml tests/
 
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
-          files: junit.xml
+          files: coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Lint with flake8
