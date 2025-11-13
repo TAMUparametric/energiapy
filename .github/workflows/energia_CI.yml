@@ -39,7 +39,7 @@ jobs:
           pip install .[test]
 
       - name: Run tests
-        run: pytest --cov=energiapy --cov-report=xml
+        run: pytest --cov=energia --junitxml=junit.xml -o junit_family=legacy
 
 
       - name: Upload test results to Codecov
