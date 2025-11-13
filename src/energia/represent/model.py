@@ -31,10 +31,10 @@ from ..components.operations.storage import Storage
 from ..components.operations.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
+from ..components.temporal.lag import Lag
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
-from ..components.temporal.lag import Lag
 from ..dimensions.impact import Impact
 from ..dimensions.problem import Problem
 from ..dimensions.space import Space
@@ -471,12 +471,12 @@ class Model:
         return self.system.operations
 
     @property
-    def aspects(self) -> Problem:
+    def aspects(self) -> list[Consequence | Stream | Control | State]:
         """Problem aspects"""
         return self.problem.aspects
 
     @property
-    def domains(self) -> Problem:
+    def domains(self) -> list[Domain]:
         """Problem domains"""
         return self.problem.domains
 
