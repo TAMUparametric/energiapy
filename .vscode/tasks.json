@@ -4,12 +4,16 @@
         {
             "label": "Radon: Cyclomatic Complexity",
             "type": "shell",
-            "command": "radon cc src -s -a",
-            "problemMatcher": [],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "cc",
+                "src",
+                "-s",
+                "-a"
+            ],
+            "group": "test",
             "presentation": {
                 "reveal": "always",
                 "panel": "shared",
@@ -19,8 +23,14 @@
         {
             "label": "Radon: Maintainability Index",
             "type": "shell",
-            "command": "radon mi src -s",
-            "problemMatcher": [],
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "mi",
+                "src",
+                "-s"
+            ],
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -30,8 +40,13 @@
         {
             "label": "Radon: Raw Metrics",
             "type": "shell",
-            "command": "radon raw src",
-            "problemMatcher": [],
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "raw",
+                "src"
+            ],
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -41,9 +56,11 @@
         {
             "label": "Run coverage",
             "type": "shell",
-            "command": "pytest",
+            "command": "python",
             "args": [
-                "--cov=src", // or your package name
+                "-m",
+                "pytest",
+                "--cov=src",
                 "--cov-report=term-missing"
             ],
             "group": {

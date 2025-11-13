@@ -37,7 +37,7 @@ class Currency(Commodity):
     :vartype insitu: bool, optional
     """
 
-    locs: list[Location] = None
+    locs: list[Location] | None = None
 
     def __init__(
         self,
