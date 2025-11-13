@@ -21,7 +21,6 @@ the [Multiparameteric Optimization and Control (Pistikopoulos) Group](https://pa
 <!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
-
 # Applications
 
 Models can also simultaneously perform the following analyses under an integrated paradigm:
