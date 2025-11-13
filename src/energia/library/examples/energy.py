@@ -37,7 +37,7 @@ def scheduling_w_attrs():
     m.y = 4 * m.q
     m.usd = Currency()
     m.wind = Resource(consume_max=400)
-    m.power = Resource(demand_nominal=100, demand_min=[0.6, 0.7, 1, 0.3])
+    m.power = Resource(demand_nominal=100, demand=[0.6, 0.7, 1, 0.3])
     m.wf = Process(
         m.power == -1 * m.wind,
         operate_nominal=200,
@@ -172,7 +172,7 @@ def design_scheduling_w_attrs():
         m.power == -1 * m.solar,
         capacity_max=100,
         capacity_min=10,
-        capacity_optional=True,
+        capacity_report=True,
         operate_normalize=True,
         operate_max=[0.6, 0.8, 0.9, 0.7],
         capex=567000 + 872046,
