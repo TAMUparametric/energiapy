@@ -25,7 +25,6 @@ jobs:
         python-version: ["3.12", "3.13"]
 
     steps:
-    - name: Check out repository
     - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
