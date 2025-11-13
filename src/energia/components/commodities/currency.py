@@ -50,7 +50,7 @@ class Currency(Commodity):
         Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
         # dictionary of exchange rates
-        self.exchange = {}
+        self.exchange: dict[Self, float] = {}
 
         if self.locs:
             for loc in self.locs:
@@ -80,12 +80,12 @@ class Currency(Commodity):
 
             if is_(self, other):
                 return True
+
             self.exchange[other] = 1.0
-            return False
 
         elif isinstance(other, Conversion):
 
-            currency = list(other.balance.keys())[0]
+            currency: Self = list(other.balance.keys())[0]
             rate = other.balance[currency]
 
             # set the exchange rate of self against other
