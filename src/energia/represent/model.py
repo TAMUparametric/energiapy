@@ -704,19 +704,6 @@ class Model:
             latex=latex,
         )
 
-    def P(
-        self,
-        *index: Idx | tuple[Idx],
-        data: float | tuple[float, float] | list[float | tuple[float, float]],
-    ) -> Param:
-        """Makes a gana.P or gana.T from data and index"""
-
-        if isinstance(data, (float, int)) or (
-            isinstance(data, list) and isinstance(data[0], (float, int))
-        ):
-            return Param(*index, _=data)
-        return MParam(*index, _=data)
-
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components
     # ------------------------------------------------------------------------
@@ -938,31 +925,20 @@ class Model:
         :rtype: Periods
         """
 
-        if not self.periods:
+        periods = getattr(self, "periods")
+
+        if not periods:
             if size > 1:
                 self.t1 = Periods()
                 self.t0 = size * self.t1
                 return self.t1
 
         if size > 1:
-            setattr(self, f"t{len(self.periods)}", self.horizon / size)
-            return self.periods[-1]
+            setattr(self, f"t{len(periods)}", self.horizon / size)
+            return periods[-1]
 
         self.t0 = Periods()
         return self.t0
-
-        #     # if no periods exits yet, make the horizon
-        #     self.t0 = Periods()
-        #     if size == 1:
-        #         return self.periods[-1]
-
-        # if size > 1:
-        #     hrz = self.horizon
-        #     setattr(self, f"t{len(self.periods)}", self.horizon / size)
-
-        # return self.periods[-1]
-
-        # or create a default period
 
     def _l0(self) -> Location:
         """Return a default location"""
@@ -971,8 +947,9 @@ class Model:
 
     def _cash(self) -> Currency:
         """Return a default currency"""
-        if self.currencies:
-            return self.currencies[0]
+        currencies = getattr(self, "currencies")
+        if currencies:
+            return currencies[0]
         self.cash = Currency(label="$")
         return self.cash
 
