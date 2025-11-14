@@ -1,4 +1,4 @@
-energia.components.commodities.resource
+﻿energia.components.commodities.resource
 =======================================
 
 .. automodule:: energia.components.commodities.resource
@@ -9,6 +9,5 @@ energia.components.commodities.resource
    .. autosummary::
    
       Commodity
-      Environ
       Resource
    

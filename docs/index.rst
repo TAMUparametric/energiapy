@@ -9,7 +9,7 @@ Decision-making with Energia
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorials
+   :caption: Tutorials & Guide
    :hidden:
 
    tutorials/getting_started/index
@@ -22,7 +22,7 @@ Decision-making with Energia
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Interactive Examples
    :hidden:
 
    examples/scheduling
@@ -38,13 +38,16 @@ Decision-making with Energia
    :caption: Stay Up To Date
    :hidden:
 
-   frameworks
+   publication_history
    changelog
    license
 
 
 Dive into Energia
 ==================
+
+The API
+-------
 
 Refer to the API documentation for a detailed description of the classes and methods available in Energia.
 
@@ -57,14 +60,14 @@ Refer to the API documentation for a detailed description of the classes and met
    energia
 
 
-References
-===========
+Easy Navigation
+---------------
 
-.. bibliography::
+The search feature and indexes can be engaged to facilitate navigation:
 
-Indices and tables
-==================
 
+* :ref:`search`
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+
+.. footbibliography::

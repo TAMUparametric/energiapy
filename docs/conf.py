@@ -218,5 +218,5 @@ nb_execution_mode = "off"
 
 
 # -----# Bibtex configuration-------------------------------------------------------
-bibtex_bibfiles = ["refs.bib", "frameworks.bib"]
+bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
