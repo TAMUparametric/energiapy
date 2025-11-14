@@ -39,7 +39,7 @@ jobs:
           pip install .[test]
 
       - name: Run tests
-        run: pytest --cov=src/energia --cov-report=xml tests/
+        run: pytest --cov=src/energia --cov-report=xml --cov-report=term-missing
 
       - name: Upload test results to Codecov
         uses: codecov/codecov-action@v5
