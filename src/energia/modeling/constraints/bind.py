@@ -88,15 +88,18 @@ class Bind:
             # if a dict is passed, it is assumed to be mode bounds
             return self._calc_w_modes() if self.iscalc else self._write_w_modes()
 
-        try:
-            self.write()
+        self.write()
 
-        except TypeError:
-            # TODO: not yet implemented
-            # TODO: this is essentially mode of a mode
-            # TODO: modes will need to made tuple maybe
-            if any(isinstance(x, dict) for x in self._parameter):
-                self._write_w_modes_of_modes()
+
+        # try:
+        #     self.write()
+
+        # except TypeError:
+        #     # TODO: not yet implemented
+        #     # TODO: this is essentially mode of a mode
+        #     # TODO: modes will need to made tuple maybe
+        #     if any(isinstance(x, dict) for x in self._parameter):
+        #         self._write_w_modes_of_modes()
 
     @timer(logger, kind="bind")
     def write(self):
@@ -290,27 +293,27 @@ class Bind:
         _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
         _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
 
-    def _write_w_modes_of_modes(self):
-        """Writes the bind constraint with modes of modes"""
-        # Consider something like this:
-        # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
-        #     {100: 1000, 500: 900, 1000: 800},
-        #     {100: 2000, 500: 1800, 1000: 1600},
-        #     {100: 3000, 500: 2700, 1000: 2400},
-        # ]
-        # I don't want to run a check for this every time, so just catch the error
-        if self.domain.modes is not None:
-            for n, p in enumerate(self._parameter):
-                s = self.sample.aspect(
-                    *self.domain.edit({'modes': self.domain.modes[n]})
-                )
+    # def _write_w_modes_of_modes(self):
+    #     """Writes the bind constraint with modes of modes"""
+    #     # Consider something like this:
+    #     # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
+    #     #     {100: 1000, 500: 900, 1000: 800},
+    #     #     {100: 2000, 500: 1800, 1000: 1600},
+    #     #     {100: 3000, 500: 2700, 1000: 2400},
+    #     # ]
+    #     # I don't want to run a check for this every time, so just catch the error
+    #     if self.domain.modes is not None:
+    #         for n, p in enumerate(self._parameter):
+    #             s = self.sample.aspect(
+    #                 *self.domain.edit({'modes': self.domain.modes[n]})
+    #             )
 
-                if self.leq:
-                    _ = s <= p
-                elif self.geq:
-                    _ = s >= p
-                elif self.eq:
-                    _ = s == p
+    #             if self.leq:
+    #                 _ = s <= p
+    #             elif self.geq:
+    #                 _ = s >= p
+    #             elif self.eq:
+    #                 _ = s == p
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""
