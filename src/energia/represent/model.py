@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -39,9 +40,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -509,7 +518,7 @@ class Model:
         if name in self.added:
             # do not allow overriding of components
             # throw error if name already exists
-            raise ValueError(f"{name} already defined")
+            raise AttributeError(f"{name} already defined")
             # added is the list of all components that have been added to the model
         self.added.append(name)
 
@@ -537,15 +546,15 @@ class Model:
                 self.program, collection, getattr(self.program, collection) | value.I
             )
 
-        # set aspect samples on the components
-        if aspects:
-            for asp in aspects:
-                aspect = getattr(self, asp)
+        # # set aspect samples on the components
+        # if aspects:
+        #     for asp in aspects:
+        #         aspect = getattr(self, asp)
 
-                setattr(value, asp, aspect(value))
+        #         setattr(value, asp, aspect(value))
 
-                if aspect.neg is not None:
-                    setattr(value, aspect.neg.name, aspect.neg(value))
+        #         if aspect.neg is not None:
+        #             setattr(value, aspect.neg.name, aspect.neg(value))
 
     # -------------------------------------------------------------------
     # * Birthing Procedures and Setting Aliases
