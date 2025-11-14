@@ -26,7 +26,7 @@ Notably, impact is ascertained as a function of decisions. The trade-offs betwee
 <!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
-# Modeled Aspects:
+# Modeled Aspects
 
 This is an indicative list of the types of decisions and phenomena that Energia models:
 
