@@ -90,17 +90,17 @@ class Bind:
                 self._calc_w_modes()
             else:
                 self._write_w_modes()
-            return
-        
-        try:
-            self.write()
+        else:
 
-        except TypeError:
-            # TODO: not yet implemented
-            # TODO: this is essentially mode of a mode
-            # TODO: modes will need to made tuple maybe
-            if any(isinstance(x, dict) for x in self._parameter):
-                self._write_w_modes_of_modes()
+            try:
+                self.write()
+
+            except TypeError:
+                # TODO: not yet implemented
+                # TODO: this is essentially mode of a mode
+                # TODO: modes will need to made tuple maybe
+                if any(isinstance(x, dict) for x in self._parameter):
+                    self._write_w_modes_of_modes()
 
     @timer(logger, kind="bind")
     def write(self):
