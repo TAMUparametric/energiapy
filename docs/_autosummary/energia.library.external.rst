@@ -1,16 +1,16 @@
-energia.library.processes
-=========================
+energia.library.external
+========================
 
-.. automodule:: energia.library.processes
+.. automodule:: energia.library.external
 
    
    .. rubric:: Functions
 
    .. autosummary::
    
-      pv
+      pvlib
       retrieve_sam
-      wf
+      windpowerlib
    
    .. rubric:: Classes
 
