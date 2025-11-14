@@ -18,7 +18,6 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
-
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -32,25 +31,17 @@ from ..components.temporal.lag import Lag
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
+from ..dimensions.game import Game
 from ..dimensions.impact import Impact
 from ..dimensions.problem import Problem
 from ..dimensions.space import Space
 from ..dimensions.system import System
 from ..dimensions.time import Time
-from ..dimensions.game import Game
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (
-    capacity_sizing,
-    economic,
-    environmental,
-    free_movement,
-    inventory_sizing,
-    operating,
-    social,
-    trade,
-    usage,
-)
+from ..library.recipes import (capacity_sizing, economic, environmental,
+                               free_movement, inventory_sizing, operating,
+                               social, trade, usage)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe

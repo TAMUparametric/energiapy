@@ -73,3 +73,6 @@ def test_error(m):
     r = Resource()
     with pytest.raises(AttributeError):
         r.program
+
+    with pytest.raises(TypeError):
+        m.rrrr = Resource(capex=5)
