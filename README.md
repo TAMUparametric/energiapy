@@ -26,9 +26,9 @@ Notably, impact is ascertained as a function of decisions. The trade-offs betwee
 <!-- ![alt text](https://github.com/TAMUparametric/energiapy/blob/main/docs/hierarchy.png?raw=true) -->
 
 
-# Features 
+# Modeled Aspects:
 
-Available constraints are able to model:
+This is an indicative list of the types of decisions and phenomena that Energia models:
 
 1. network design (with discrete choice)
 2. resource flows
@@ -40,11 +40,17 @@ Available constraints are able to model:
 8. transportation
 9. failure and loss
 
-Examples of objectives towards which the model can be optimized include:
+# Objective Criteria
+
+Generally, any commodity or impact stream or decision can be optimized. 
+Some examples are listed: 
 
 1. minimizing cost
 2. minimizing impact
 3. maximizing resource discharge
+
+
+# Managing Complexity
 
 Clustering submodules include:
 
@@ -52,11 +58,39 @@ Clustering submodules include:
 2. dynamic time warping (DTW)
 3. k-means
 
-Both the input data and solution output can be illustrated, examples include:
 
-1. input data: capacity, demand, cost factors
+Other approaches to managing computational complexity include:
+
+1. Integer cuts 
+2. Piece-wise linearization (PWL) for non-linear models 
+
+
+# Printing 
+
+Printing functions all use latex strings, and the following can be displayed:
+
+1. The mathematical program in set notation, and also descriptively at each index
+2. The solution, which can also be compared across multiple objectives
+
+# Visualization 
+
+The following can be visualized using line and bar plots:
+
+1. input data scenario, e.g. capacity limitations, demand, cost factors
 2. solution output: inventory, production, consumption, discharge/sales schedule; contribution towards costs (capital,
    variable and fixed operational), meeting demand.
+
+
+# Library 
+
+energia.library has a variety of pre-loaded sets of:
+
+1. Components such as SI and miscellaneous units, currencies, time units, environmental indicators. 
+2. Example and test problems across various applicative domains
+3. Recipes for decision-making, instructions for calculations, and attribute aliases. 
+
+
+# External Packages
 
 Callable external packages are available for:
 
@@ -65,14 +99,12 @@ Callable external packages are available for:
 3. Fetch weather data at an appropriate resolution from [NREL NSRDB](https://nsrdb.nrel.gov/) for any county
    in the US
 
-Libraries have pre-loaded sets of:
 
-1. Components such as SI and miscellaneous units, currencies, time units, environmental indicators. 
-2. Example and test problems across various applicative domains
-3. Recipes for decision-making, instructions for calculations, and attribute aliases. 
+# Interface 
 
-
-Note that some of these functionalities are available in [Energia<2.0.0](https://github.com/TAMUparametric/energiapy/tree/v1.0.7) and are being ported to the 2.0 interface. 
+Energia is optimized for use in jupyter notebooks. Note that some of these functionalities 
+are available in [Energia<2.0.0](https://github.com/TAMUparametric/energiapy/tree/v1.0.7) 
+and are being ported to the 2.0 interface. 
 
 
 

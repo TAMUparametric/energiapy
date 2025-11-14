@@ -10,10 +10,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from energia.components.commodities.commodity import Commodity
-from energia.components.impact.categories import Environ
 
 if TYPE_CHECKING:
-    from ...modeling.indices.sample import Sample
     from ..measure.unit import Unit
 
 

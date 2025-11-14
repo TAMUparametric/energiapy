@@ -86,10 +86,13 @@ class Bind:
 
         if isinstance(self._parameter, dict):
             # if a dict is passed, it is assumed to be mode bounds
-            return self._calc_w_modes() if self.iscalc else self._write_w_modes()
+            if self.iscalc:
+                self._calc_w_modes()
+            else:
+                self._write_w_modes()
+            return
 
         self.write()
-
 
         # try:
         #     self.write()
