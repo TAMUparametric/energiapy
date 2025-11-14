@@ -41,18 +41,11 @@ jobs:
       - name: Run tests
         run: pytest --cov=. --cov-report=xml tests/
 
-
       - name: Upload test results to Codecov
         uses: codecov/codecov-action@v1
         with:
           files: coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      # - name: Upload coverage to Actions
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-report
-      #     path: coverage.xml
 
       - name: Lint with flake8
         run: |
