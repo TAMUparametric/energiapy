@@ -368,3 +368,5 @@ def test_design_scheduling_materials(m):
     assert m.gwp.impact == m.impact
 
     assert m.impact.indicators == [m.gwp]
+
+    assert m.system.operations == [m.wf, m.pv, m.lii.charge, m.lii.discharge, m.lii]
