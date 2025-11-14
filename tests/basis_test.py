@@ -46,3 +46,16 @@ def test_basis(m):
 
     with pytest.raises(ValueError):
         m.g.howmany(m.acre)
+
+    assert m.mw / m.kw == 1000
+
+    b = m.mw / 5
+    assert b.__dict__ == {
+        'basis': m.kw,
+        'times': 0.0002,
+        'label': 'Megawatt/5000',
+        'name': '',
+    }
+
+    with pytest.raises(TypeError):
+        m.mw * "1111"

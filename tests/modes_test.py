@@ -364,3 +364,9 @@ def test_design_scheduling_materials(m):
 
     assert m.solutions[0].asdict() == _wrap_with_approx(expected0)
     assert m.solutions[1].asdict() == _wrap_with_approx(expected1)
+
+    assert m.gwp.impact == m.impact
+
+    assert m.impact.indicators == [m.gwp]
+
+    assert m.system.operations == [m.wf, m.pv, m.lii.charge, m.lii.discharge, m.lii]

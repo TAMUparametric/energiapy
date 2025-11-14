@@ -37,6 +37,6 @@ class Indicator(_Component):
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
     @property
-    def consequence(self) -> Impact:
+    def impact(self) -> Impact:
         """Impact object"""
         return self.model.impact

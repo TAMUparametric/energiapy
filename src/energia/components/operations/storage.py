@@ -117,7 +117,7 @@ class Storage(_Component):
 
         self.locations: list[Location] = []
 
-        self.conversions = args
+        self.conversions: tuple[Conversion] = args
 
         self.construction = Construction(
             operation=self,

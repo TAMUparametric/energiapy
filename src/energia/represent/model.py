@@ -31,6 +31,7 @@ from ..components.temporal.lag import Lag
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
+from ..dimensions.game import Game
 from ..dimensions.impact import Impact
 from ..dimensions.problem import Problem
 from ..dimensions.space import Space
@@ -235,6 +236,8 @@ class Model:
         self.programs = [Program(model=self)]
         # * 4 Scenario, the parameter set or uncertainty realization
         self.scenarios = [Scenario(model=self)]
+        # * 5 Game, the decision-making representation
+        self.games = [Game(model=self)]
 
         # shorthand
         self._ = self.program
@@ -434,6 +437,11 @@ class Model:
         """The active scenario"""
         return self.scenarios[-1]
 
+    @property
+    def game(self) -> Game:
+        """The active game"""
+        return self.games[-1]
+
     # -------------------------------------------------------------------
     # * Dimensional Properties and Collections
     # -------------------------------------------------------------------
@@ -501,7 +509,7 @@ class Model:
         if name in self.added:
             # do not allow overriding of components
             # throw error if name already exists
-            raise ValueError(f"{name} already defined")
+            raise AttributeError(f"{name} already defined")
             # added is the list of all components that have been added to the model
         self.added.append(name)
 
@@ -529,15 +537,15 @@ class Model:
                 self.program, collection, getattr(self.program, collection) | value.I
             )
 
-        # set aspect samples on the components
-        if aspects:
-            for asp in aspects:
-                aspect = getattr(self, asp)
+        # # set aspect samples on the components
+        # if aspects:
+        #     for asp in aspects:
+        #         aspect = getattr(self, asp)
 
-                setattr(value, asp, aspect(value))
+        #         setattr(value, asp, aspect(value))
 
-                if aspect.neg is not None:
-                    setattr(value, aspect.neg.name, aspect.neg(value))
+        #         if aspect.neg is not None:
+        #             setattr(value, aspect.neg.name, aspect.neg(value))
 
     # -------------------------------------------------------------------
     # * Birthing Procedures and Setting Aliases
@@ -616,31 +624,31 @@ class Model:
             bound=bound,
             ispos=ispos,
             nn=nn,
-            primary_type=primary_type,
             latex=latex,
             use_multiplier=use_multiplier,
+            primary_type=primary_type,
         )
 
         if add:
             self.Recipe(
                 name=add,
                 kind=add_kind or sub_kind or Control,
-                primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
                 nn=True,
                 latex=latex or add,
+                primary_type=primary_type,
             )
 
         if sub:
             self.Recipe(
                 name=sub,
                 kind=sub_kind or add_kind or Control,
-                primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
                 nn=True,
                 latex=latex or sub,
+                primary_type=primary_type,
             )
 
         if neg:
@@ -650,9 +658,9 @@ class Model:
                 label=neg_label,
                 ispos=not ispos,
                 nn=nn,
-                primary_type=primary_type,
                 latex=neg_latex or neg,
                 use_multiplier=use_multiplier,
+                primary_type=primary_type,
             )
             self.cookbook[neg] = neg_recipe
 

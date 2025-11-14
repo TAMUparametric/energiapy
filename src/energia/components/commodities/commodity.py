@@ -60,15 +60,17 @@ class Commodity(_Component, Mapping):
             return {self: 1.0}
         # if there is a conversion, return its parameter in all tasks its
         # associated with
-        return {task: task.balance[self] for task in self.conversions}
+        # TODO: mute when ready to set conversions on commodity
+        # return {task: task.balance[self] for task in self.conversions}
 
-    def __setattr__(self, name, value):
+    # TODO: mute when ready to set conversions on commodity
+    # def __setattr__(self, name, value):
 
-        if isinstance(value, Conversion):
-            # update conversions
-            self.conversions.append(value)
+    #     if isinstance(value, Conversion):
+    #         # update conversions
+    #         self.conversions.append(value)
 
-        super().__setattr__(name, value)
+    #     super().__setattr__(name, value)
 
     def __mul__(self, other: int | float) -> Conversion:
         # multiplying a number with a resources gives conversion
@@ -87,23 +89,24 @@ class Commodity(_Component, Mapping):
         return self * -1
 
     def __sub__(self, other: Conversion | Self):
+
         if isinstance(other, Commodity):
             # if another resource is subtracted
             # give it the parameter -1
             return self + -1 * other
+
+        def _negate(par):
+            if isinstance(par, (int, float)):
+                return -1 * par
+            return [-i for i in par]
+
         if isinstance(other, Conversion):
             # if another conversion is subtracted, update the balance
+
             return Conversion.from_balance(
                 {
                     self: 1,
-                    **{
-                        res: (
-                            -1 * par
-                            if isinstance(par, (int, float))
-                            else [-i for i in par]
-                        )
-                        for res, par in other.items()
-                    },
+                    **{res: _negate(par) for res, par in other.items()},
                 }
             )
 

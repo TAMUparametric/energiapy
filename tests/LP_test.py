@@ -44,3 +44,42 @@ def test_small_1L_1T_1O_LP(m):
     assert m.produce.output(aslist=True) == pytest.approx(
         [60.0, 70.0, 100.0, 30.0], rel=1e-9
     )
+
+
+@pytest.mark.parametrize("m", ["attrs", "plain"], indirect=True)
+def test_attrs(m):
+    _cons = m.program.constraint_sets
+    m.wind.cons == [_cons[-1], _cons[1], _cons[0]]
+    assert not m.wind == m.wf
+
+    c = m.wind - m.power
+    c.__dict__ == {
+        'resource': None,
+        'operation': None,
+        'symbol': 'η',
+        'aspect': '',
+        'add': '',
+        'sub': '',
+        'balance': {m.wind: 1, m.power: -1},
+        'hold': None,
+        'expect': None,
+        'lag': None,
+        'attr_name': '',
+        'use_max_time': False,
+    }
+
+    d = -m.power
+    d.__dict__ == {
+        'resource': None,
+        'operation': None,
+        'symbol': 'η',
+        'aspect': '',
+        'add': '',
+        'sub': '',
+        'balance': {m.power: -1},
+        'hold': None,
+        'expect': None,
+        'lag': None,
+        'attr_name': '',
+        'use_max_time': False,
+    }

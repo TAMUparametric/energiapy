@@ -283,6 +283,16 @@ class Aspect:
         t = [t for t in ds if isinstance(t, Periods)]
         return t
 
+    def Map(self, domain: Domain, reporting: bool = False):
+        """Map the aspect to the domain"""
+
+        MapCons(aspect=self, domain=domain, reporting=reporting)
+
+    def Balance(self, domain: Domain):
+        """Add a general resource balance for the aspect over the domain"""
+
+        BalCons(aspect=self, domain=domain)
+
     def __neg__(self):
         """Negative Consequence"""
 
@@ -397,22 +407,12 @@ class Aspect:
     def __hash__(self):
         return hash(self.name)
 
-    def __init_subclass__(cls):
-        cls.__repr__ = Aspect.__repr__
-        cls.__hash__ = Aspect.__hash__
-        cls.__eq__ = Aspect.__eq__
-
     def __iter__(self):
         """Iterate over domains"""
         for d in self.domains:
             yield self(domain=d)
 
-    def Map(self, domain: Domain, reporting: bool = False):
-        """Map the aspect to the domain"""
-
-        MapCons(aspect=self, domain=domain, reporting=reporting)
-
-    def Balance(self, domain: Domain):
-        """Add a general resource balance for the aspect over the domain"""
-
-        BalCons(aspect=self, domain=domain)
+    def __init_subclass__(cls):
+        cls.__repr__ = Aspect.__repr__
+        cls.__hash__ = Aspect.__hash__
+        cls.__eq__ = Aspect.__eq__

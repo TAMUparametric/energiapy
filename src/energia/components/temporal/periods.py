@@ -95,6 +95,10 @@ class Periods(_X):
         if self.of is None:
             return True
 
+    def ishorizon(self) -> bool:
+        """Is this the horizon of the model?"""
+        return self == self.time.horizon
+
     @property
     def tree(self) -> dict[Self, dict]:
         """Tree representation of the Periods"""
@@ -112,11 +116,6 @@ class Periods(_X):
     def horizon(self) -> Self:
         """Time Horizon"""
         return self.time.horizon
-
-    @property
-    def ishorizon(self) -> bool:
-        """Is this the horizon of the model?"""
-        return self == self.time.horizon
 
     @cached_property
     def time(self) -> Time:
@@ -208,8 +207,8 @@ class Periods(_X):
     def __rmul__(self, other: int | float):
         return self * other
 
-    def __call__(self, times):
-        return Periods(size=times, of=self)
+    # def __call__(self, times):
+    #     return Periods(size=times, of=self)
 
     def __neg__(self):
         return self * -1
@@ -218,9 +217,6 @@ class Periods(_X):
         return int(self.howmany(self.time.horizon))
 
     def __eq__(self, other: Self | Lag):
-        if isinstance(other, Lag):
-            return is_(self, other.of)
-
         return is_(self, other)
 
     def __ge__(self, other: Self):

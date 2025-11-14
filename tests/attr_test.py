@@ -60,3 +60,19 @@ def test_aliases():
     assert len(all_aliases) == len(all_aliases_set)
 
     assert not (set(default_aliases) & all_aliases_set)
+
+
+def test_error(m):
+
+    with pytest.raises(AttributeError):
+        m.rr = Resource(fail_attr=4)
+
+    with pytest.raises(AttributeError):
+        m.rrr = Resource(capacity=10)
+
+    r = Resource()
+    with pytest.raises(AttributeError):
+        r.program
+
+    with pytest.raises(TypeError):
+        m.rrrr = Resource(capex=5)

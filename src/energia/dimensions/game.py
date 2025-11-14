@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from ..components.game.couple import Interact
     from ..components.game.player import Player
 
+
 @dataclass
 class Game(_Dimension):
     """

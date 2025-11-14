@@ -60,27 +60,6 @@ class Resource(Commodity):
         # base resource, if any in conversion
         self.inv_of: Resource | None = None
 
-    @property
-    def gwp(self) -> Sample:
-        """Global Warming Potential"""
-        if not hasattr(self.model, "GWP"):
-            self.model.GWP = Environ(label="Global Warming Potential (kg CO2)")
-
-        return self.consume[self.model.GWP.emit]
-
-    @property
-    def htp(self) -> Sample:
-        """Human Toxicity Potential"""
-        if not hasattr(self.model, "HTP"):
-            self.model.HTP = Environ(label="Human Toxicity Potential (kg 1,4-DB eq.)")
-
-        return self.consume[self.model.HTP.emit]
-
-    @property
-    def price(self) -> Sample:
-        """Cost of consume"""
-        return self.consume[self.model._cash().spend]
-
     def __init_subclass__(cls):
         # the hashing will be inherited by the subclasses
         cls.__repr__ = Resource.__repr__
