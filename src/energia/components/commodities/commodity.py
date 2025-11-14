@@ -123,7 +123,6 @@ class Commodity(_Component, Mapping):
 
         if isinstance(other, int | float):
             conv = Conversion(resource=self, hold=other)
-
             return conv
 
         return super().__eq__(other)

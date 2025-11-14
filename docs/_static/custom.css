@@ -64,3 +64,10 @@ code, pre {
 :root {
   --sb-width: 320px;  /* or whatever width you like */
 }
+
+/* Justify all normal text in Book Theme */
+.bd-content p,
+.bd-content li {
+    text-align: justify;
+    text-justify: inter-word;
+}

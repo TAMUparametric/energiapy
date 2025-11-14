@@ -26,7 +26,7 @@ except ImportError:
     import_all = True
 
 
-def pv(
+def pvlib(
     data: DataFrame,
     coord: tuple[float, float],
     sam: str = "cecmod",
@@ -99,7 +99,7 @@ def pv(
     return [float(i) for i in array]
 
 
-def wf(
+def windpowerlib(
     data: DataFrame,
     roughness_length: float = 0.1,
     turbine_type: str = "V100/1800",
