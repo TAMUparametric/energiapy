@@ -180,7 +180,7 @@ class Operation(_Component):
     def _update_space_times(
         self,
         space: Location | Linkage,
-        space_times: list[tuple[Periods, Location | Linkage]],
+        space_times: list[tuple[Location | Linkage, Periods]],
     ):
         """Update space times for the operation"""
 
@@ -212,7 +212,7 @@ class Operation(_Component):
 
         self.write_primary_conversion(space_times)
 
-        if self.construction is not None:
+        if self.construction:
             self.write_construction(self.space_times)
 
         return self, spaces

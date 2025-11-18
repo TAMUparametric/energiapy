@@ -10,6 +10,7 @@ from ..._core._component import _Component
 from ...modeling.parameters.conversion import Conversion
 from ...modeling.parameters.conversions import Construction
 from ...utils.decorators import timer
+from ...utils.modeling import retry
 from ..commodities.resource import Resource
 from .process import Process
 
@@ -140,26 +141,6 @@ class Storage(_Component):
         return getattr(self.model, 'inventory')
 
     @property
-    def capacity(self) -> Sample:
-        """Reports invcapacity as capacity"""
-        return self.stored.invcapacity
-
-    @property
-    def setup(self) -> Sample:
-        """Reports invsetup as setup"""
-        return self.stored.invsetup
-
-    @property
-    def dismantle(self) -> Sample:
-        """Reports invdismantle as dismantle"""
-        return self.stored.invdismantle
-
-    @property
-    def inventory(self) -> Sample:
-        """Inventory of the stored resource"""
-        return self.stored.inventory
-
-    @property
     def basis(self) -> Resource:
         """Base resource"""
         return self.discharge.primary_conversion.resource
@@ -238,8 +219,16 @@ class Storage(_Component):
 
             time = self._filter_time(self._get_times(space))
 
+            #! FIXME: not entirely sure why retry is needed here
             # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-            _ = self.inventory(space, time) <= 1
+            # _ = self.inventory(space, time) <= 1
+
+            _ = retry(
+                lambda: self.inventory(space, time) <= 1,
+                attempts=2,
+                exceptions=KeyError,
+            )
+
             return self, space, time
 
         return False
@@ -265,6 +254,10 @@ class Storage(_Component):
         # update the locations at which the storage exists
 
         # get location, time tuples where operation is defined
+
+        if not spaces:
+            spaces = (self.network,)
+
         for space in spaces:
 
             self._check_capacity_bound(space)
@@ -275,7 +268,7 @@ class Storage(_Component):
         self.charge.locate(*spaces)
         self.discharge.locate(*spaces)
 
-        if self.construction is not None:
+        if self.construction:
             self.write_construction(self.space_times)
 
         return self, spaces
@@ -379,6 +372,25 @@ class Storage(_Component):
                     self._handle_held_conversion()
 
         super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+
+        # for Storage to make a distinction
+        # these are called inv + aspect name
+        # for e.g.: capacity -> invcapacity
+        # secondly, these are all defined based on the stored resource
+        if name in [
+            "capacity",
+            "setup",
+            "dismantle",
+        ]:
+            return getattr(self.stored, "inv" + name)
+
+        # these are directly defined based on the stored resource
+        if name in ["inventory"]:
+            return getattr(self.stored, name)
+
+        return super().__getattr__(name)
 
     def __call__(self, resource: Stored | Conversion):
         """Conversion is called with a Resource to be converted"""
