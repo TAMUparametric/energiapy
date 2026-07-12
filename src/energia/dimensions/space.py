@@ -82,9 +82,30 @@ class Space(_Dimension):
             hierarchy_[spc.hierarchy].append(spc)
         return hierarchy_
 
+    @property
+    def not_nested(self) -> list[Location]:
+        """List of locations that are not nested under another location"""
+        return [loc for loc in self.locations if not loc.isin]
+
     # -----------------------------------------------------
     #                    Superlative
     # -----------------------------------------------------
+
+    def _ntw_from_not_nested(self) -> Location:
+        """
+        Make a location to be held as network
+        Using all existing non-nested locations
+        """
+        # property, make it do the work only once
+        not_nested = self.not_nested
+        if len(not_nested) == 1:
+            # only one implies that all locations are nested under the one location
+            return not_nested[0]
+
+        # sum up all not nested locations to make a network
+        ntw = sum(not_nested)
+        setattr(self.model, "ntw", ntw)
+        return ntw
 
     @property
     def network(self) -> Location:
@@ -98,43 +119,33 @@ class Space(_Dimension):
         if len(self.locations) == 1:
             return self.locations[0]
 
-        # check for locations that are not nested
-        loc_not_nested = [loc for loc in self.locations if not loc.isin]
-
-        # only one implies that all locations are nested under the one location
-        # which is the network
-        if len(loc_not_nested) == 1:
-            return loc_not_nested[0]
-
-        # if multiple "not nested" locations exist, make a network with them
-        if loc_not_nested:
-            # l is used as the name for the default network
-            self.model.ntw = sum(loc_not_nested)
-            return self.model.ntw
-
-        raise ValueError("No network location could be determined")
+        return self._ntw_from_not_nested()
 
     @property
     def s(self) -> list[Location | Linkage]:
         """List of spatial components"""
         return self.locations + self.linkages
 
-    def split(self, loc: Location) -> tuple[list[Location], list[Location]]:
+    def _lower(
+        self, loc: Location, hierarchy: dict[int, list[Location]]
+    ) -> list[Location]:
+        """Return all locations at lower hierarchy than loc"""
+        if loc.hierarchy + 1 in hierarchy:
+            return [lc for lc in hierarchy[loc.hierarchy + 1] if lc in loc.has]
+        return []
+
+    def _upper(
+        self, loc: Location, hierarchy: dict[int, list[Location]]
+    ) -> Location | None:
+        """Return Location at higher hierarchy than loc"""
+        try:
+            return [lc for lc in hierarchy[loc.hierarchy - 1] if loc in lc.has][0]
+        except IndexError:
+            return None
+
+    def split(self, loc: Location) -> tuple[list[Location], Location | None]:
         """Gives a list of locations at a higher and lower hierarchy than loc"""
+        # hierarchy is a property
+        # we want it at this stage
         hierarchy = self.hierarchy
-
-        loc_pos = loc.hierarchy
-
-        if loc_pos + 1 in hierarchy:
-            lower = [l for l in hierarchy[loc_pos + 1] if l in loc.has]
-        else:
-            lower = []
-
-        if loc_pos - 1 in hierarchy:
-            upper = [l for l in hierarchy[loc_pos - 1] if loc in l.has]
-
-            upper = upper[0] if upper else None
-        else:
-            upper = None
-
-        return lower, upper
+        return self._lower(loc, hierarchy), self._upper(loc, hierarchy)

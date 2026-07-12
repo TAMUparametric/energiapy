@@ -111,8 +111,7 @@ class Problem(_Dimension):
 
             if values == "domains":
                 return {d: [dom.tup for dom in d.domains] for d in keysset if d.domains}
-            else:
-                return {d: getattr(d, values) for d in keysset if getattr(d, values)}
+            return {d: getattr(d, values) for d in keysset if getattr(d, values)}
 
         if keys in ["domains"]:
             dict_ = {d: [] for d in self.domains}

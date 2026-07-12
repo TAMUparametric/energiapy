@@ -1,4 +1,4 @@
-"""Energia Imports"""
+"""Energia"""
 
 from .components.commodities.currency import Currency
 from .components.commodities.emission import Emission
@@ -44,4 +44,4 @@ __all__ = [
     "si_units",
     "time_units",
 ]
-__version__ = "2.1.5"
+__version__ = "2.1.6"

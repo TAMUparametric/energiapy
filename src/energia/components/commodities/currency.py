@@ -37,7 +37,7 @@ class Currency(Commodity):
     :vartype insitu: bool, optional
     """
 
-    locs: list[Location] = None
+    locs: list[Location] | None = None
 
     def __init__(
         self,
@@ -50,7 +50,7 @@ class Currency(Commodity):
         Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
         # dictionary of exchange rates
-        self.exchange = {}
+        self.exchange: dict[Self, float] = {}
 
         if self.locs:
             for loc in self.locs:
@@ -74,36 +74,48 @@ class Currency(Commodity):
         #     )
         raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
 
+    def _compare_currency(self, other: Self) -> bool:
+        """Compare two currencies for equality"""
+        if is_(self, other):
+            return True
+
+        self.exchange[other] = 1.0
+        return False
+
+    def _set_exchange(self, other: Conversion) -> bool:
+        """Set exchange rates between two currencies"""
+        currency: Self = list(other.balance.keys())[0]
+        rate: float = other.balance[currency]
+
+        # set the exchange rate of self against other
+        self.exchange[currency] = rate
+
+        for ex in currency.exchange:
+
+            if ex not in self.exchange:
+                self.exchange[ex] = rate / currency.exchange[ex]
+
+                if self not in ex.exchange:
+
+                    ex.exchange[self] = ex.exchange[currency] / rate
+
+                # if self not in ex.exchange:
+                #     ex.exchange[self] = currency.exchange[ex] / rate
+
+        # set the exchange rate of other against self
+        currency.exchange[self] = 1 / rate
+        return True
+
     def __eq__(self, other):
 
         if isinstance(other, Currency):
 
-            if is_(self, other):
-                return True
-            self.exchange[other] = 1.0
-            return False
+            return self._compare_currency(other)
 
         elif isinstance(other, Conversion):
 
-            currency = list(other.balance.keys())[0]
-            rate = other.balance[currency]
-
-            # set the exchange rate of self against other
-            self.exchange[currency] = rate
-
-            for ex in currency.exchange:
-                if ex not in self.exchange:
-                    self.exchange[ex] = rate / currency.exchange[ex]
-
-                    if self not in ex.exchange:
-
-                        ex.exchange[self] = ex.exchange[currency] / rate
-
-                    # if self not in ex.exchange:
-                    #     ex.exchange[self] = currency.exchange[ex] / rate
-
-            # set the exchange rate of other against self
-            currency.exchange[self] = 1 / rate
-            return True
+            return self._set_exchange(other)
 
         return False
+
+

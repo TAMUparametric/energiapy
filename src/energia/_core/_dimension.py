@@ -34,5 +34,3 @@ class _Dimension(_Hash):
         # There is only one instance of these
         # so they take their own name
         self.name = rf"{self.__class__.__name__}({self.model})"
-
-    

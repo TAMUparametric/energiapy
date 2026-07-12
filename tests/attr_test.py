@@ -2,7 +2,7 @@ from energia.modeling.variables.control import Control
 from operator import is_
 import pytest
 
-from energia import Model, Resource, Transport, Process
+from energia import Model, Resource, Transport, Process, Storage
 from energia.library.aliases import default_aliases
 
 
@@ -60,3 +60,34 @@ def test_aliases():
     assert len(all_aliases) == len(all_aliases_set)
 
     assert not (set(default_aliases) & all_aliases_set)
+
+
+def test_error(m):
+
+    with pytest.raises(AttributeError):
+        m.rr = Resource(fail_attr=4)
+
+    with pytest.raises(AttributeError):
+        m.rrr = Resource(capacity=10)
+
+    r = Resource()
+    with pytest.raises(AttributeError):
+        r.program
+
+    with pytest.raises(TypeError):
+        m.rrrr = Resource(capex=5)
+
+
+def test_storage_attrs():
+    # storage pulls some attrs from constituents:
+
+    m = Model()
+    m.r = Resource()
+    m.s = Storage()
+    m.s(m.r) == 1
+
+    for attr in ["capacity", "setup", "dismantle"]:
+        assert getattr(m.s, attr) == getattr(m.resources[-1], "inv" + attr)
+
+    for attr in ["inventory"]:
+        assert getattr(m.s, attr) == getattr(m.resources[-1], attr)

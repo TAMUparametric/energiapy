@@ -65,3 +65,9 @@ def test_seattle_topeka(m):
     }
 
     assert m.solutions[0].asdict() == _wrap_with_approx(expected)
+
+    assert m.purchase.spaces == [m.seattle, m.sandiego]
+
+    assert [m.seattle - m.newyork] == m.seattle.links(m.newyork, show=False)
+
+    assert m.sandiego.connected(m.newyork)

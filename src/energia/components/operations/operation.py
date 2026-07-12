@@ -134,7 +134,7 @@ class Operation(_Component):
         for location, time in space_times:
             self.construction.write(location, time)
 
-        return self, (l for l, _ in space_times)
+        return self, (spc for spc, _ in space_times)
 
     @timer(logger, kind='assume-capacity')
     def _check_capacity_bound(self, space: Location | Linkage):
@@ -147,7 +147,7 @@ class Operation(_Component):
         if space not in self.capacity_aspect.bound_spaces[self]["ub"]:
             # check if operational capacity has been bound
             # this is not a check, this generates a constraint
-            _ = self.capacity_sample(space, self.horizon) == True
+            _ = self.capacity_sample(space, self.horizon) >= 0
 
             return self, space, self.horizon
 
@@ -177,6 +177,21 @@ class Operation(_Component):
 
         return False
 
+    def _update_space_times(
+        self,
+        space: Location | Linkage,
+        space_times: list[tuple[Location | Linkage, Periods]],
+    ):
+        """Update space times for the operation"""
+
+        for domain in self.operate_aspect.domains:
+            if domain.space == space:
+                space_time = (space, domain.time)
+                if space_time not in space_times:
+                    space_times.append(space_time)
+
+        return space_times
+
     @timer(logger, kind='locate')
     def locate(self, *spaces: Location | Linkage):
         """Locate the process"""
@@ -184,24 +199,20 @@ class Operation(_Component):
         if not spaces:
             spaces = (self.model.network,)
 
-        # get location, time tuples where operation is defined
         space_times: list[tuple[Location | Linkage, Periods]] = []
+
+        # get location, time tuples where operation is defined
         for space in spaces:
 
             self._check_capacity_bound(space)
 
             self._check_operate_bound(space)
 
-            # check if the process is being operated at the location
-            for d in self.operate_aspect.domains:
-                if d.space == space:
-                    space_time = (space, d.time)
-                    if space_time not in space_times:
-                        space_times.append(space_time)
+            space_times = self._update_space_times(space, space_times)
 
         self.write_primary_conversion(space_times)
 
-        if self.construction is not None:
+        if self.construction:
             self.write_construction(self.space_times)
 
         return self, spaces

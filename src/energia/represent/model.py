@@ -9,9 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Self, Type
 
 from dill import dump
-from gana import I as Idx
-from gana import P as Param
-from gana import T as MParam
 
 from .._core._x import _X
 from ..components.commodities.currency import Currency
@@ -30,9 +27,11 @@ from ..components.operations.storage import Storage
 from ..components.operations.transport import Transport
 from ..components.spatial.linkage import Linkage
 from ..components.spatial.location import Location
+from ..components.temporal.lag import Lag
 from ..components.temporal.modes import Modes
 from ..components.temporal.periods import Periods
 from ..components.temporal.scales import TemporalScales
+from ..dimensions.game import Game
 from ..dimensions.impact import Impact
 from ..dimensions.problem import Problem
 from ..dimensions.space import Space
@@ -73,7 +72,7 @@ if TYPE_CHECKING:
 
     BalanceType = DefaultDict[
         Commodity,
-        DefaultDict[Location | Linkage, DefaultDict[Periods, list[Aspect]]],
+        DefaultDict[Location | Linkage, DefaultDict[Periods | Lag, list[Aspect]]],
     ]
 
 
@@ -193,14 +192,8 @@ class Model:
             # *V Indicators (Consequence):
             # scales a stream and projects onto a common metric
             # categories include
-            Environ: (
-                "impact",
-                "environment",
-            ),
-            Social: (
-                "impact",
-                "society",
-            ),
+            Environ: ("impact", "environment"),
+            Social: ("impact", "society"),
             Economic: ("impact", "economy"),
             # * VI Game Components
             # To model Competition
@@ -243,6 +236,8 @@ class Model:
         self.programs = [Program(model=self)]
         # * 4 Scenario, the parameter set or uncertainty realization
         self.scenarios = [Scenario(model=self)]
+        # * 5 Game, the decision-making representation
+        self.games = [Game(model=self)]
 
         # shorthand
         self._ = self.program
@@ -442,6 +437,11 @@ class Model:
         """The active scenario"""
         return self.scenarios[-1]
 
+    @property
+    def game(self) -> Game:
+        """The active game"""
+        return self.games[-1]
+
     # -------------------------------------------------------------------
     # * Dimensional Properties and Collections
     # -------------------------------------------------------------------
@@ -457,22 +457,22 @@ class Model:
         return self.space.network
 
     @property
-    def indicators(self) -> Impact:
+    def indicators(self) -> list[Environ | Social | Economic]:
         """Impact indicators"""
         return self.impact.indicators
 
     @property
-    def operations(self) -> System:
+    def operations(self) -> list[Process | Storage | Transport]:
         """System operations"""
         return self.system.operations
 
     @property
-    def aspects(self) -> Problem:
+    def aspects(self) -> list[Consequence | Stream | Control | State]:
         """Problem aspects"""
         return self.problem.aspects
 
     @property
-    def domains(self) -> Problem:
+    def domains(self) -> list[Domain]:
         """Problem domains"""
         return self.problem.domains
 
@@ -509,7 +509,7 @@ class Model:
         if name in self.added:
             # do not allow overriding of components
             # throw error if name already exists
-            raise ValueError(f"{name} already defined")
+            raise AttributeError(f"{name} already defined")
             # added is the list of all components that have been added to the model
         self.added.append(name)
 
@@ -537,15 +537,15 @@ class Model:
                 self.program, collection, getattr(self.program, collection) | value.I
             )
 
-        # set aspect samples on the components
-        if aspects:
-            for asp in aspects:
-                aspect = getattr(self, asp)
+        # # set aspect samples on the components
+        # if aspects:
+        #     for asp in aspects:
+        #         aspect = getattr(self, asp)
 
-                setattr(value, asp, aspect(value))
+        #         setattr(value, asp, aspect(value))
 
-                if aspect.neg is not None:
-                    setattr(value, aspect.neg.name, aspect.neg(value))
+        #         if aspect.neg is not None:
+        #             setattr(value, aspect.neg.name, aspect.neg(value))
 
     # -------------------------------------------------------------------
     # * Birthing Procedures and Setting Aliases
@@ -624,31 +624,31 @@ class Model:
             bound=bound,
             ispos=ispos,
             nn=nn,
-            primary_type=primary_type,
             latex=latex,
             use_multiplier=use_multiplier,
+            primary_type=primary_type,
         )
 
         if add:
             self.Recipe(
                 name=add,
                 kind=add_kind or sub_kind or Control,
-                primary_type=primary_type,
                 label=add_latex or add,
                 ispos=True,
                 nn=True,
                 latex=latex or add,
+                primary_type=primary_type,
             )
 
         if sub:
             self.Recipe(
                 name=sub,
                 kind=sub_kind or add_kind or Control,
-                primary_type=primary_type,
                 label=sub_latex or sub,
                 ispos=False,
                 nn=True,
                 latex=latex or sub,
+                primary_type=primary_type,
             )
 
         if neg:
@@ -658,9 +658,9 @@ class Model:
                 label=neg_label,
                 ispos=not ispos,
                 nn=nn,
-                primary_type=primary_type,
                 latex=neg_latex or neg,
                 use_multiplier=use_multiplier,
+                primary_type=primary_type,
             )
             self.cookbook[neg] = neg_recipe
 
@@ -708,19 +708,6 @@ class Model:
             label=label,
             latex=latex,
         )
-
-    def P(
-        self,
-        *index: Idx | tuple[Idx],
-        data: float | tuple[float, float] | list[float | tuple[float, float]],
-    ) -> Param:
-        """Makes a gana.P or gana.T from data and index"""
-
-        if isinstance(data, (float, int)) or (
-            isinstance(data, list) and isinstance(data[0], (float, int))
-        ):
-            return Param(*index, _=data)
-        return MParam(*index, _=data)
 
     # ------------------------------------------------------------------------
     # * Easy Birthing of Components
@@ -779,7 +766,7 @@ class Model:
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
-        root = self.periods[-1]
+        root = getattr(self, "periods")[-1]
         discretizations = list(reversed(discretizations))
 
         names = list(reversed(names[:-1]))
@@ -790,7 +777,7 @@ class Model:
 
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
-            root = self.periods[-1]
+            root = getattr(self, "periods")[-1]
 
     def Modes(self, size: int, sample: Sample):
         """
@@ -801,7 +788,7 @@ class Model:
         :param name: Name of the modes. Defaults to "modes".
         :type name: str, optional
         """
-        modes = Modes(size=size, sample=sample, n=len(self.modes))
+        modes = Modes(size=size, sample=sample, n=len(getattr(self, "modes")))
         periods = sample.domain.periods or self.time.horizon
         setattr(self, f'_{periods}{len(periods.modes)}', modes)
         periods.modes.append(modes)
@@ -884,19 +871,7 @@ class Model:
         Solve the multiparametric program
 
         :param using: The solving method to use. Defaults to "combinatorial".
-        :type using: Literal[
-            "combinatorial",
-            "combinatorial_parallel",
-            "combinatorial_parallel_exp",
-            "graph",
-            "graph_exp",
-            "graph_parallel",
-            "graph_parallel_exp",
-            "combinatorial_graph",
-            "geometric",
-            "geometric_parallel",
-            "geometric_parallel_exp",
-        ], optional
+        :type using: Literal
         """
 
         self.program.solve(using=using)
@@ -943,31 +918,20 @@ class Model:
         :rtype: Periods
         """
 
-        if not self.periods:
+        periods = getattr(self, "periods")
+
+        if not periods:
             if size > 1:
                 self.t1 = Periods()
                 self.t0 = size * self.t1
                 return self.t1
 
         if size > 1:
-            setattr(self, f"t{len(self.periods)}", self.horizon / size)
-            return self.periods[-1]
+            setattr(self, f"t{len(periods)}", self.horizon / size)
+            return periods[-1]
 
         self.t0 = Periods()
         return self.t0
-
-        #     # if no periods exits yet, make the horizon
-        #     self.t0 = Periods()
-        #     if size == 1:
-        #         return self.periods[-1]
-
-        # if size > 1:
-        #     hrz = self.horizon
-        #     setattr(self, f"t{len(self.periods)}", self.horizon / size)
-
-        # return self.periods[-1]
-
-        # or create a default period
 
     def _l0(self) -> Location:
         """Return a default location"""
@@ -976,8 +940,9 @@ class Model:
 
     def _cash(self) -> Currency:
         """Return a default currency"""
-        if self.currencies:
-            return self.currencies[0]
+        currencies = getattr(self, "currencies")
+        if currencies:
+            return currencies[0]
         self.cash = Currency(label="$")
         return self.cash
 

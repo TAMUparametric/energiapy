@@ -95,3 +95,39 @@ def test_period(m):
 
     with pytest.raises(ValueError):
         m.y.howmany(m.s)
+
+    assert m.time.densest == m.h
+    assert m.time.sparsest == m.y
+
+    assert m.h.isroot()
+    assert m.y.ishorizon()
+    assert m.h * 0 == 0
+
+    assert m.h <= m.d
+    assert not m.h >= m.y
+
+
+def test_default_horizon():
+
+    m2 = Model()
+    assert m2.time.densest == m2.time.periods[-1]
+    m3 = Model()
+    assert m3.time.sparsest == m3.time.periods[-1]
+
+    t = m3.time.find(10)
+    assert t.size == 0.1
+    assert t == m3.periods[-1]
+
+
+def test_impl_errors(m):
+    with pytest.raises(NotImplementedError):
+        _ = m.h >= 213123
+
+    with pytest.raises(NotImplementedError):
+        _ = m.h > 231231
+
+    with pytest.raises(NotImplementedError):
+        _ = m.h <= 213123
+
+    with pytest.raises(NotImplementedError):
+        _ = m.h < 231231

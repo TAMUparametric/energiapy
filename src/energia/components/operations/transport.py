@@ -80,6 +80,30 @@ class Transport(Operation):
         """Locations at which the process is balanced"""
         return self.linkages
 
+    def _set_transportation_balance(self):
+        """Get the transportation balance from the primary conversion"""
+
+        self.transportation = Transportation.from_balance(
+            balance={self.basis: self.primary_conversion.balance[self.basis]},
+            **self.primary_conversion.args,
+        )
+
+        self.transportation.balancer()
+
+    def _set_production_balance(self):
+        """Get the production balance from the primary conversion"""
+
+        self.production = Production.from_balance(
+            balance={
+                k: v
+                for k, v in self.primary_conversion.balance.items()
+                if k != self.basis
+            },
+            **self.primary_conversion.args,
+        )
+
+        self.production.balancer()
+
     @timer(logger, kind="production")
     def write_primary_conversion(self, space_times: list[tuple[Location, Periods]]):
         """Write the production constraints for the process"""
@@ -88,29 +112,9 @@ class Transport(Operation):
             # this means that there are other dependent conversions
             # besides transport such as production and expending of other resources
 
-            _transportation_balance = {
-                self.basis: self.primary_conversion.balance[self.basis]
-            }
+            self._set_transportation_balance()
 
-            self.transportation = Transportation.from_balance(
-                balance=_transportation_balance,
-                **self.primary_conversion.args,
-            )
-
-            self.transportation.balancer()
-
-            _production_balance = {
-                k: v
-                for k, v in self.primary_conversion.balance.items()
-                if k != self.basis
-            }
-
-            self.production = Production.from_balance(
-                balance=_production_balance,
-                **self.primary_conversion.args,
-            )
-
-            self.production.balancer()
+            self._set_production_balance()
 
             _write_production = True
         else:

@@ -1,18 +1,15 @@
-Energia on Python
-=================
+Decision-making with Energia 
+=============================
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
 
+.. include:: ../background.rst
 
-.. seealso::
-
-   `Gana <https://gana.readthedocs.io/en/latest/>`_, an Algebraic Modeling Language (AML)
-   for Multiscale Modeling and Optimization which serves as the backend
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorials
+   :caption: Tutorials & Guide
    :hidden:
 
    tutorials/getting_started/index
@@ -25,7 +22,7 @@ Energia on Python
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Interactive Examples
    :hidden:
 
    examples/scheduling
@@ -38,22 +35,21 @@ Energia on Python
 
 .. toctree::
    :maxdepth: 1
-   :caption: Information
+   :caption: Stay Up To Date
    :hidden:
 
-   frameworks
-   license
+   publication_history
    changelog
-   
-
-References
-----------
-
-.. bibliography::
+   license
 
 
-API Reference
-=============
+Dive into Energia
+==================
+
+The API
+-------
+
+Refer to the API documentation for a detailed description of the classes and methods available in Energia.
 
 .. autosummary:: 
    :toctree: _autosummary
@@ -63,9 +59,15 @@ API Reference
 
    energia
 
-Indices and tables
-==================
 
+Easy Navigation
+---------------
+
+The search feature and indexes can be engaged to facilitate navigation:
+
+
+* :ref:`search`
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+
+.. footbibliography::

@@ -64,7 +64,6 @@ def make_henry_price_df(
                         ),
                     ],
                 )
-                # df = df.append({'CH4': df['CH4'][df['doy'] == 2].values[0], 'month': 1, 'day': 1, 'year': year, 'doy': 1}, ignore_index=True)
             else:
                 df = pd.concat(
                     [
@@ -82,7 +81,6 @@ def make_henry_price_df(
                         ),
                     ],
                 )
-                # df = df.append({'CH4': df['CH4'][df['doy'] == i-1].values[0], 'month': df['month'][df['doy'] == i-1].values[0], 'day': df['day'][df['doy'] == i-1].values[0], 'year': df['year'][df['doy'] == i-1].values[0], 'doy': i}, ignore_index=True)
 
     df = df.sort_values(by=["doy"])
     df = df.reset_index(drop=True)

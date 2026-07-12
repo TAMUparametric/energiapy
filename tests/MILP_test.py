@@ -105,3 +105,5 @@ def test_small_1L_mT_mO_MILP(model):
     assert m.inventory.output(aslist=True) == pytest.approx(
         [34.04320987654302, 6.882716049382594, 27.160493827160423, 0.0, 0.0], rel=1e-9
     )
+
+    assert m.pv.balance == {m.power: 1, m.solar: -1}

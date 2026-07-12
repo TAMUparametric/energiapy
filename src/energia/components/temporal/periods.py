@@ -95,6 +95,10 @@ class Periods(_X):
         if self.of is None:
             return True
 
+    def ishorizon(self) -> bool:
+        """Is this the horizon of the model?"""
+        return self == self.time.horizon
+
     @property
     def tree(self) -> dict[Self, dict]:
         """Tree representation of the Periods"""
@@ -112,11 +116,6 @@ class Periods(_X):
     def horizon(self) -> Self:
         """Time Horizon"""
         return self.time.horizon
-
-    @property
-    def ishorizon(self) -> bool:
-        """Is this the horizon of the model?"""
-        return self == self.time.horizon
 
     @cached_property
     def time(self) -> Time:
@@ -156,25 +155,27 @@ class Periods(_X):
 
     def howmany(self, of: Periods):
         """How many periods make this period"""
-        try:
-            return self._howmany[of]
-        except KeyError:
-            try:
-                _return = compare(self.tree, of)
-            except NotFoundError:
-                try:
-                    _return = 1 / compare(of.tree, self)
-                except NotFoundError:
-                    try:
-                        _return = self.size / compare(of.tree, self.of)
-                    except NotFoundError:
-                        try:
-                            _return = compare(self.tree, of.of) / of.size
-                        except NotFoundError:
-                            raise ValueError(f"No common basis between {self} and {of}")
 
-        self._howmany[of] = _return
-        return _return
+        # Cached result?
+        if of in self._howmany:
+            return self._howmany[of]
+
+        attempts = [
+            lambda: compare(self.tree, of),
+            lambda: 1 / compare(of.tree, self),
+            lambda: self.size / compare(of.tree, self.of),
+            lambda: compare(self.tree, of.of) / of.size,
+        ]
+
+        for attempt in attempts:
+            try:
+                result = attempt()
+                self._howmany[of] = result
+                return result
+            except NotFoundError:
+                continue
+
+        raise ValueError(f"No common basis between {self} and {of}")
 
     def __mul__(self, times: int | float):
 
@@ -208,8 +209,8 @@ class Periods(_X):
     def __rmul__(self, other: int | float):
         return self * other
 
-    def __call__(self, times):
-        return Periods(size=times, of=self)
+    # def __call__(self, times):
+    #     return Periods(size=times, of=self)
 
     def __neg__(self):
         return self * -1
@@ -218,9 +219,6 @@ class Periods(_X):
         return int(self.howmany(self.time.horizon))
 
     def __eq__(self, other: Self | Lag):
-        if isinstance(other, Lag):
-            return is_(self, other.of)
-
         return is_(self, other)
 
     def __ge__(self, other: Self):

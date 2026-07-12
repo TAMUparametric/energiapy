@@ -170,50 +170,50 @@ class Location(_X):
             return True
         return False
 
-    def links(self, location, print_link: bool = True) -> list[Linkage]:
+    def links(self, location, show: bool = True) -> list[Linkage]:
         """
         Finds the links between two Locations
 
         :param location: Location to find links with
         :type location: IsLocation
-        :param print_link: Whether the links are to be printed. Defaults to True.
-        :type print_link: bool, optional
+        :param show: Whether the links are to be printed. Defaults to True.
+        :type show: bool, optional
 
         :returns: Links between the Locations
         :rtype: list[Linkage]
         """
         # this prints out all the links between the two locations
         links = []
+
         for link in self.space.linkages:
-            source, sink = False, False
+            # source, sink = False, False
 
-            if is_(self, link.source) and is_(location, link.sink):
-                source, sink = self, location
+            forward = is_(self, link.source) and is_(location, link.sink)
+            reverse = is_(self, link.sink) and is_(location, link.source)
 
-            if is_(self, link.sink) and is_(location, link.source):
-                source, sink = location, self
+            if forward or reverse:
 
-            if source and sink:
+                source, sink = (self, location) if forward else (location, self)
+
                 links.append(link)
-                if print_link:
+                if show:
                     print(f"{source} is source and {sink} is sink in {link}")
-                continue
         return links
 
-    def connected(self, location, print_link: bool = False) -> bool:
+    def connected(self, location, show: bool = False) -> bool:
         """
         Finds whether the Locations are connected
 
         :param location: Location to verify Links with
         :type location: IsLocation
-        :param print_link: Whether to print the Links. Defaults to False.
-        :type print_link: bool, optional
+        :param show: Whether to print the Links. Defaults to False.
+        :type show: bool, optional
 
         :return: True if Locations are connected
         :rtype: bool
         """
         # this lets you know whether the two locations are connected
-        if self.links(location, print_link=print_link):
+        if self.links(location, show=show):
             return True
         return False
 
@@ -243,7 +243,7 @@ class Location(_X):
         # alternatively Model.Link can be used
         # for multiple links across the same two locations
         # declare Link() objects
-        links = self.links(location, print_link=False)
+        links = self.links(location, show=False)
         links = [link for link in links if link.source == self]
         if len(links) > 1:
             warn(

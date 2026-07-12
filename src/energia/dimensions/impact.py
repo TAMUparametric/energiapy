@@ -43,6 +43,6 @@ class Impact(_Dimension):
         _Dimension.__post_init__(self)
 
     @property
-    def indicators(self):
+    def indicators(self) -> list[Environ | Social | Economic]:
         """All indicators"""
         return self.environment + self.society + self.economy

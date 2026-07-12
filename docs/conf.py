@@ -25,7 +25,7 @@ sys.setrecursionlimit(10000)
 project = 'Energia'
 copyright = str(datetime.now().year)
 author = 'Rahul Kakodkar, Efstratios N. Pistikopoulos'
-release = '2.1.5'
+release = '2.1.6'
 
 
 html_logo = "_static/logo2.jpg"
@@ -218,5 +218,5 @@ nb_execution_mode = "off"
 
 
 # -----# Bibtex configuration-------------------------------------------------------
-bibtex_bibfiles = ["refs.bib", "frameworks.bib"]
+bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"

@@ -104,10 +104,8 @@ class Balance(_Hash):
     @cached_property
     def updated_part(self) -> V | F | int:
         """Returns the part of the constraint that is new"""
-
         if self.stored and self.aspect == "inventory":
             # if inventory is being add to GRB
-
             if len(self.time) == 1:
                 # cannot lag a single time period
                 return 0
@@ -222,7 +220,7 @@ class Balance(_Hash):
         lower_times = [t for t in _balances if t > self.time] if _balances else False
 
         if lower_times:
-            _ = self.aspect(self.commodity, self.space, lower_times[0]) == True
+            _ = self.aspect(self.commodity, self.space, lower_times[0]) >= 0
 
     def __eq__(self, other: Self):
         return is_(self.aspect, other.aspect) and self.domain == other.domain

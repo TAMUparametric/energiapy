@@ -1,4 +1,4 @@
-New Features and Updates
+New Features & Updates
 =========================
 
 This lists recent changes to the project. If there are features you would like to see added,

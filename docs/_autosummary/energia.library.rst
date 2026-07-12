@@ -13,6 +13,6 @@ energia.library
    aliases
    components
    examples
+   external
    instructions
-   processes
    recipes

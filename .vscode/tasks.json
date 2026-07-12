@@ -4,12 +4,37 @@
         {
             "label": "Radon: Cyclomatic Complexity",
             "type": "shell",
-            "command": "radon cc src -s -a",
-            "problemMatcher": [],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "cc",
+                "src",
+                "-s",
+                "-a"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "echo": true
+            }
+        },
+        {
+            "label": "Radon: Cyclomatic Complexity (Below B)",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "cc",
+                "src",
+                "--min",
+                "B",
+                "-s",
+                "-a"
+            ],
+            "group": "test",
             "presentation": {
                 "reveal": "always",
                 "panel": "shared",
@@ -19,8 +44,14 @@
         {
             "label": "Radon: Maintainability Index",
             "type": "shell",
-            "command": "radon mi src -s",
-            "problemMatcher": [],
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "mi",
+                "src",
+                "-s"
+            ],
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -30,13 +61,34 @@
         {
             "label": "Radon: Raw Metrics",
             "type": "shell",
-            "command": "radon raw src",
-            "problemMatcher": [],
+            "command": "python",
+            "args": [
+                "-m",
+                "radon",
+                "raw",
+                "src"
+            ],
             "group": "test",
             "presentation": {
                 "reveal": "always",
                 "panel": "shared"
             }
+        },
+        {
+            "label": "Run coverage",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "pytest",
+                "--cov=src",
+                "--cov-report=term-missing"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }

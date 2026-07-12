@@ -67,7 +67,7 @@ class _X(ABC, _Hash):
     def program(self) -> Prg:
         """Mathematical program"""
         if self.model is None:
-            raise ValueError(f"{type(self)} needs to be assign as Model attribute")
+            raise AttributeError(f"{type(self)} needs to be assign as Model attribute")
         return self.model.program
 
     @property

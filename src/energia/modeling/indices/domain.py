@@ -106,7 +106,7 @@ class Domain(_Hash):
         # time = period | lag
 
         # primary index being modeled in some spatiotemporal context
-        self.model: Model = next((i.model for i in self.index_short if i), None)
+        self.model: Model | None = next((i.model for i in self.index_short if i), None)
 
     # -----------------------------------------------------
     #                    Components
@@ -117,17 +117,19 @@ class Domain(_Hash):
     # look at change() and call()
 
     @property
-    def stream(self) -> Indicator | Commodity:
+    def stream(self) -> Indicator | Commodity | None:
         """Stream"""
         return self.indicator or self.commodity
 
     @property
-    def operation(self) -> Process | Storage | Transport:
+    def operation(self) -> Process | Storage | Transport | None:
         """Operation"""
         return self.process or self.storage or self.transport
 
     @property
-    def primary(self) -> Indicator | Commodity | Process | Storage | Transport:
+    def primary(
+        self,
+    ) -> Indicator | Commodity | Process | Storage | Transport | list[Sample]:
         """Primary component"""
         _primary = self.stream or self.operation or self.samples
         if not _primary:
@@ -142,12 +144,12 @@ class Domain(_Hash):
         return None
 
     @property
-    def space(self) -> Location | Linkage:
+    def space(self) -> Location | Linkage | None:
         """Space"""
         return self.linkage or self.location
 
     @property
-    def maker(self) -> Player | Interact:
+    def maker(self) -> Player | Interact | None:
         """Decision-maker"""
         return self.couple or self.player
 
@@ -156,6 +158,7 @@ class Domain(_Hash):
         """Time"""
         if self.periods is not None:
             return self.periods
+
         if self.lag is not None:
             return self.lag
 

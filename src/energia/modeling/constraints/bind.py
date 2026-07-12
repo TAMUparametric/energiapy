@@ -6,12 +6,14 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from gana import V
+from gana.sets.function import F
+
 from ...utils.decorators import timer
 from ...utils.math import normalize
 
 logger = logging.getLogger("energia")
-from gana import V
-from gana.sets.function import F
+
 
 if TYPE_CHECKING:
     from gana import P as Param
@@ -92,34 +94,17 @@ class Bind:
                 self._write_w_modes()
             return
 
-        try:
-            self.write()
-        except TypeError:
-            # TODO: not yet implemented
-            # TODO: this is essentially mode of a mode
-            # TODO: modes will need to made tuple maybe
-            if any(isinstance(x, dict) for x in self._parameter):
+        self.write()
 
-                # Consider something like this:
-                # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
-                #     {100: 1000, 500: 900, 1000: 800},
-                #     {100: 2000, 500: 1800, 1000: 1600},
-                #     {100: 3000, 500: 2700, 1000: 2400},
-                # ]
-                # I don't want to run a check for this every time, so just catch the error
+        # try:
+        #     self.write()
 
-                if self.domain.modes is not None:
-                    for n, p in enumerate(self._parameter):
-                        s = self.sample.aspect(
-                            *self.domain.edit({'modes': self.domain.modes[n]})
-                        )
-
-                        if self.leq:
-                            _ = s <= p
-                        elif self.geq:
-                            _ = s >= p
-                        elif self.eq:
-                            _ = s == p
+        # except TypeError:
+        #     # TODO: not yet implemented
+        #     # TODO: this is essentially mode of a mode
+        #     # TODO: modes will need to made tuple maybe
+        #     if any(isinstance(x, dict) for x in self._parameter):
+        #         self._write_w_modes_of_modes()
 
     @timer(logger, kind="bind")
     def write(self):
@@ -156,16 +141,25 @@ class Bind:
         # returned for @timer
         return self.sample, self.rel
 
-    @cached_property
-    def parameter(self):
-        """Parameter bound of the bind constraint"""
+    def _listed(self):
+        """Gets the parameter as a list if needed"""
+        if not isinstance(self._parameter, list) and self.forall:
+            return [self._parameter] * len(self.forall)
+        return self._parameter
 
+    def _normalized(self, _parameter):
+        """Gets the normalized parameter if needed"""
+        if self.norm:
+            return normalize(_parameter)
+        return _parameter
+
+    def _nominalized(self, _parameter):
+        """Gets the nominalized parameter if needed"""
         if self.nominal:
             # if a nominal value for the self.parameter is passed
             # this is essentially the expectation
             # skipping an instance check here
             # if a non iterable is passed, let an error be raised
-            _parameter = normalize(self._parameter) if self.norm else self._parameter
 
             # if the sample needs to be normalized
             _parameter = [
@@ -177,7 +171,21 @@ class Bind:
                 for i in _parameter
             ]
             return _parameter
-        return self._parameter
+        return _parameter
+
+    @cached_property
+    def parameter(
+        self,
+    ) -> (
+        list[float]
+        | float
+        | dict[float, float]
+        | tuple[float, float]
+        | list[tuple[float, float]]
+    ):
+        """Parameter bound of the bind constraint"""
+
+        return self._nominalized(self._normalized(self._listed()))
 
     @cached_property
     def lhs(self):
@@ -189,44 +197,45 @@ class Bind:
         # .X(), .Vb() need time and space
         return self.sample.V(self.parameter)
 
+    def _rhs_w_bound(self) -> V | F:
+        """When the rhs is bound by a variable"""
+        _bound = self.sample.X(self.parameter) if self.report else self.sample.Vb()
+        return self.parameter * _bound
+
+    def _rhs_w_binary(self) -> V | F:
+        """When the rhs is bound by a binary variable"""
+        _bound = self.parameter * self.sample.X(self.parameter)
+        self.aspect.update(self.domain, reporting=True)
+        return _bound
+
+    def _handle_multiplier(self):
+        """Gets the parameter with multiplier if needed"""
+        if isinstance(self.parameter, list):
+            return [p * self.domain.space.multiplier for p in self.parameter]
+
+        return self.parameter * self.domain.space.multiplier
+
+    def _rhs_w_multiplier(self) -> V | F | Param:
+        """When the rhs is bound by a multiplier"""
+        if self.aspect.use_multiplier:
+            _bound = self._handle_multiplier()
+        else:
+            _bound = self.parameter
+
+        return _bound * self.of(*self.domain.index_spatiotemporal).V(self.parameter)
+
     @property
     def rhs(self) -> V | F | Param:
         """Right hand side of the bind constraint"""
         if self.of:
-            # if the dependent variable is not set, creates issues.
-            # ------if a calculation is being done
-            def _parameter():
-                """Gets the parameter with multiplier if needed"""
-                if self.aspect.use_multiplier:
-                    if isinstance(self.parameter, list):
-                        return [
-                            p * self.domain.space.multiplier for p in self.parameter
-                        ]
-
-                    return self.parameter * self.domain.space.multiplier
-                return self.parameter
-
-            return _parameter() * self.of(*self.domain.index_spatiotemporal).V(
-                self.parameter
-            )
+            return self._rhs_w_multiplier()
 
         if self.aspect.bound:
-            # ------if variable bound
-            # ------if variable bound and reported
-            # we do not want a bi-linear term
-            _bound = self.sample.X(self.parameter) if self.report else self.sample.Vb()
-
-            return self.parameter * _bound
-
-            # ------if just variable bound
+            return self._rhs_w_bound()
 
         if self.report or self.domain.modes is not None:
-            # ------if  self.parameter bound and reported or has modes
-            # create reporting variable write v <= p*x
-            _return = self.parameter * self.sample.X(self.parameter)
-            self.aspect.update(self.domain, reporting=True)
-            return _return
-        # ------if just self.parameter bound
+            return self._rhs_w_binary()
+
         return self.parameter
 
     @cached_property
@@ -256,15 +265,7 @@ class Bind:
 
         for n, idx in enumerate(self.forall):
 
-            lhs = self.sample(idx)
-
-            try:
-                # if any iterable vector
-                rhs = self.parameter[n]
-            except TypeError:
-                # if not repeat the same value
-                # over all elements
-                rhs = self.parameter
+            lhs, rhs = self.sample(idx), self.parameter[n]
 
             if self.leq:
                 _ = lhs <= rhs
@@ -312,6 +313,28 @@ class Bind:
 
         _ = self.sample(self.modes) >= [b[0] for b in mode_bounds]
         _ = self.sample(self.modes) <= [b[1] for b in mode_bounds]
+
+    # def _write_w_modes_of_modes(self):
+    #     """Writes the bind constraint with modes of modes"""
+    #     # Consider something like this:
+    #     # m.USD.spend(m.PV.capacity, m.PV.construction.modes) == [
+    #     #     {100: 1000, 500: 900, 1000: 800},
+    #     #     {100: 2000, 500: 1800, 1000: 1600},
+    #     #     {100: 3000, 500: 2700, 1000: 2400},
+    #     # ]
+    #     # I don't want to run a check for this every time, so just catch the error
+    #     if self.domain.modes is not None:
+    #         for n, p in enumerate(self._parameter):
+    #             s = self.sample.aspect(
+    #                 *self.domain.edit({'modes': self.domain.modes[n]})
+    #             )
+
+    #             if self.leq:
+    #                 _ = s <= p
+    #             elif self.geq:
+    #                 _ = s >= p
+    #             elif self.eq:
+    #                 _ = s == p
 
     def _check_existing(self) -> bool:
         """Checks if aspect already has been bound in that space"""

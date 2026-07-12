@@ -481,7 +481,7 @@ class Sample(_Hash):
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
         except AttributeError:
-            _ = self == True
+            _ = self >= 0
             return getattr(self.program, self.aspect.name)(*self.domain.I)
 
         except KeyError:
@@ -659,7 +659,15 @@ class Sample(_Hash):
         Bind(sample=self, parameter=other, leq=True, forall=self._forall)
 
     def __ge__(self, other):
-        Bind(sample=self, parameter=other, geq=True, forall=self._forall)
+
+        if self.aspect.nn and isinstance(other, (int, float)) and other == 0:
+            # if a zero lower bound is given
+            # just declare the variable
+            # it will be non-negative by default
+            # and will begin a commodity balance
+            self.V()
+        else:
+            Bind(sample=self, parameter=other, geq=True, forall=self._forall)
 
     def __eq__(self, other):
 
@@ -678,7 +686,7 @@ class Sample(_Hash):
 
         else:
             if callable(self.of):
-                _ = self.of(*self.domain.index_primary[1:]) == True
+                _ = self.of(*self.domain.index_primary[1:]) >= 0
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
 
     def __gt__(self, other):

@@ -43,3 +43,16 @@ def test_cash(m):
     assert m.eur.howmany(m.inr) == 64
     assert m.inr.howmany(m.usd) == 0.0125
     assert m.inr.howmany(m.eur) == 0.01
+
+    assert m.usd.howmany(m.usd) == 1
+
+    m.mm = Currency()
+    with pytest.raises(ValueError):
+        m.usd.howmany(m.mm)
+
+    assert m.usd == m.usd
+
+    m.mmm = Currency()
+    _ = m.usd == m.mmm
+    assert m.usd.exchange[m.mmm] == 1.0
+

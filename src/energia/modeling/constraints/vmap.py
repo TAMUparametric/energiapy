@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from gana.sets.constraint import C
 
     from ..._core._x import _X
+    from ...components.temporal.periods import Periods
     from ..indices.domain import Domain
     from ..variables.aspect import Aspect
 
@@ -136,28 +137,29 @@ class Map:
             self.aspect.maps_report if self.reporting is not None else self.aspect.maps
         )
 
-    def _map_across_time(self):
+    def _map_to_sparser_time(self, sparser_periods: list[Periods]):
         """
-        Maps across time
-
+        Maps to sparser time periods
 
         :param sparser_periods: Periods sparser than the domain period
         :type sparser_periods: list[Periods]
-        :param denser_periods: Periods denser than the domain period
-        :type denser_periods: list[Periods]
         """
-        denser_periods, sparser_periods = self.model.time.split(self.time)
-
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
             if sp in self.dispositions[self.space] and is_(sp.of, self.time):
                 self.write(self.domain, self.domain.edit({"periods": sp}), tsum=True)
 
+    def _map_from_denser_time(self, denser_periods: list[Periods]):
+        """
+        Maps from denser time periods
+
+        :param denser_periods: Periods denser than the domain period
+        :type denser_periods: list[Periods]
+        """
         for dp in denser_periods:
             if dp in self.dispositions[self.space] and is_(self.time.of, dp):
                 binds_dict = self.dispositions[self.space][dp]
-                # TODO - check this
                 # here I am re creating Bind objects
                 # from the dict of the form {aspect: {component: {aspect: {component: {...}}}}}
                 # there has to be a way to avoid this
@@ -170,6 +172,15 @@ class Map:
                 from_domain = self.domain.copy()
                 from_domain.periods, from_domain.samples = dp, samples
                 self.write(from_domain, self.domain, tsum=True)
+
+    def _map_across_time(self):
+        """
+        Maps across time
+        """
+        denser_periods, sparser_periods = self.model.time.split(self.time)
+
+        self._map_to_sparser_time(sparser_periods)
+        self._map_from_denser_time(denser_periods)
 
     def _map_across_space(self):
         """
