@@ -1,4 +1,5 @@
-"""Chronology-constrained aggregation of aligned time series.
+"""
+Chronology-constrained aggregation of aligned time series.
 
 Port of energiapy 1.0.7's aggregation/ahc.py (0604a26e): standardize
 profiles, apply adjacent-period Ward clustering, and select observed profiles.
@@ -10,16 +11,19 @@ from numbers import Integral
 from typing import Literal
 
 import numpy as np
+import pandas as pd
 from numpy.typing import ArrayLike, NDArray
 from scipy.sparse import diags
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.neighbors import NearestCentroid
 from sklearn.preprocessing import StandardScaler
 
 
 # Authored by OpenAI Codex (GPT-6).
 @dataclass
 class AHCResult:
-    """Representative profiles and their mapping to the original periods.
+    """
+    Representative profiles and their mapping to the original periods.
 
     ``labels`` maps every original period to a row in ``representatives``.
     ``representative_indices`` identifies those periods in the original input.
@@ -44,28 +48,26 @@ class AHCResult:
     def reconstruct(self) -> NDArray[np.float64]:
         """Expand representatives to (original timesteps, features)."""
         return self.representatives[self.labels].reshape(
-            -1, self.representatives.shape[-1]
+            -1, self.representatives.shape[-1],
         )
 
 
 # Authored by OpenAI Codex (GPT-6).
 def _positive_integer(value: int, name: str) -> int:
     if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
-        raise ValueError(f"{name} must be a positive integer")
+        raise ValueError(f"{name} must be a positive integer")  # noqa: TRY003 - Keep actionable input-validation messages.
     return int(value)
 
 
 # PORTED from v1.0.7 by OpenAI Codex (GPT-6)
 def _legacy_selection(scaled, assignments):
-    """Reproduce 0604a26e's centroid labeling and global distance lookup.
+    """
+    Reproduce 0604a26e's centroid labeling and global distance lookup.
 
     Keep pandas ordering and Python distance summation as in the historical
     code. This compatibility policy deliberately retains its selection quirks;
     error metrics are still calculated from the actual cluster memberships.
     """
-    import pandas as pd
-    from sklearn.neighbors import NearestCentroid
-
     frame = pd.DataFrame(scaled)
     centroids = NearestCentroid().fit(scaled, assignments).centroids_
     frame["cluster_no"] = assignments
@@ -79,7 +81,7 @@ def _legacy_selection(scaled, assignments):
     })
     selected["representative"] = [
         int(frame.index[frame["ED"] == frame.loc[
-            frame["cluster_no"] == label, "ED"
+            frame["cluster_no"] == label, "ED",
         ].min()][0])
         for label in selected["label"]
     ]
@@ -94,14 +96,14 @@ def _legacy_selection(scaled, assignments):
 def _validated_series(data):
     """Convert aligned input series and reject empty or nonfinite values."""
     if not data:
-        raise ValueError("provide at least one time series")
+        raise ValueError("provide at least one time series")  # noqa: TRY003 - Keep actionable input-validation messages.
     series = [np.asarray(values, dtype=float) for values in data]
     if any(values.ndim != 1 or not values.size for values in series):
-        raise ValueError("each time series must be nonempty and one-dimensional")
+        raise ValueError("each time series must be nonempty and one-dimensional")  # noqa: TRY003 - Keep actionable input-validation messages.
     if any(len(values) != len(series[0]) for values in series):
-        raise ValueError("time series must have equal lengths")
+        raise ValueError("time series must have equal lengths")  # noqa: TRY003 - Keep actionable input-validation messages.
     if any(not np.isfinite(values).all() for values in series):
-        raise ValueError("time series must contain only finite values")
+        raise ValueError("time series must contain only finite values")  # noqa: TRY003 - Keep actionable input-validation messages.
     return series
 
 
@@ -111,19 +113,19 @@ def _prepare_profiles(data, periods, period_length, parent_length, selection):
     periods = _positive_integer(periods, "periods")
     period_length = _positive_integer(period_length, "period_length")
     if selection not in ("nearest_centroid", "legacy"):
-        raise ValueError("selection must be 'nearest_centroid' or 'legacy'")
+        raise ValueError("selection must be 'nearest_centroid' or 'legacy'")  # noqa: TRY003 - Keep actionable input-validation messages.
     series = _validated_series(data)
     if len(series[0]) % period_length:
-        raise ValueError("time series must contain complete periods")
+        raise ValueError("time series must contain complete periods")  # noqa: TRY003 - Keep actionable input-validation messages.
     profiles = np.column_stack(series).reshape(-1, period_length, len(series))
     count = len(profiles)
     parent_length = count if parent_length is None else _positive_integer(
         parent_length, "parent_length",
     )
     if count % parent_length:
-        raise ValueError("time series must contain complete parent groups")
+        raise ValueError("time series must contain complete parent groups")  # noqa: TRY003 - Keep actionable input-validation messages.
     if periods > parent_length:
-        raise ValueError("periods cannot exceed the original periods per parent")
+        raise ValueError("periods cannot exceed the original periods per parent")  # noqa: TRY003 - Keep actionable input-validation messages.
     return profiles, periods, parent_length
 
 
@@ -188,7 +190,8 @@ def ahc(
     parent_length: int | None = None,
     selection: Literal["nearest_centroid", "legacy"] = "legacy",
 ) -> AHCResult:
-    """Cluster aligned one-dimensional series into representative periods.
+    """
+    Cluster aligned one-dimensional series into representative periods.
 
     :param data: One or more finite numeric series with equal lengths. Features
         retain their argument order; inputs are aligned positionally.
