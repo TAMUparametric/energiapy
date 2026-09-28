@@ -4,6 +4,7 @@ Port of energiapy 1.0.7's aggregation/ahc.py (0604a26e): standardize
 profiles, apply adjacent-period Ward clustering, and select observed profiles.
 """
 
+# PORTED from v1.0.7 by OpenAI Codex (GPT-6)
 from dataclasses import dataclass
 from numbers import Integral
 from typing import Literal
@@ -15,6 +16,7 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 
 
+# Authored by OpenAI Codex (GPT-6).
 @dataclass
 class AHCResult:
     """Representative profiles and their mapping to the original periods.
@@ -46,12 +48,14 @@ class AHCResult:
         )
 
 
+# Authored by OpenAI Codex (GPT-6).
 def _positive_integer(value: int, name: str) -> int:
     if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
         raise ValueError(f"{name} must be a positive integer")
     return int(value)
 
 
+# PORTED from v1.0.7 by OpenAI Codex (GPT-6)
 def _legacy_selection(scaled, assignments):
     """Reproduce 0604a26e's centroid labeling and global distance lookup.
 
@@ -86,6 +90,97 @@ def _legacy_selection(scaled, assignments):
     ]
 
 
+# Authored by OpenAI Codex (GPT-6).
+def _validated_series(data):
+    """Convert aligned input series and reject empty or nonfinite values."""
+    if not data:
+        raise ValueError("provide at least one time series")
+    series = [np.asarray(values, dtype=float) for values in data]
+    if any(values.ndim != 1 or not values.size for values in series):
+        raise ValueError("each time series must be nonempty and one-dimensional")
+    if any(len(values) != len(series[0]) for values in series):
+        raise ValueError("time series must have equal lengths")
+    if any(not np.isfinite(values).all() for values in series):
+        raise ValueError("time series must contain only finite values")
+    return series
+
+
+# Authored by OpenAI Codex (GPT-6).
+def _prepare_profiles(data, periods, period_length, parent_length, selection):
+    """Validate aggregation dimensions and build complete parent profiles."""
+    periods = _positive_integer(periods, "periods")
+    period_length = _positive_integer(period_length, "period_length")
+    if selection not in ("nearest_centroid", "legacy"):
+        raise ValueError("selection must be 'nearest_centroid' or 'legacy'")
+    series = _validated_series(data)
+    if len(series[0]) % period_length:
+        raise ValueError("time series must contain complete periods")
+    profiles = np.column_stack(series).reshape(-1, period_length, len(series))
+    count = len(profiles)
+    parent_length = count if parent_length is None else _positive_integer(
+        parent_length, "parent_length",
+    )
+    if count % parent_length:
+        raise ValueError("time series must contain complete parent groups")
+    if periods > parent_length:
+        raise ValueError("periods cannot exceed the original periods per parent")
+    return profiles, periods, parent_length
+
+
+# PORTED from v1.0.7 by OpenAI Codex (GPT-6)
+def _cluster_parent(block, periods, selection):
+    """Standardize one parent and cluster with linear temporal adjacency."""
+    parent_length = len(block)
+    if selection == "legacy":
+        # Match historical feature-major arithmetic order as well as values.
+        block = block.transpose(0, 2, 1)
+    scaled = StandardScaler().fit_transform(block.reshape(parent_length, -1))
+    if periods == 1:
+        assignments = np.zeros(parent_length, dtype=np.int64)
+    elif periods == parent_length and selection != "legacy":
+        assignments = np.arange(parent_length)
+    else:
+        connectivity = diags(
+            [np.ones(parent_length - 1), np.ones(parent_length - 1)],
+            offsets=[-1, 1], shape=(parent_length, parent_length), format="csr",
+        )
+        assignments = AgglomerativeClustering(
+            n_clusters=periods, linkage="ward", connectivity=connectivity,
+            compute_full_tree=True if selection == "legacy" else "auto",
+        ).fit_predict(scaled)
+    return scaled, assignments
+
+
+# Authored by OpenAI Codex (GPT-6).
+def _cluster_choices(scaled, assignments, periods, selection):
+    """Order clusters and supply historical representatives when requested."""
+    if selection == "legacy" and periods > 1:
+        return _legacy_selection(scaled, assignments)
+    # Cluster ids from sklearn are arbitrary; order by first original member.
+    clusters = [np.flatnonzero(assignments == c) for c in np.unique(assignments)]
+    clusters.sort(key=lambda members: members[0])
+    return [(members, None) for members in clusters]
+
+
+# Authored by OpenAI Codex (GPT-6).
+def _representative_statistics(scaled, members, representative):
+    """Select the earliest nearest member if needed and compute cluster errors."""
+    centroid = scaled[members].mean(axis=0)
+    distances = ((scaled[members] - centroid) ** 2).sum(axis=1)
+    if representative is None:
+        # Members are chronological, so the first numerical tie is the earliest.
+        tied = np.flatnonzero(np.isclose(
+            distances, distances.min(), rtol=1e-12, atol=1e-12,
+        ))
+        representative = members[tied[0]]
+    inertia = float(distances.sum())
+    reconstruction_error = float(
+        ((scaled[members] - scaled[representative]) ** 2).sum(),
+    )
+    return representative, inertia, reconstruction_error
+
+
+# PORTED from v1.0.7 by OpenAI Codex (GPT-6)
 def ahc(
     *data: ArrayLike,
     periods: int,
@@ -116,77 +211,29 @@ def ahc(
     the default; nearest-centroid selection is an explicit alternative.
     Inputs are not modified. This function does not construct a reduced model.
     """
-    periods = _positive_integer(periods, "periods")
-    period_length = _positive_integer(period_length, "period_length")
-    if selection not in ("nearest_centroid", "legacy"):
-        raise ValueError("selection must be 'nearest_centroid' or 'legacy'")
-    if not data:
-        raise ValueError("provide at least one time series")
-    series = [np.asarray(values, dtype=float) for values in data]
-    if any(values.ndim != 1 or not values.size for values in series):
-        raise ValueError("each time series must be nonempty and one-dimensional")
-    if any(len(values) != len(series[0]) for values in series):
-        raise ValueError("time series must have equal lengths")
-    if any(not np.isfinite(values).all() for values in series):
-        raise ValueError("time series must contain only finite values")
-    if len(series[0]) % period_length:
-        raise ValueError("time series must contain complete periods")
-
-    profiles = np.column_stack(series).reshape(-1, period_length, len(series))
-    count = len(profiles)
-    parent_length = count if parent_length is None else _positive_integer(
-        parent_length, "parent_length"
+    profiles, periods, parent_length = _prepare_profiles(
+        data, periods, period_length, parent_length, selection,
     )
-    if count % parent_length:
-        raise ValueError("time series must contain complete parent groups")
-    if periods > parent_length:
-        raise ValueError("periods cannot exceed the original periods per parent")
-
+    count = len(profiles)
     labels = np.empty(count, dtype=np.int64)
     selected, weights = [], []
     inertia = reconstruction_error = 0.0
     for start in range(0, count, parent_length):
-        block = profiles[start : start + parent_length]
-        if selection == "legacy":
-            # Match historical feature-major arithmetic order as well as values.
-            block = block.transpose(0, 2, 1)
-        block = block.reshape(parent_length, -1)
-        scaled = StandardScaler().fit_transform(block)
-        if periods == 1:
-            assignments = np.zeros(parent_length, dtype=np.int64)
-        elif periods == parent_length and selection != "legacy":
-            assignments = np.arange(parent_length)
-        else:
-            connectivity = diags(
-                [np.ones(parent_length - 1), np.ones(parent_length - 1)],
-                offsets=[-1, 1], shape=(parent_length, parent_length), format="csr",
+        # Scaling and clustering stay within each parent's chronological boundary.
+        scaled, assignments = _cluster_parent(
+            profiles[start : start + parent_length], periods, selection,
+        )
+        choices = _cluster_choices(scaled, assignments, periods, selection)
+        for members, preset_representative in choices:
+            representative, cluster_inertia, cluster_error = _representative_statistics(
+                scaled, members, preset_representative,
             )
-            assignments = AgglomerativeClustering(
-                n_clusters=periods, linkage="ward", connectivity=connectivity,
-                compute_full_tree=True if selection == "legacy" else "auto",
-            ).fit_predict(scaled)
-
-        # Cluster ids from sklearn are arbitrary; order by first original member.
-        clusters = [np.flatnonzero(assignments == c) for c in np.unique(assignments)]
-        clusters.sort(key=lambda members: members[0])
-        choices = [(members, None) for members in clusters]
-        if selection == "legacy" and periods > 1:
-            choices = _legacy_selection(scaled, assignments)
-        for members, representative in choices:
-            centroid = scaled[members].mean(axis=0)
-            distances = ((scaled[members] - centroid) ** 2).sum(axis=1)
-            if representative is None:
-                tied = np.flatnonzero(np.isclose(
-                    distances, distances.min(), rtol=1e-12, atol=1e-12
-                ))
-                representative = members[tied[0]]
+            # Translate parent-local positions into the full input's mapping.
             labels[start + members] = len(selected)
             selected.append(start + representative)
             weights.append(len(members))
-            inertia += float(distances.sum())
-            reconstruction_error += float(
-                ((scaled[members] - scaled[representative]) ** 2).sum()
-            )
+            inertia += cluster_inertia
+            reconstruction_error += cluster_error
 
     indices = np.asarray(selected, dtype=np.int64)
     return AHCResult(
