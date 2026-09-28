@@ -10,9 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - getattr dunder to pull attrs from constituents in Storage
+- AHC defaults to `selection="legacy"` to preserve historical representative
+  selection. `selection="nearest_centroid"` is an explicit alternative, with
+  earliest-period tie breaking. The chosen policy is recorded in `AHCResult`.
+
+### Added
+- Standalone chronology-constrained AHC aggregation with representative profiles,
+  labels, occurrence weights, reconstruction, and behavioral tests.
+- Historical-data comparisons for five datasets at 20 and 35 representative
+  days. Legacy-mode indices, weights, and profiles match the historical function
+  in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed 
 - retry to fix strange variable index bug when writing inventory bound
+- AHC error reporting uses actual cluster centroids and accumulates squared
+  errors across all parent groups. Both selection modes report centroid SSE
+  (`inertia`) and selected-profile SSE (`reconstruction_error`); the historical
+  final-parent-only, cluster-count-divided `wcss_sum` is not retained.
 
 
 
