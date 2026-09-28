@@ -36,6 +36,9 @@ class Periods(_X):
     :type name: str, optional
     :param label: Label of the periods. Defaults to None.
     :type label: str, optional
+    :param weight: Number of original periods represented. Defaults to 1.
+        This is separate from duration and does not automatically weight model sums.
+    :type weight: int | float, optional
 
     :ivar model: Model to which the Periods belongs.
     :vartype model: Model
@@ -60,8 +63,10 @@ class Periods(_X):
         n: int | None = None,
         label: str = "",
         citations: str = "",
+        weight: int | float = 1,
     ):
         self.size = size
+        self.weight = weight
 
         if of is not None:
             of.isof.append(self)
