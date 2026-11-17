@@ -1,7 +1,12 @@
 <p align="center">
-  <img src="https://github.com/TAMUparametric/energiapy/raw/main/docs/_static/logo2.jpg" width="75%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/_static/energia-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/_static/energia-logo-light.png">
+    <img src="docs/_static/energia-logo-light.png" alt="Energia" width="75%">
+  </picture>
 </p>
 
+<!-- documentation-content -->
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
@@ -52,11 +57,16 @@ Some examples are listed:
 
 # Managing Complexity
 
-Clustering submodules include:
+Time-series clustering is provided by [Vaelchi](https://vaelchi.readthedocs.io/en/latest/),
+installed with Energia. Use `from vaelchi import ahc` for chronology-constrained
+agglomerative hierarchical clustering (AHC). The existing
+`energia.surrogate.aggregation` imports remain available for compatibility.
 
-1. agglomerative hierarchial clustering (AHC)
-2. dynamic time warping (DTW)
-3. k-means
+Vaelchi returns representative profiles, original-period mappings, occurrence
+weights, and reconstruction errors. Energia's `Periods.weight` stores occurrence
+counts; it does not automatically weight optimization constraints or objectives.
+See the [temporal clustering example](https://energiapy.readthedocs.io/en/latest/examples/temporal_clustering.html)
+for mapping these results into Energia's temporal hierarchy.
 
 
 Other approaches to managing computational complexity include:

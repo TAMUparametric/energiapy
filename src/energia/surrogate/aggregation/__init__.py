@@ -1,4 +1,4 @@
-"""Time-series aggregation."""
+"""Compatibility imports for clustering, now maintained in Vaelchi."""
 
 from .ahc import AHCResult, ahc
 

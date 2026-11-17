@@ -1,5 +1,11 @@
 # Historical AHC comparison
 
+Clustering is now maintained in [Vaelchi](https://vaelchi.readthedocs.io/en/latest/).
+The saved `results.json` and `representatives.csv` remain unchanged historical
+records of Energia's implementation before extraction. The reproduction script
+now calls Vaelchi and records its installed version and algorithm source hash;
+its default output is `vaelchi-results.json`, preserving the original results.
+
 The default is `selection="legacy"`. Select `selection="nearest_centroid"`
 explicitly to use the nearest member of each cluster, breaking numerical ties
 with the earliest period. Both modes retain corrected error reporting.

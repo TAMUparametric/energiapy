@@ -1,0 +1,11 @@
+{# Use the theme's native controls and saved preference, with two modes. #}
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ _('Color mode') }}">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="{{ _('Color mode') }}" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fa-solid fa-moon fa-lg fa-fw only-dark" aria-hidden="true"></i>
+    <i class="fa-solid fa-sun fa-lg fa-fw only-light" aria-hidden="true"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1" aria-hidden="true"></i>{{ _('Light') }}</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1" aria-hidden="true"></i>{{ _('Dark') }}</button></li>
+  </ul>
+</div>

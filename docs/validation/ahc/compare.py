@@ -1,8 +1,9 @@
 """Historical-data validation; requires local case-study CSVs and baseline Git objects."""
-import argparse, ast, hashlib, importlib.util, json, pathlib, subprocess, sys, warnings
+import argparse, ast, hashlib, inspect, json, pathlib, subprocess, sys, warnings
 import numpy as np
 import pandas as pd
 import sklearn, scipy
+import vaelchi as mod
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
 from sklearn.preprocessing import StandardScaler
@@ -14,7 +15,7 @@ REPO = ROOT.parents[2]
 BASELINE = "0604a26ee45a564bcd83c736077944cb1c59a50d"
 parser = argparse.ArgumentParser(description="Compare historical and current AHC selections.")
 parser.add_argument("--data-dir", required=True, type=pathlib.Path)
-parser.add_argument("--output", type=pathlib.Path, default=ROOT / "results.json")
+parser.add_argument("--output", type=pathlib.Path, default=ROOT / "vaelchi-results.json")
 args = parser.parse_args()
 DATA = args.data_dir
 sources = {}
@@ -30,8 +31,8 @@ for filename,names in [('legacy_time.py',{'TemporalScale'}),('legacy_math.py',{'
  tree=ast.parse(sources[filename])
  tree.body=[node for node in tree.body if isinstance(node,(ast.FunctionDef,ast.ClassDef)) and node.name in names]
  exec(compile(tree,filename,'exec'),ns)
-spec=importlib.util.spec_from_file_location('current_ahc',REPO / 'src/energia/surrogate/aggregation/ahc.py')
-mod=importlib.util.module_from_spec(spec);sys.modules[spec.name]=mod;spec.loader.exec_module(mod)
+# Hash the actual algorithm, not Energia's compatibility imports.
+current_source = pathlib.Path(inspect.getfile(mod.ahc))
 
 def run(name,frame,k):
  captures=[]
@@ -81,5 +82,5 @@ for name,frame in sets.items():
  for k in [20,35]:
   r=run(name,frame,k);results.append(r)
   print(name,k,'partition',r['partition_equal'],'reps',r['representative_positions_equal'],'/',k,'corrected',r['corrected_legacy_representatives_equal'],'SSE',r['legacy_reported_wcss'],r['nearest_centroid_inertia'],flush=True)
-report=dict(default_selection='legacy',current_source_sha256=hashlib.sha256((REPO/'src/energia/surrogate/aggregation/ahc.py').read_bytes()).hexdigest(),baseline='0604a26ee45a564bcd83c736077944cb1c59a50d',environment=dict(python=sys.version,numpy=np.__version__,pandas=pd.__version__,sklearn=sklearn.__version__,scipy=scipy.__version__),input_sha256={f:hashlib.sha256((DATA/f).read_bytes()).hexdigest() for f in ['ho_solar.csv','ho_wind.csv','ho_solar19.csv','sd_solar19.csv','ny_solar19.csv','NYC_load.csv']},results=results)
+report=dict(default_selection='legacy',current_source_sha256=hashlib.sha256(current_source.read_bytes()).hexdigest(),baseline='0604a26ee45a564bcd83c736077944cb1c59a50d',environment=dict(vaelchi=mod.__version__,python=sys.version,numpy=np.__version__,pandas=pd.__version__,sklearn=sklearn.__version__,scipy=scipy.__version__),input_sha256={f:hashlib.sha256((DATA/f).read_bytes()).hexdigest() for f in ['ho_solar.csv','ho_wind.csv','ho_solar19.csv','sd_solar19.csv','ny_solar19.csv','NYC_load.csv']},results=results)
 args.output.write_text(json.dumps(report,indent=2)+'\n')
