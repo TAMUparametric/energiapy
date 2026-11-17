@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed 
+- Repeated linkage-parent lookups no longer duplicate routes in spatial sums.
+  This restores the Seattle-Topeka example's total cost to 153,675 instead of
+  counting each route five times.
 - Register Markdown documents with the loaded `myst-nb` parser, fixing the
   Read the Docs error "Source parser for markdown not registered". Constrain
   Sphinx and the book theme to the tested compatible versions.

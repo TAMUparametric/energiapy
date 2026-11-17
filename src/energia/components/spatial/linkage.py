@@ -90,13 +90,15 @@ class Linkage(_X):
 
     @property
     def isin(self) -> Location | None:
-        """Location to which the Linkage belongs"""
-        if self.source.isin:
-            if self.source.isin == self.sink.isin:
-                self.source.isin.has += (self,)
-                return self.source.isin
-        self.network.has += (self,)
-        return self.network
+        """Return the containing location, registering this link only once."""
+        parent = self.source.isin
+        if parent is None or not is_(parent, self.sink.isin):
+            parent = self.network
+        # Parent contents drive spatial sums, so repeated reads must not
+        # register the same route more than once.
+        if not any(is_(member, self) for member in parent.has):
+            parent.has += (self,)
+        return parent
 
     def rev(self):
         """Reversed Link"""

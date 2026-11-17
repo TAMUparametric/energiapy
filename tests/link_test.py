@@ -52,3 +52,21 @@ def test_link(m):
     assert not m.htown.isnetwork
     assert m.network.isnetwork
     assert not m.grid.isnetwork
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_parent_lookup_registers_link_once(nested):
+    """Reading a link's parent must not duplicate spatial aggregation terms."""
+    model = Model()
+    model.source = Location()
+    model.sink = Location()
+    if nested:
+        model.region = model.source + model.sink
+        model.other = Location()
+    model.route = Linkage(source=model.source, sink=model.sink)
+    expected_parent = model.region if nested else model.network
+
+    for _ in range(5):
+        assert model.route.isin is expected_parent
+
+    assert sum(member is model.route for member in expected_parent.has) == 1
