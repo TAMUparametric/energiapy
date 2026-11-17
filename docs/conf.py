@@ -204,6 +204,7 @@ html_static_path = ['_static']
 html_css_files = ['custom.css']
 html_copy_source = True
 html_last_updated_fmt = ""
+# myst_nb registers the myst-nb parser for both Markdown and notebooks.
 source_suffix = {".rst": 'restructuredtext', ".md": 'myst-nb', ".ipynb": 'myst-nb'}
 html_context = {
     # ...

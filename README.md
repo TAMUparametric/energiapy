@@ -57,11 +57,16 @@ Some examples are listed:
 
 # Managing Complexity
 
-Clustering submodules include:
+Time-series clustering is provided by [Vaelchi](https://vaelchi.readthedocs.io/en/latest/),
+installed with Energia. Use `from vaelchi import ahc` for chronology-constrained
+agglomerative hierarchical clustering (AHC). The existing
+`energia.surrogate.aggregation` imports remain available for compatibility.
 
-1. agglomerative hierarchial clustering (AHC)
-2. dynamic time warping (DTW)
-3. k-means
+Vaelchi returns representative profiles, original-period mappings, occurrence
+weights, and reconstruction errors. Energia's `Periods.weight` stores occurrence
+counts; it does not automatically weight optimization constraints or objectives.
+See the [temporal clustering example](https://energiapy.readthedocs.io/en/latest/examples/temporal_clustering.html)
+for mapping these results into Energia's temporal hierarchy.
 
 
 Other approaches to managing computational complexity include:

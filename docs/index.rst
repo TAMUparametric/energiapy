@@ -44,6 +44,7 @@ Decision-making with Energia
    examples/design_scheduling_material
    examples/material_process_modes
    examples/seattle_topeka
+   examples/temporal_clustering
 
 
 .. toctree::
