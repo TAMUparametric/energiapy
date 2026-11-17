@@ -9,10 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.7] - Unreleased
 
 ### Changed
+- Clustering is maintained in Vaelchi. Energia depends on `vaelchi>=0.1.0,<0.2`
+  and preserves `energia.surrogate.aggregation` and its `ahc` module as
+  compatibility imports. New examples import from `vaelchi` directly.
+- Documentation uses the new cubist logos and a light/dark theme switcher.
 - getattr dunder to pull attrs from constituents in Storage
+- AHC defaults to `selection="legacy"` to preserve historical representative
+  selection. `selection="nearest_centroid"` is an explicit alternative, with
+  earliest-period tie breaking. The chosen policy is recorded in `AHCResult`.
+
+### Added
+- Standalone chronology-constrained AHC aggregation with representative profiles,
+  labels, occurrence weights, reconstruction, and behavioral tests.
+- Historical-data comparisons for five datasets at 20 and 35 representative
+  days. Legacy-mode indices, weights, and profiles match the historical function
+  in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed 
+- Repeated linkage-parent lookups no longer duplicate routes in spatial sums.
+  This restores the Seattle-Topeka example's total cost to 153,675 instead of
+  counting each route five times.
+- Register Markdown documents with the loaded `myst-nb` parser, fixing the
+  Read the Docs error "Source parser for markdown not registered". Constrain
+  Sphinx and the book theme to the tested compatible versions.
 - retry to fix strange variable index bug when writing inventory bound
+- AHC error reporting uses actual cluster centroids and accumulates squared
+  errors across all parent groups. Both selection modes report centroid SSE
+  (`inertia`) and selected-profile SSE (`reconstruction_error`); the historical
+  final-parent-only, cluster-count-divided `wcss_sum` is not retained.
 
 
 
