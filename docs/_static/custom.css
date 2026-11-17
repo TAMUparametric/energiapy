@@ -1,8 +1,3 @@
-/* Hides dark/light mode switch button */
-button.theme-switch-button {
-    display: none !important;
-}
-
 /* Import the web font (Latin Modern from fonts.cdnfonts.com) */
 @import url("https://fonts.cdnfonts.com/css/latin-modern-roman");
 
@@ -13,6 +8,17 @@ button.theme-switch-button {
   --text-color: #2b2b2b;
   --accent-color: #0044aa;
   --code-bg: #f8f9fa;
+  --heading-color: #222;
+  --title-color: #002e8a;
+}
+
+/* Keep the custom typography readable in both documentation themes. */
+html[data-theme="dark"] {
+  --text-color: #e2e5e9;
+  --accent-color: #9dc3ff;
+  --code-bg: var(--pst-color-surface);
+  --heading-color: #e2e5e9;
+  --title-color: #b6d2ff;
 }
 
 /* Body text */
@@ -30,7 +36,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--main-font);
   font-weight: 1200;           /* Makes headings bold */
-  color: #1a1a1a;
+  color: var(--heading-color);
   letter-spacing: -0.01em;
 }
 
@@ -38,9 +44,9 @@ h1, h2, h3, h4, h5, h6 {
 /* line-height: 1.2; */
 
 /* Optional: slightly different colors by level */
-h1 { color: #002e8a; }  /* Deep blue for main title */
-h2 { color: #0044aa; }
-h3, h4, h5, h6 { color: #222; }
+h1 { color: var(--title-color); }
+h2 { color: var(--accent-color); }
+h3, h4, h5, h6 { color: var(--heading-color); }
 
 /* Links */
 a {

@@ -1,8 +1,21 @@
 Decision-making with Energia 
 =============================
 
+.. image:: _static/energia-logo-light.png
+   :alt: Energia
+   :class: only-light
+   :width: 75%
+   :align: center
+
+.. image:: _static/energia-logo-dark.png
+   :alt: Energia
+   :class: only-dark
+   :width: 75%
+   :align: center
+
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
+   :start-after: <!-- documentation-content -->
 
 .. include:: ../background.rst
 

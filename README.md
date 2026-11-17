@@ -1,7 +1,12 @@
 <p align="center">
-  <img src="https://github.com/TAMUparametric/energiapy/raw/main/docs/_static/logo2.jpg" width="75%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/_static/energia-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/_static/energia-logo-light.png">
+    <img src="docs/_static/energia-logo-light.png" alt="Energia" width="75%">
+  </picture>
 </p>
 
+<!-- documentation-content -->
 
 [![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)

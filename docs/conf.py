@@ -28,13 +28,14 @@ author = 'Rahul Kakodkar, Efstratios N. Pistikopoulos'
 release = '2.1.6'
 
 
-html_logo = "_static/logo2.jpg"
+html_logo = "_static/energia-logo-light.png"
 html_title = "Energia"
 html_theme_options = {
     "repository_url": "https://github.com/TAMUparametric/energiapy",
     "logo": {
-        "image_dark": "_static/logo.jpg",
-        # "text": html_title,  # Uncomment to try text with logo
+        "image_light": "_static/energia-logo-light.png",
+        "image_dark": "_static/energia-logo-dark.png",
+        "alt_text": "Energia home",
     },
     "icon_links": [
         {
@@ -203,7 +204,7 @@ html_static_path = ['_static']
 html_css_files = ['custom.css']
 html_copy_source = True
 html_last_updated_fmt = ""
-source_suffix = {".rst": 'restructuredtext', ".md": 'markdown', ".ipynb": 'myst-nb'}
+source_suffix = {".rst": 'restructuredtext', ".md": 'myst-nb', ".ipynb": 'myst-nb'}
 html_context = {
     # ...
     "default_mode": "light"
