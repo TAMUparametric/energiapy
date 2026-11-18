@@ -233,7 +233,7 @@ class Operation(_Component):
                 conv.operation = self
 
             if len(self.conversions) == 1:
-                self.primary_conversion += self.conversions[0]
+                self.primary_conversion.balance.update(self.conversions[0])
                 self.primary_conversion.resource = self.conversions[0].resource
 
         super().__setattr__(name, value)
