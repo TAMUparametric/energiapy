@@ -61,7 +61,7 @@ def test_repeat_binding_reuses_the_price_parameter():
     m = Model()
     m.labor = Resource(take=True, price=(7.86, 8.89))
     m.cash.spend(m.labor.consume) == (7.86, 8.89)
-    with pytest.raises(ValueError, match="different price bounds"):
+    with pytest.raises(ValueError, match="different resource price bounds"):
         m.cash.spend(m.labor.consume) == (8, 9)
     assert m.program.n_thetas == 1
     m.labor.release == 2
@@ -75,7 +75,7 @@ def test_interval_price_requires_equality(compare):
     m = Model()
     m.labor = Resource(take=True)
     m.cash = Currency()
-    with pytest.raises(ValueError, match="requires a spending equality"):
+    with pytest.raises(ValueError, match="Use == to define a resource price interval"):
         compare(m.cash.spend(m.labor.consume), (1, 3))
     assert m.program.n_thetas == 0
 
@@ -83,8 +83,8 @@ def test_interval_price_requires_equality(compare):
 @pytest.mark.parametrize(
     "original, replacement, error, expected_thetas",
     [
-        (2, (1, 3), "fixed spending constraint", 0),
-        ((1, 3), 2, "already has an uncertain price", 1),
+        (2, (1, 3), "already has a fixed resource price", 0),
+        ((1, 3), 2, "already has a resource price interval", 1),
     ],
     ids=["fixed-then-interval", "interval-then-fixed"],
 )

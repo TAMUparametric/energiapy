@@ -122,7 +122,7 @@ class Bind:
             return self.sample, self.rel
 
         if self.iscalc and f"price_{self.cons_name}" in self.program.names_theta_sets:
-            message = "This spending account already has an uncertain price"
+            message = "This calculation already has a resource price interval"
             raise ValueError(message)
 
         if self.leq:
@@ -163,11 +163,11 @@ class Bind:
     def _bind_unit_price(self):
         """Bind spend to a shared price or to one interval per time coordinate."""
         if not self.eq:
-            message = "An uncertain unit price requires a spending equality"
+            message = "Use == to define a resource price interval"
             raise ValueError(message)
         bounds = self.parameter
         if self.cons_name in self.program.names_constraint_sets:
-            message = "A fixed spending constraint already defines this account"
+            message = "This calculation already has a fixed resource price"
             raise ValueError(message)
         quantity = self.of(*self.domain.index_spatiotemporal).V(bounds)
         intervals = bounds if isinstance(bounds, list) else [bounds]
@@ -179,7 +179,7 @@ class Bind:
         if existing:
             price = getattr(self.program, name)
             if intervals != [(member.lb, member.ub) for member in price]:
-                message = "This spending account already has different price bounds"
+                message = "This calculation already has different resource price bounds"
                 raise ValueError(message)
         else:
             price = T(_=bounds)
