@@ -1,5 +1,7 @@
 """Resource price intervals in the installed Gana/PPOPT workflow."""
 
+import operator
+
 import numpy as np
 import pytest
 
@@ -66,3 +68,51 @@ def test_repeat_binding_reuses_the_price_parameter():
     m.cash.spend.obj()
     m.solve()
     assert m.eval(8.375)[m.cash.spend.V()[0]] == pytest.approx(16.75)
+
+
+@pytest.mark.parametrize("compare", [operator.le, operator.ge], ids=["upper", "lower"])
+def test_interval_price_requires_equality(compare):
+    m = Model()
+    m.labor = Resource(take=True)
+    m.cash = Currency()
+    with pytest.raises(ValueError, match="requires a spending equality"):
+        compare(m.cash.spend(m.labor.consume), (1, 3))
+    assert m.program.n_thetas == 0
+
+
+@pytest.mark.parametrize(
+    "original, replacement, error, expected_thetas",
+    [
+        (2, (1, 3), "fixed spending constraint", 0),
+        ((1, 3), 2, "already has an uncertain price", 1),
+    ],
+    ids=["fixed-then-interval", "interval-then-fixed"],
+)
+def test_fixed_and_interval_prices_conflict(original, replacement, error, expected_thetas):
+    m = Model()
+    m.labor = Resource(take=True, price=original)
+    with pytest.raises(ValueError, match=error):
+        m.cash.spend(m.labor.consume) == replacement
+    assert m.program.n_thetas == expected_thetas
+
+
+def test_hourly_price_count_and_shared_interval():
+    m = Model()
+    m.hour = Periods()
+    m.shift = 2 * m.hour
+    m.cash = Currency()
+    m.power = Resource()
+    m.power.consume(m.hour) >= 0
+    m.power.release(m.hour) == [2, 3]
+    spending = m.cash.spend(m.power.consume, m.hour)
+    with pytest.raises(ValueError, match="must match consumption coordinates"):
+        spending == [(1, 3), (4, 6), (7, 9)]
+    assert m.program.n_thetas == 0
+
+    spending == (1, 3)
+    assert m.program.n_thetas == 1
+    m.cash.spend.obj()
+    m.solve()
+    total = m.cash.spend.V()[0]
+    for price in [1, 2, 3]:
+        assert m.eval(price)[total] == pytest.approx((2 + 3) * price)
