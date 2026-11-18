@@ -123,3 +123,71 @@ def test_lagged_output_preserves_input_time():
     assert m.program.formulation.Status == GRB.OPTIMAL
     assert m.fuel.consume(m.hour).output(aslist=True) == pytest.approx([2, 4])
     assert m.program.formulation.ObjVal == pytest.approx(14)
+
+
+def test_reusing_conversion_operands():
+    m = Model()
+    m.fuel, m.waste = Resource(), Resource()
+    left, right = 2 * m.fuel, 3 * m.waste
+
+    assert dict(left - right) == {m.fuel: 2, m.waste: -3}
+    assert dict(left + right) == {m.fuel: 2, m.waste: 3}
+    assert dict(-right) == {m.waste: -3}
+    assert dict(0.5 * left) == {m.fuel: 1}
+    assert dict(left) == {m.fuel: 2}
+    assert dict(right) == {m.waste: 3}
+    assert (m.fuel + m.fuel)[m.fuel] == 2
+    assert (m.fuel - left)[m.fuel] == -1
+    assert (left - m.fuel)[m.fuel] == 1
+    assert (left - left)[m.fuel] == 0
+
+
+def test_conversion_coefficient_series():
+    m = Model()
+    m.fuel, m.waste = Resource(), Resource()
+    fuel = [2, 3] * m.fuel
+    waste = [4, 5] * m.waste
+
+    assert (fuel + m.fuel)[m.fuel] == [3, 4]
+    assert (m.fuel - fuel)[m.fuel] == [-1, -2]
+    assert (fuel - [3, 1] * m.fuel)[m.fuel] == [-1, 2]
+    assert (-fuel)[m.fuel] == [-2, -3]
+    assert (fuel * 0.5)[m.fuel] == [1, 1.5]
+    assert ([3, 2] * fuel)[m.fuel] == [6, 6]
+    with pytest.raises(ValueError):
+        fuel + [1, 2, 3] * m.fuel
+    combined = fuel + waste
+    combined[m.fuel][0] = combined[m.waste][0] = 0
+    assert fuel[m.fuel] == [2, 3]
+    assert waste[m.waste] == [4, 5]
+
+
+@pytest.mark.parametrize("split", [False, True], ids=["combined", "split"])
+@pytest.mark.parametrize(
+    "first, second, total, demand, expected_fuel, expected_cost",
+    [
+        (-2, -3, -5, [1, 0], [5, 0], 15),
+        ([-2, -1], [-3, -2], [-5, -3], [1, 2], [5, 6], 33),
+    ],
+    ids=["constant", "hourly"],
+)
+def test_repeated_fuel_terms_in_solved_model(
+    split, first, second, total, demand, expected_fuel, expected_cost
+):
+    m = Model()
+    m.hour = Periods()
+    m.shift = 2 * m.hour
+    m.usd = Currency()
+    m.fuel, m.power = Resource(), Resource()
+    m.fuel.consume(m.hour) <= [100, 100]
+    m.power.release(m.hour) >= demand
+    fuel = first * m.fuel + second * m.fuel if split else total * m.fuel
+    m.plant = Process(m.power == fuel)
+    m.plant.operate(m.hour) >= 0
+    m.usd.spend(m.fuel.consume, m.hour) == [3, 3]
+    m.locate(m.plant)
+    m.usd.spend.opt()
+
+    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert m.fuel.consume(m.hour).output(aslist=True) == pytest.approx(expected_fuel)
+    assert m.program.formulation.ObjVal == pytest.approx(expected_cost)

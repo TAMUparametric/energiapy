@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from copy import copy
 from typing import TYPE_CHECKING, Self
 
 from ..._core._component import _Component
@@ -72,43 +73,25 @@ class Commodity(_Component, Mapping):
 
     #     super().__setattr__(name, value)
 
-    def __mul__(self, other: int | float) -> Conversion:
-        # multiplying a number with a resources gives conversion
-        # math operations with conversions form the balance in tasks
-        return Conversion.from_balance({self: other})
+    def __mul__(self, other: float | list[float]) -> Conversion:
+        """Create a conversion term with a scalar or per-period coefficient."""
+        return Conversion.from_balance({self: copy(other)})
 
-    def __rmul__(self, other: int | float) -> Conversion:
-        # reverse multiplication
+    def __rmul__(self, other: float | list[float]) -> Conversion:
+        """Create a conversion term with the coefficient on the left."""
         return self * other
 
     def __add__(self, other: Conversion | Commodity) -> Conversion:
-        return Conversion.from_balance({self: 1, **other})
+        """Add the other terms to one unit of this commodity."""
+        return (self * 1) + other
 
     def __neg__(self) -> Conversion:
-        # just multiply by -1
+        """Create a conversion term with a coefficient of minus one."""
         return self * -1
 
-    def __sub__(self, other: Conversion | Self):
-
-        if isinstance(other, Commodity):
-            # if another resource is subtracted
-            # give it the parameter -1
-            return self + -1 * other
-
-        def _negate(par):
-            if isinstance(par, (int, float)):
-                return -1 * par
-            return [-i for i in par]
-
-        if isinstance(other, Conversion):
-            # if another conversion is subtracted, update the balance
-
-            return Conversion.from_balance(
-                {
-                    self: 1,
-                    **{res: _negate(par) for res, par in other.items()},
-                }
-            )
+    def __sub__(self, other: Conversion | Commodity) -> Conversion:
+        """Subtract the other terms from one unit of this commodity."""
+        return (self * 1) - other
 
     def __truediv__(self, other: int | float):
         # treat division as multiplication by the inverse
@@ -116,7 +99,7 @@ class Commodity(_Component, Mapping):
 
     def __eq__(self, other: Conversion | Self):
         if isinstance(other, Conversion):
-            conv = self + other
+            conv = Conversion.from_balance({self: 1, **other})
             # set itself as base
             conv.resource = self
             return conv

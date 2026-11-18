@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import operator
+from collections.abc import Callable, Mapping
+from copy import copy
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
@@ -21,6 +23,23 @@ if TYPE_CHECKING:
     from ...components.temporal.periods import Periods
     from ...represent.model import Model
     from ..indices.sample import Sample
+
+
+type _Coefficient = float | list[float]
+type _Arithmetic = Callable[[float, float], float]
+
+
+def _apply_coefficients(
+    left: _Coefficient, right: _Coefficient, operation: _Arithmetic
+) -> _Coefficient:
+    """Apply arithmetic period by period, broadcasting scalar coefficients."""
+    if isinstance(left, list):
+        if isinstance(right, list):
+            return [operation(a, b) for a, b in zip(left, right, strict=True)]
+        return [operation(a, right) for a in left]
+    if isinstance(right, list):
+        return [operation(left, b) for b in right]
+    return operation(left, right)
 
 
 class Conversion(Mapping, _Hash):
@@ -375,26 +394,41 @@ class Conversion(Mapping, _Hash):
         self.model.convmatrix[self.operation] = self.balance
         return self
 
+    def _with_balance(self, balance: dict[Commodity, _Coefficient]) -> Self:
+        result = copy(self)
+        result.balance = balance
+        result.__dict__.pop("model", None)  # derived from the first commodity
+        return result
+
+    def _combine(self, other: Conversion | Commodity, operation: _Arithmetic) -> Self:
+        balance = {res: copy(par) for res, par in self.items()}
+        for res, par in other.items():
+            balance[res] = _apply_coefficients(balance.get(res, 0), par, operation)
+        return self._with_balance(balance)
+
     def __neg__(self) -> Self:
-        self.balance = {res: -par for res, par in self.balance.items()}
-        return self
+        """Return a conversion with every coefficient negated."""
+        return self * -1
 
-    def __add__(self, other: Conversion) -> Self:
-        self.balance = {**self, **other}
-        return self
+    def __add__(self, other: Conversion | Commodity) -> Self:
+        """Return the sum of the operands' coefficients for each commodity."""
+        return self._combine(other, operator.add)
 
-    def __sub__(self, other: Conversion) -> Self:
-        self.balance = {**self, **-other}
-        return self
+    def __sub__(self, other: Conversion | Commodity) -> Self:
+        """Return the difference of the operands' coefficients for each commodity."""
+        return self._combine(other, operator.sub)
 
-    def __mul__(self, times: int | float | list) -> Self:
-        if isinstance(times, list):
-            self.balance = {res: [par * i for i in times] for res, par in self.items()}
-        else:
-            self.balance = {res: par * times for res, par in self.items()}
-        return self
+    def __mul__(self, times: _Coefficient) -> Self:
+        """Scale every coefficient by a scalar or per-period multiplier."""
+        return self._with_balance(
+            {
+                res: _apply_coefficients(par, times, operator.mul)
+                for res, par in self.items()
+            }
+        )
 
-    def __rmul__(self, times) -> Self:
+    def __rmul__(self, times: _Coefficient) -> Self:
+        """Scale the conversion with the multiplier on the left."""
         return self * times
 
     def __len__(self):
