@@ -74,22 +74,23 @@ class Commodity(_Component, Mapping):
     #     super().__setattr__(name, value)
 
     def __mul__(self, other: float | list[float]) -> Conversion:
-        # multiplying a number with a resources gives conversion
-        # math operations with conversions form the balance in tasks
+        """Create a conversion term with a scalar or per-period coefficient."""
         return Conversion.from_balance({self: copy(other)})
 
     def __rmul__(self, other: float | list[float]) -> Conversion:
-        # reverse multiplication
+        """Create a conversion term with the coefficient on the left."""
         return self * other
 
     def __add__(self, other: Conversion | Commodity) -> Conversion:
+        """Add the other terms to one unit of this commodity."""
         return (self * 1) + other
 
     def __neg__(self) -> Conversion:
-        # just multiply by -1
+        """Create a conversion term with a coefficient of minus one."""
         return self * -1
 
     def __sub__(self, other: Conversion | Commodity) -> Conversion:
+        """Subtract the other terms from one unit of this commodity."""
         return (self * 1) - other
 
     def __truediv__(self, other: int | float):

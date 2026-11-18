@@ -407,21 +407,28 @@ class Conversion(Mapping, _Hash):
         return self._with_balance(balance)
 
     def __neg__(self) -> Self:
+        """Return a conversion with every coefficient negated."""
         return self * -1
 
     def __add__(self, other: Conversion | Commodity) -> Self:
+        """Return the sum of the operands' coefficients for each commodity."""
         return self._combine(other, operator.add)
 
     def __sub__(self, other: Conversion | Commodity) -> Self:
+        """Return the difference of the operands' coefficients for each commodity."""
         return self._combine(other, operator.sub)
 
     def __mul__(self, times: _Coefficient) -> Self:
-        return self._with_balance({
-            res: _apply_coefficients(par, times, operator.mul)
-            for res, par in self.items()
-        })
+        """Scale every coefficient by a scalar or per-period multiplier."""
+        return self._with_balance(
+            {
+                res: _apply_coefficients(par, times, operator.mul)
+                for res, par in self.items()
+            }
+        )
 
     def __rmul__(self, times: _Coefficient) -> Self:
+        """Scale the conversion with the multiplier on the left."""
         return self * times
 
     def __len__(self):
