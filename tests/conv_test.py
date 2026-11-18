@@ -1,8 +1,11 @@
 """Tests for Conversion"""
 
-import pytest
+from itertools import permutations
 
-from energia import Resource, Model, Process
+import pytest
+from gurobipy import GRB
+
+from energia import Currency, Model, Periods, Process, Resource
 
 
 @pytest.fixture
@@ -73,3 +76,50 @@ def test_conv(m):
         m.modes[1][0]: {m.a: [1, 1, 1], m.b: [-20, -30, -40]},
         m.modes[1][1]: {m.b: [20, 30, 40], m.a: [-1, -1, -1]},
     }
+
+
+@pytest.mark.parametrize(
+    "basis, second, third", list(permutations(("power", "fuel", "waste")))
+)
+def test_conversion_resource_order(basis, second, third):
+    m = Model()
+    m.hour = Periods()
+    m.shift = 2 * m.hour
+    m.usd = Currency()
+    m.power, m.fuel, m.waste = Resource(), Resource(), Resource()
+    m.fuel.consume <= 100
+    m.power.release(m.hour) >= [2, 4]
+    m.waste.release >= 0
+
+    m.plant = Process()
+    terms = {"power": 1 * m.power, "fuel": -2 * m.fuel, "waste": 1 * m.waste}
+    m.plant(terms[basis]) == terms[second] + terms[third]
+    m.plant.operate(m.hour) >= 0
+    m.usd.spend(m.fuel.consume) == 3
+    m.locate(m.plant)
+    m.usd.spend.opt()
+
+    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert m.program.formulation.ObjVal == pytest.approx(36)
+    assert m.plant.operate(m.hour).output(aslist=True) == pytest.approx([2, 4])
+    assert m.fuel.consume.output(aslist=True) == pytest.approx([12])
+
+
+def test_lagged_output_preserves_input_time():
+    m = Model()
+    m.hour = Periods()
+    m.shift = 2 * m.hour
+    m.usd = Currency()
+    m.fuel, m.power = Resource(), Resource()
+    m.fuel.consume(m.hour) <= [2, 10]
+    m.power.release >= 6
+    m.plant = Process()
+    m.plant(m.power, lag=-m.shift) == -1 * m.fuel
+    m.plant.operate(m.hour) >= 0
+    m.usd.spend(m.fuel.consume, m.hour) == [1, 3]
+    m.locate(m.plant)
+    m.usd.spend.opt()
+
+    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert m.fuel.consume(m.hour).output(aslist=True) == pytest.approx([2, 4])
+    assert m.program.formulation.ObjVal == pytest.approx(14)

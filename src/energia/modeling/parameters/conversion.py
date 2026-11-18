@@ -240,10 +240,9 @@ class Conversion(Mapping, _Hash):
     ):
         """Writes equations for conversion balance"""
         for res, par in self.items():
-
+            resource_time = time
             if res in self.model.balances:
-                time = self.time_checker(res, space, time)
-                _ = self.model.balances[res].get(space, {})
+                resource_time = self.time_checker(res, space, time)
 
             eff = par if isinstance(par, list) else [par]
 
@@ -256,17 +255,18 @@ class Conversion(Mapping, _Hash):
                 eff = [-e for e in eff]
             else:
                 # Production — may occur after lag
-                time = self.lag.of if self.lag else time
+                if self.lag:
+                    resource_time = self.lag.of
                 dependent = getattr(res, self.add)
 
             if modes:
-                rhs = dependent(decision, space, modes, time)
+                rhs = dependent(decision, space, modes, resource_time)
 
-                lhs = decision(space, modes, time)
+                lhs = decision(space, modes, resource_time)
             else:
-                rhs = dependent(decision, space, time)
+                rhs = dependent(decision, space, resource_time)
 
-                lhs = decision(space, time)
+                lhs = decision(space, resource_time)
 
             _ = lhs[rhs] == eff
 
