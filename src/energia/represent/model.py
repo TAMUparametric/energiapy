@@ -836,8 +836,13 @@ class Model:
 
     # * III Solution
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
-        """Solution"""
-        return self.program.output(n_sol=n_sol, slack=slack, compare=compare)
+        """Display a solution's objective and variable values.
+
+        :param n_sol: Index of the solution to display.
+        :param slack: Retained for compatibility. Has no effect on the display.
+        :param compare: Compare variable values across solutions.
+        """
+        return self.program.output(n_sol=n_sol, compare=compare)
 
     # ------------------------------------------------------------------------
     # * Solution Prep, Generation, and  Handling

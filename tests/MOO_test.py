@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from energia.library.examples.energy import supermarket
@@ -10,6 +12,13 @@ def m():
     _m.co2_vent.release.opt()
     _m._.lb(sum(_m._.consume))
     return _m
+
+
+def test_model_output(m):
+    assert m.output() is None
+    with patch.object(m.program, "output", wraps=m.program.output) as program_output:
+        assert m.output(1, False, compare=True) is None
+        program_output.assert_called_once_with(n_sol=1, compare=True)
 
 
 def test_supermarket(m):
