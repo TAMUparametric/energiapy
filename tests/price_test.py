@@ -70,6 +70,26 @@ def test_repeat_binding_reuses_the_price_parameter():
     assert m.eval(8.375)[m.cash.spend.V()[0]] == pytest.approx(16.75)
 
 
+@pytest.mark.parametrize(
+    "bounds, prices, expected",
+    [((5, 10), (1.5,), 7.5), ([(5, 6), (1, 100)], (0.11, 1.0), 3.22)],
+    ids=["shared", "hourly"],
+)
+def test_normalized_resource_price_keeps_its_intervals(bounds, prices, expected):
+    m = Model()
+    m.hour = Periods()
+    m.shift = 2 * m.hour
+    m.cash = Currency()
+    m.power = Resource()
+    m.power.consume(m.hour) >= 0
+    m.power.release(m.hour) == [2, 3]
+    m.cash.spend(m.power.consume, m.hour).prep(nominal=2) == bounds
+    assert m.program.n_thetas == len(prices)
+    m.cash.spend.obj()
+    m.solve()
+    assert m.eval(*prices)[m.cash.spend.V()[0]] == pytest.approx(expected)
+
+
 @pytest.mark.parametrize("compare", [operator.le, operator.ge], ids=["upper", "lower"])
 def test_interval_price_requires_equality(compare):
     m = Model()

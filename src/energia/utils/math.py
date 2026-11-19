@@ -1,5 +1,6 @@
 """Utilities to perform mathematical operations"""
 
+from itertools import batched
 from math import erf, exp, pi, sqrt
 
 import numpy
@@ -65,31 +66,35 @@ def generate_connectivity_matrix(scale_len) -> numpy.array:
 
 
 def normalize(data: list, how: str = "max") -> list:
+    """Normalize a series of values or (lower, upper) intervals.
+
+    The ``max`` method divides by the series maximum. If the maximum is
+    zero, it uses the largest magnitude, leaving an all-zero series at zero.
+    The ``min_max`` method maps the extrema to 0 and 1, or a constant to 0.
+    Interval endpoints share one scale. Nested lists are independent series.
+
+    :param data: Time-series values or (lower, upper) pairs.
+    :param how: Normalization method, either ``max`` or ``min_max``.
+    :return: Normalized values in the same grouping as the input.
     """
-    min max normalization of data
+    if how not in ("max", "min_max"):
+        message = f"Unknown normalization method {how!r}"
+        raise ValueError(message)
+    if len(data) == 0:
+        return []
+    first = next(iter(data))
+    if isinstance(first, list):
+        return [normalize(series, how) for series in data]
+    if isinstance(first, tuple):
+        if any(lower > upper for lower, upper in data):
+            message = "The lower bound must not exceed the upper bound"
+            raise ValueError(message)
+        endpoints = [value for interval in data for value in interval]
+        scaled = normalize(endpoints, how)
+        return [(min(pair), max(pair)) for pair in batched(scaled, 2)]
 
-    :param data: time-series data
-    :type data: numpy.array | DataFrame
-    :param how: min-max or max, defaults to "max"
-    :type how: str, optional
-
-    :return: normalized data
-    :rtype: numpy.array | DataFrame
-    """
-    if all(isinstance(i, tuple) for i in data):
-        # lower bound
-        lb = [i[0] for i in data]
-        # upper bound
-        ub = [i[1] for i in data]
-        # normalize lower and upper bounds individually
-        lb_norm = normalize(lb, how=how)
-        ub_norm = normalize(ub, how=how)
-        return list(zip(lb_norm, ub_norm))
-
-    if how == "min_max":
-        min_ = min(data)
-        max_ = max(data)
-        return [(i - min_) / (max_ - min_) for i in data]
-
-    if how == "max":
-        return [normalize(i) if isinstance(i, list) else i / max(data) for i in data]
+    offset = min(data) if how == "min_max" else 0
+    divisor = max(data) - offset
+    if divisor == 0:
+        divisor = abs(min(data) - offset) or 1
+    return [(value - offset) / divisor for value in data]
