@@ -62,7 +62,7 @@ class Program(Prg):
         - all the index sets are generated post initialization
     """
 
-    model: Model = None
+    model: Model | None = None
 
     def __post_init__(self):
         Prg.__post_init__(self)
@@ -72,7 +72,7 @@ class Program(Prg):
 
     def __getattr__(self, item):
 
-        if item in self.model.ancestry:
+        if self.model is not None and item in self.model.ancestry:
             index = I(mutable=True)
             setattr(self, item, index)
             return index

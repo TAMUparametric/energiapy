@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from .aspect import Aspect
 
@@ -59,7 +59,7 @@ class Recipe:
     latex: str = ""
 
     def __post_init__(self):
-        self.args = {
+        self.args: dict[str, Any] = {
             k: v
             for k, v in asdict(self).items()
             if k not in ("name", "kind") and (isinstance(v, bool) or v)

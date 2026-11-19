@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Self, Type
+from typing import TYPE_CHECKING, Any, Literal, Type
 
 from dill import dump
 
@@ -63,6 +63,8 @@ logger.addHandler(ch)
 if TYPE_CHECKING:
     from enum import Enum
     from typing import DefaultDict
+
+    from gana import V
 
     from .._core._component import _Component
     from ..components.commodities.commodity import Commodity
@@ -136,13 +138,13 @@ class Model:
     """
 
     name: str = "m"
-    init: list[Callable[[Self]]] | None = None
+    init: list[Callable[[Model], object]] | None = None
     default: bool = True
     capacitate: bool = False
 
     def __post_init__(self):
 
-        self.reserved_names = []
+        self.reserved_names: list[str | tuple[str, ...]] = []
 
         # what components have been added to the model
         self.added: list[str] = []
@@ -153,7 +155,7 @@ class Model:
         # * Component Mapping to Dimension and Collection
         # --------------------------------------------------------------------
         # Dimensions in brackets
-        self.familytree = {
+        self.familytree: dict[type[Any], tuple[str, str]] = {
             # * I Temporal (Time):
             # 1.  Periods (Periods) generates a bespoke discretization.
             Periods: ("time", "periods"),
@@ -303,7 +305,7 @@ class Model:
         # --------------------------------------------------------------------
         # if any of these attributes are called,
         # or an exiting one is returned
-        self.default_components = {
+        self.default_components: dict[str, Callable[[], Location | Periods | Currency]] = {
             "l": self._l0,
             "l0": self._l0,
             "t0": self._t0,
@@ -884,9 +886,9 @@ class Model:
     # * Solution evaluation
     def eval(
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
-    ) -> list[float]:
+    ) -> dict[V, float]:
         """
-        Evaluate the objective function at given theta values
+        Evaluate the model variables at given theta values
 
         :param theta_vals: values for the parametric variables
         :type theta_vals: float
@@ -895,8 +897,8 @@ class Model:
         :param roundoff: number of decimal places to round off to, defaults to 4
         :type roundoff: int, optional
 
-        :return: list of objective function values
-        :rtype: list[float]
+        :return: evaluated values keyed by model variable
+        :rtype: dict[V, float]
         """
         return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
 
@@ -955,7 +957,7 @@ class Model:
     # * Attribute Setting and Getting
     # -------------------------------------------------------------------
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
 
         if isinstance(value, (str, dict, list, bool)) or value is None:
             # if value is a string, dict, list or bool
@@ -1040,15 +1042,15 @@ class Model:
         # maps many attribute names to aspects
         if name in self.directory:
             # if this is an attribute being called for the first time
-            recipe = self.directory[name]
-            aspect_name = list(recipe.keys())[0]
+            recipes = self.directory[name]
+            aspect_name = list(recipes)[0]
 
             if aspect_name in self.added:
                 # if same aspect is called by a different name
                 return getattr(self, aspect_name)
 
             # these are the arguments for the aspect
-            recipe = recipe[aspect_name]
+            recipe = recipes[aspect_name]
             aspect = recipe.kind(**recipe.args)
 
             setattr(self, aspect_name, aspect)
@@ -1065,7 +1067,7 @@ class Model:
     # * Call to Initialize using functions and Hashing
     # ---------------------------------------------------------------
 
-    def __call__(self, *funcs: Callable[[Self]]):
+    def __call__(self, *funcs: Callable[[Model], object]):
         """Set functions on the model
 
         These can include default units
