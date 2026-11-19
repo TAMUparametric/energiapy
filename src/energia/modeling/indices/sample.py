@@ -627,7 +627,6 @@ class Sample(_Hash):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def bar(
         self,
         font_size: float = 16,
@@ -650,7 +649,6 @@ class Sample(_Hash):
             str_idx_lim=str_idx_lim,
         )
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def line(
         self,
         font_size: float = 16,

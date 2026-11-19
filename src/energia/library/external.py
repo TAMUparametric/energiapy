@@ -26,7 +26,6 @@ except ImportError:
     import_all = True
 
 
-# ruff: ignore[PLR0917]  # Preserve positional calls.
 def pvlib(
     data: DataFrame,
     coord: tuple[float, float],
@@ -101,7 +100,6 @@ def pvlib(
     return [float(i) for i in array]
 
 
-# ruff: ignore[PLR0917]  # Preserve positional calls.
 def windpowerlib(
     data: DataFrame,
     roughness_length: float = 0.1,

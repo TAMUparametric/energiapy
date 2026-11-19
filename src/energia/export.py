@@ -5,10 +5,7 @@ from pathlib import Path
 
 def main():
     # Notebook export dependencies are installed with the docs extra.
-    # ruff: ignore[PLC0415]
     import nbformat
-
-    # ruff: ignore[PLC0415]
     from nbconvert import PythonExporter
 
     # Example: export all notebooks from docs/examples

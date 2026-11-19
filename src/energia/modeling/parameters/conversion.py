@@ -76,7 +76,6 @@ class Conversion(Mapping, _Hash):
         - Storage contains two processes (charge and discharge), hence is provided separately
     """
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def __init__(
         self,
         aspect: str = "",
@@ -134,7 +133,6 @@ class Conversion(Mapping, _Hash):
         }
 
     @classmethod
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def from_balance(
         cls,
         balance: dict[Commodity, float | list[float]],

@@ -511,7 +511,6 @@ class Model:
         value: _X,
         represent: str,
         collection: str,
-        # ruff: ignore[ARG002]  # Public keyword.
         aspects: list[str] | None = None,
     ):
         """
@@ -528,6 +527,7 @@ class Model:
         :param aspects: Retained for compatibility with callers using this keyword.
         :type aspects: list[str], optional
         """
+        del aspects  # Retained for callers of the original signature.
         value.name = name
         # every component is handed the model
         value.model = self
@@ -581,7 +581,6 @@ class Model:
     # -------------------------------------------------------------------
     # These take an action on attribute inputs
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def Recipe(
         self,
         name: str,
@@ -717,7 +716,6 @@ class Model:
         recipe = self.cookbook[of]
         self.directory = {**self.directory, **{name: {of: recipe} for name in names}}
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def Instruction(
         self,
         name: str,
@@ -891,7 +889,6 @@ class Model:
             self.program.draw(n_sol=n_sol)
 
     # * III Solution
-    # ruff: ignore[ARG002]  # Public slack argument.
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """
         Display a solution's objective and variable values.
@@ -900,6 +897,7 @@ class Model:
         :param slack: Retained for compatibility. Has no effect on the display.
         :param compare: Compare variable values across solutions.
         """
+        del slack  # Display options are handled by Gana.
         return self.program.output(n_sol=n_sol, compare=compare)
 
     # ------------------------------------------------------------------------

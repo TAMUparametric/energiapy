@@ -57,7 +57,6 @@ class Bind:
     :vartype program: Prg
     """
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def __init__(
         self,
         sample: Sample,

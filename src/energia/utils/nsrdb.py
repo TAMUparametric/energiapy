@@ -16,7 +16,6 @@ except ImportError:
     import_all = True
 
 
-# ruff: ignore[PLR0917]  # Preserve positional calls.
 def fetch_nsrdb_data(
     attrs: list[str],
     year: int,

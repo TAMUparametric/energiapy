@@ -19,6 +19,19 @@ ignore = ["E501", "RET505", "E731", "B905", "PLR0913", "ARG001", "B028","PLW1641
 exclude = ['tests', 'docs', '.github']
 
 [per-file-ignores]
+# These published constructors and helpers accept positional arguments.
+# Tightening their signatures would break existing Energia models.
+"src/energia/components/temporal/periods.py" = ["PLR0917"]
+"src/energia/library/external.py" = ["PLR0917"]
+"src/energia/modeling/constraints/bind.py" = ["PLR0917"]
+"src/energia/modeling/indices/sample.py" = ["PLR0917"]
+"src/energia/modeling/parameters/conversion.py" = ["PLR0917"]
+"src/energia/modeling/parameters/conversions.py" = ["PLR0917"]
+"src/energia/modeling/parameters/instruction.py" = ["PLR0917"]
+"src/energia/represent/model.py" = ["PLR0917"]
+"src/energia/utils/nsrdb.py" = ["PLR0917"]
+# The notebook exporter loads its optional docs dependencies only when called.
+"src/energia/export.py" = ["PLC0415"]
 
 [mccabe]
 max-complexity = 10

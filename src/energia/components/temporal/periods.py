@@ -56,7 +56,6 @@ class Periods(_X):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    # ruff: ignore[PLR0917]  # Preserve positional calls.
     def __init__(
         self,
         size: int | float = 1,
