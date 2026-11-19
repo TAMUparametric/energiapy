@@ -56,8 +56,8 @@ class Currency(Commodity):
         if self.locs:
             for loc in self.locs:
                 loc.currency = self
-                for l in loc.alsohas:
-                    l.currency = self
+                for child in loc.alsohas:
+                    child.currency = self
 
     def howmany(self, cash: Self):
         """
@@ -86,7 +86,8 @@ class Currency(Commodity):
         #         self.conversion[list(self.conversion)[0]]
         #         / cash.conversion[list(cash.conversion)[0]]
         #     )
-        raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
+        message = f"{cash} does not have an exchange rate set {self.name}"
+        raise ValueError(message)
 
     def _compare_currency(self, other: Self) -> bool:
         """Compare two currencies for equality."""
@@ -98,19 +99,20 @@ class Currency(Commodity):
 
     def _set_exchange(self, other: Conversion) -> bool:
         """Set exchange rates between two currencies."""
-        currency: Self = list(other.balance.keys())[0]
+        if not other.balance:
+            message = "list index out of range"
+            raise IndexError(message)
+        currency: Self = next(iter(other.balance))
         rate: float = other.balance[currency]
 
         # set the exchange rate of self against other
         self.exchange[currency] = rate
 
         for ex in currency.exchange:
-
             if ex not in self.exchange:
                 self.exchange[ex] = rate / currency.exchange[ex]
 
                 if self not in ex.exchange:
-
                     ex.exchange[self] = ex.exchange[currency] / rate
 
                 # if self not in ex.exchange:
@@ -123,13 +125,9 @@ class Currency(Commodity):
     def __eq__(self, other):
         """Set reciprocal rates from a conversion, or record a unit rate for a distinct currency."""
         if isinstance(other, Currency):
-
             return self._compare_currency(other)
 
         elif isinstance(other, Conversion):
-
             return self._set_exchange(other)
 
         return False
-
-

@@ -54,7 +54,7 @@ def make_henry_price_df(
                         pd.DataFrame.from_records(
                             [
                                 {
-                                    "CH4": df["CH4"][df["doy"] == 2].values[0],
+                                    "CH4": df["CH4"][df["doy"] == i + 1].values[0],
                                     "month": 1,
                                     "day": 1,
                                     "year": year,
@@ -87,15 +87,13 @@ def make_henry_price_df(
     df["CH4"] = df["CH4"] / 22.4  # convert from $/MMBtu to $/kg
     df = df[["CH4", "doy"]].rename(columns={"doy": "day"})
     if stretch is False:
-        df = df
         df["scales"] = [(0, int(i - 1)) for i in df["day"]]
 
     else:
         df = df.loc[df.index.repeat(24)].reset_index(drop=True)
         df["hour"] = [int(i) for i in range(0, 24)] * 365
         df["scales"] = [(0, int(i - 1), int(j)) for i, j in zip(df["day"], df["hour"])]
-    df = df[["CH4", "scales"]]
-    return df
+    return df[["CH4", "scales"]]
 
 
 def remove_outliers(

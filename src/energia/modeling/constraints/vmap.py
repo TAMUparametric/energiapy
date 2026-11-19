@@ -37,7 +37,11 @@ class Map:
     """
 
     def __init__(
-        self, aspect: Aspect, domain: Domain, reporting=False, label: str = ""
+        self,
+        aspect: Aspect,
+        domain: Domain,
+        reporting=False,
+        label: str = "",
     ):
         """Register the domain and map unlagged samples across time, space, and modes."""
         self.aspect = aspect
@@ -64,7 +68,7 @@ class Map:
     # -------------------------------------------------------------------#
     # Helper functions
     # -------------------------------------------------------------------#
-    @timer(logger, kind='map')
+    @timer(logger, kind="map")
     def write(self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False):
         """Scales up variable to a lower dimension."""
         # 1. a new domain is being added to a new disposition
@@ -93,7 +97,7 @@ class Map:
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
         if self._check_validity():
-            return
+            return None
 
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
         dimension = (to_domain - from_domain)[0]
@@ -202,7 +206,6 @@ class Map:
 
         for space in self.domain.space.has:
             if space in self.dispositions and self.time in self.dispositions[space]:
-
                 # get deciding samples if they exist
                 samples = [
                     aspect(component)
@@ -212,7 +215,6 @@ class Map:
                     for component in components
                 ]
                 for sample in samples:
-
                     if self.domain.linkage:
                         self.write(
                             self.domain.edit({"linkage": space, "samples": [sample]}),
@@ -255,7 +257,8 @@ class Map:
             return
 
         if not self._special_modes_check(
-            self.domain, self.domain.edit({"modes": None})
+            self.domain,
+            self.domain.edit({"modes": None}),
         ):
             return
 
@@ -340,6 +343,7 @@ class Map:
             or self.time not in self.dispositions[self.space]
         ):
             return True
+        return None
 
     def _inform(self, from_domain: Domain):
         """Inform components of new constraint."""

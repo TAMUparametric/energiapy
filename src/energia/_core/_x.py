@@ -67,7 +67,8 @@ class _X(ABC, _Hash):
     def program(self) -> Prg:
         """Mathematical program."""
         if self.model is None:
-            raise AttributeError(f"{type(self)} needs to be assign as Model attribute")
+            message = f"{type(self)} needs to be assign as Model attribute"
+            raise AttributeError(message)
         return self.model.program
 
     @property
@@ -79,7 +80,7 @@ class _X(ABC, _Hash):
 
     @property
     @abstractmethod
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Gana index set."""
 
     def show(self, descriptive=False, category: str = ""):
@@ -96,5 +97,5 @@ class _X(ABC, _Hash):
     def __eq__(self, other: object) -> bool:
         try:
             return str(self) == str(other)
-        except Exception:
-            super().__eq__(other)
+        except Exception:  # noqa: BLE001, RUF100 -- arbitrary objects may fail to render
+            return None

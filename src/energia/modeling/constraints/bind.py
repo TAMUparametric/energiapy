@@ -57,7 +57,7 @@ class Bind:
     :vartype program: Prg
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         sample: Sample,
         parameter: (
@@ -158,7 +158,8 @@ class Bind:
             return False
         values = self.parameter
         return isinstance(values, tuple) or (
-            isinstance(values, list) and any(isinstance(value, tuple) for value in values)
+            isinstance(values, list)
+            and any(isinstance(value, tuple) for value in values)
         )
 
     def _bind_unit_price(self):
@@ -211,7 +212,7 @@ class Bind:
             # if a non iterable is passed, let an error be raised
 
             # if the sample needs to be normalized
-            _parameter = [
+            return [
                 (
                     (self.nominal * i[0], self.nominal * i[1])
                     if isinstance(i, tuple)
@@ -219,7 +220,6 @@ class Bind:
                 )
                 for i in _parameter
             ]
-            return _parameter
         return _parameter
 
     @cached_property
@@ -314,7 +314,6 @@ class Bind:
     def _write_forall(self):
         """Writes the bind constraint for all elements in the set."""
         for n, idx in enumerate(self.forall):
-
             lhs, rhs = self.sample(idx), self.parameter[n]
 
             if self.leq:

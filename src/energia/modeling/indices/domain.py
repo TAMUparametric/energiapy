@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from .sample import Sample
 
 
+_ROOT_DIMENSIONS = 3
+
+
 @dataclass
 class Domain(_Hash):
     """
@@ -133,7 +136,8 @@ class Domain(_Hash):
         """Primary component."""
         _primary = self.stream or self.operation or self.samples
         if not _primary:
-            raise ValueError("Domain must have at least one primary index")
+            message = "Domain must have at least one primary index"
+            raise ValueError(message)
         return _primary
 
     @property
@@ -181,9 +185,7 @@ class Domain(_Hash):
     @property
     def isroot(self) -> bool:
         """Test for an unlagged domain with three index dimensions."""
-        if not self.lag and self.size == 3:
-            return True
-        return False
+        return not self.lag and self.size == _ROOT_DIMENSIONS
 
     @property
     def isrootroot(self) -> bool:
@@ -374,7 +376,7 @@ class Domain(_Hash):
         return list(self._.values())
 
     @cached_property
-    def I(self) -> list[Idx | list[V]]:
+    def I(self) -> list[Idx | list[V]]:  # noqa: E743, RUF100 -- public Gana index
         """List of I."""
         _I = []
         for idx in self.index:

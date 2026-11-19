@@ -38,12 +38,12 @@ def flatten(d: dict, key: tuple = ()) -> dict:
     :rtype: dict
     """
     items = []
-    for key, val in d.items():
-        keyupd = key + (key,)
+    for child, val in d.items():
+        child_path = (*key, child)
         if isinstance(val, dict):
-            items.extend(flatten(val, keyupd).items())
+            items.extend(flatten(val, child_path).items())
         else:
-            items.append((keyupd, val))
+            items.append((child_path, val))
     return dict(items)
 
 
@@ -62,7 +62,7 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
     result = []
 
     for k, v in d.items():
-        path_ = path + (k,)
+        path_ = (*path, k)
         result.append(path_)
 
         if isinstance(v, dict):
@@ -70,7 +70,7 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
 
         if isinstance(v, set):
             for v_ in v:
-                result.append(path_ + (v_,))
+                result.append((*path_, v_))
 
     return result
 
@@ -162,7 +162,11 @@ def merge_tree_levels(d):
         if child_levels:
             next_levels.append(child_levels)
 
-    # merge next_levels by depth
+    return [current_level, *_merge_by_depth(next_levels)]
+
+
+def _merge_by_depth(next_levels):
+    """Merge distinct items at each depth in encounter order."""
     merged_next_levels = []
     for group in next_levels:
         for i, lvl in enumerate(group):
@@ -173,4 +177,4 @@ def merge_tree_levels(d):
                 if item not in merged_next_levels[i]:
                     merged_next_levels[i].append(item)
 
-    return [current_level] + merged_next_levels
+    return merged_next_levels

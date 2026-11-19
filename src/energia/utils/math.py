@@ -36,8 +36,7 @@ def find_euclidean_distance(a: list, b: list) -> float:
     :rtype: float
     """
     distance_ = [(a - b) ** 2 for a, b in zip(a, b)]
-    distance_ = sum(distance_)
-    return distance_
+    return sum(distance_)
 
 
 def generate_connectivity_matrix(scale_len) -> numpy.array:
@@ -61,7 +60,6 @@ def generate_connectivity_matrix(scale_len) -> numpy.array:
     """
     connect_ = numpy.zeros((scale_len, scale_len), dtype=int)
     for i_ in range(len(connect_)):
-
         if i_ == 0:
             # connect_[i,364] = 1 #uncomment these to generate a cyclic matrix
             connect_[i_, 1] = 1

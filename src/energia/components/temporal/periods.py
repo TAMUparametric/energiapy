@@ -56,7 +56,7 @@ class Periods(_X):
     :vartype aspects: dict[Aspect, list[Domain]]
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         size: int | float = 1,
         of: Self | None = None,
@@ -100,6 +100,7 @@ class Periods(_X):
         """Is used to define another period?"""
         if self.of is None:
             return True
+        return None
 
     def ishorizon(self) -> bool:
         """Is this the horizon of the model?"""
@@ -129,7 +130,7 @@ class Periods(_X):
         return self.model.time
 
     @cached_property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Index tuple."""
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
@@ -140,7 +141,7 @@ class Periods(_X):
             return self.of.I[self.n]
 
         if self.isof:
-            return self.isof[0].I + (self.i,)
+            return (*self.isof[0].I, self.i)
         return (self.i,)
 
     @cached_property
@@ -174,12 +175,13 @@ class Periods(_X):
         for attempt in attempts:
             try:
                 result = attempt()
-                self._howmany[of] = result
-                return result
             except NotFoundError:
                 continue
+            self._howmany[of] = result
+            return result
 
-        raise ValueError(f"No common basis between {self} and {of}")
+        message = f"No common basis between {self} and {of}"
+        raise ValueError(message)
 
     def __mul__(self, times: int | float):
         """Create a scaled period, a lag for a negative factor, or zero for a zero factor."""

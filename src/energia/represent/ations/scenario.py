@@ -30,7 +30,8 @@ class Scenario(_Hash):
     ):
         """Update the scenario representation."""
         self._ = merge_trees(
-            self._, {sample.aspect: sample.domain.param_tree(parameter, rel)}
+            self._,
+            {sample.aspect: sample.domain.param_tree(parameter, rel)},
         )
 
     def __getitem__(self, item):

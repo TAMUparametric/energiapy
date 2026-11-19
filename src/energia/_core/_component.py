@@ -113,13 +113,13 @@ class _Component(_X):
     def _handle_x(self, aspect: str, sample: Sample) -> Sample:
         """Check if aspect is optional."""
         if (
-            aspect + '_optional' in self.parameters
-            and self.parameters[aspect + '_optional']
+            aspect + "_optional" in self.parameters
+            and self.parameters[aspect + "_optional"]
         ):
             return sample.x
         if (
-            aspect + '_report' in self.parameters
-            and self.parameters[aspect + '_report']
+            aspect + "_report" in self.parameters
+            and self.parameters[aspect + "_report"]
         ):
             return sample.x
 
@@ -130,11 +130,9 @@ class _Component(_X):
 
         # this handles the parameters being set on init
         if name == "model" and value is not None:
-
             model: Model = value
 
             for attr, param in self.parameters.items():
-
                 if attr in model.manual:
                     _ = getattr(self, attr) == param
                     continue
@@ -142,7 +140,7 @@ class _Component(_X):
                 # attributes name expected here are of the format <aspect>_<bound>
                 # for exact equality, just <aspect>
 
-                split_attr = attr.split('_')
+                split_attr = attr.split("_")
                 # irrespective of exact or bound, first part is always the aspect
                 aspect = split_attr[0]
 
@@ -154,7 +152,8 @@ class _Component(_X):
 
                     if isinstance(param, list):
                         sample = self._handle_x(
-                            aspect, self._handle_norm(aspect, sample)
+                            aspect,
+                            self._handle_norm(aspect, sample),
                         )
 
                     else:
@@ -168,7 +167,6 @@ class _Component(_X):
                     # else, check if lower or upper bound
 
                     elif split_attr[1] in ["max", "ub", "UB", "leq"]:
-
                         _ = sample <= param
 
                     elif split_attr[1] in ["min", "lb", "LB", "geq"]:
@@ -176,9 +174,8 @@ class _Component(_X):
 
                 else:
                     # error if type mismatch
-                    raise AttributeError(
-                        f"Parameter {attr} valid for {self.model.cookbook[aspect].primary_type} not {type(self).__name__}"
-                    )
+                    message = f"Parameter {attr} valid for {self.model.cookbook[aspect].primary_type} not {type(self).__name__}"
+                    raise AttributeError(message)  # noqa: TRY004, RUF100 -- invalid component attribute
 
     def __getattr__(self, name):
 
@@ -188,12 +185,11 @@ class _Component(_X):
             aspect = getattr(self.model, name)
             if callable(aspect):
                 return aspect(self)
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'",
-        )
+        message = f"'{type(self).__name__}' object has no attribute '{name}'"
+        raise AttributeError(message)
 
     @cached_property
-    def I(self):
+    def I(self):  # noqa: E743, RUF100 -- public Gana index
         """Return the Gana index set for this component."""
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)

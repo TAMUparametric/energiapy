@@ -48,5 +48,9 @@ class Emission(Commodity):
     ):
         """Create an emission measured in the optional basis unit."""
         Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self,
+            basis=basis,
+            label=label,
+            citations=citations,
+            **kwargs,
         )

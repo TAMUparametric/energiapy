@@ -29,7 +29,7 @@ class Instruction(_Name):
     :raises TypeError: If the component provided is not of the correct kind.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         name: str,
         kind: Type[_Component],
@@ -55,7 +55,6 @@ class Instruction(_Name):
         # there has to be a model
 
         if isinstance(component, self.kind):
-
             self.model = component.model
 
             default_comp = self.model.default_components[self.default]()
@@ -65,6 +64,5 @@ class Instruction(_Name):
 
             return deciding[depending]
 
-        raise TypeError(
-            f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
-        )
+        message = f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
+        raise TypeError(message)

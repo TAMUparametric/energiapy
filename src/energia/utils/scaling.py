@@ -6,7 +6,7 @@ from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataFrame:
+def scaling(data: DataFrame, how: Literal["max", "minmax", "standard"]) -> DataFrame:
     """
     Scale each DataFrame column independently and retain both axes.
 
@@ -31,7 +31,8 @@ def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataF
             assert scaled["power"].tolist() == [0.5, 1.0]
     """
     if not isinstance(data, DataFrame):
-        raise ValueError("please provide DataFrame")
+        message = "please provide DataFrame"
+        raise ValueError(message)  # noqa: TRY004, RUF100 -- preserve the public validation error
 
     if how == "max":
         maxima = data.max()

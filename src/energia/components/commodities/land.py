@@ -48,5 +48,9 @@ class Land(Commodity):
     ):
         """Create a land commodity measured in the optional basis unit."""
         Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self,
+            basis=basis,
+            label=label,
+            citations=citations,
+            **kwargs,
         )

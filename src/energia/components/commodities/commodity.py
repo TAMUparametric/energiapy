@@ -42,7 +42,11 @@ class Commodity(_Component, Mapping):
     """
 
     def __init__(
-        self, basis: Unit | None = None, label: str = "", citations: str = "", **kwargs
+        self,
+        basis: Unit | None = None,
+        label: str = "",
+        citations: str = "",
+        **kwargs,
     ):
         """Record the unit basis and initialize the commodity's conversion history."""
         self.basis = basis
@@ -60,6 +64,7 @@ class Commodity(_Component, Mapping):
         # if no conversion is set, return 1.0
         if not self.conversions:
             return {self: 1.0}
+        return None
         # if there is a conversion, return its parameter in all tasks its
         # associated with
         # TODO: mute when ready to set conversions on commodity
@@ -122,8 +127,7 @@ class Commodity(_Component, Mapping):
             return conv
 
         if isinstance(other, int | float):
-            conv = Conversion(resource=self, hold=other)
-            return conv
+            return Conversion(resource=self, hold=other)
 
         return super().__eq__(other)
 

@@ -66,7 +66,11 @@ class Resource(Commodity):
     ):
         """Create a resource with no associated inventory until it is linked to storage."""
         Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self,
+            basis=basis,
+            label=label,
+            citations=citations,
+            **kwargs,
         )
 
         # base resource, if any in conversion

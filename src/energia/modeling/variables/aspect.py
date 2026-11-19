@@ -38,6 +38,22 @@ if TYPE_CHECKING:
     from ...represent.model import Model
 
 
+_INDEX_FIELDS = {
+    Periods: ("periods", "timed", False),
+    Lag: ("lag", "timed", False),
+    Location: ("location", "spaced", False),
+    Linkage: ("linkage", "spaced", False),
+    Process: ("process", None, True),
+    Storage: ("storage", None, True),
+    Transport: ("transport", None, True),
+    Player: ("player", None, False),
+    Interact: ("couple", None, False),
+    Indicator: ("indicator", None, False),
+    Modes: ("modes", None, False),
+    Commodity: ("commodity", None, True),
+}
+
+
 @dataclass
 class Aspect:
     r"""
@@ -182,7 +198,7 @@ class Aspect:
         return self.model.time
 
     @property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Return the Gana index set for this component."""
         return getattr(self.program, self.name)
 
@@ -207,7 +223,9 @@ class Aspect:
         return self.model.horizon
 
     @property
-    def dispositions(self) -> dict[
+    def dispositions(
+        self,
+    ) -> dict[
         Self,
         dict[
             Commodity | Process | Storage | Transport,
@@ -283,9 +301,8 @@ class Aspect:
 
     def gettime(self, *index) -> list[Periods]:
         """Finds the sparsest time scale in the domains."""
-        ds = [i for i in self.indices if all([x in i for x in index])]
-        t = [t for t in ds if isinstance(t, Periods)]
-        return t
+        ds = [i for i in self.indices if all(x in i for x in index)]
+        return [t for t in ds if isinstance(t, Periods)]
 
     def Map(self, domain: Domain, reporting: bool = False):
         """Map the aspect to the domain."""
@@ -317,8 +334,26 @@ class Aspect:
         """Look up the dispositions registered for a component."""
         return self.dispositions[item]
 
+    def _index_field(self, component):
+        """Return the domain field and optional axis for a supported index."""
+        for kind, (field, axis, primary) in _INDEX_FIELDS.items():
+            if isinstance(component, kind):
+                if not primary or (
+                    self.primary_type and isinstance(component, self.primary_type)
+                ):
+                    return field, axis
+                break
+        message = (
+            f"For component {self} of type {type(self)}: "
+            f"{component} of type {type(component)} not recognized as an index"
+        )
+        raise ValueError(message)
+
     def __call__(
-        self, *index: _X, domain: Domain | None = None, report=False
+        self,
+        *index: _X,
+        domain: Domain | None = None,
+        report=False,
     ) -> Sample:
         """
         Select a sample by its component, space, time, and optional operating mode.
@@ -336,39 +371,10 @@ class Aspect:
                 assert output.domain.periods is m.hour
         """
         if not domain:
-
-            args = {
-                "indicator": None,
-                "commodity": None,
-                "player": None,
-                "process": None,
-                "storage": None,
-                "transport": None,
-                "periods": None,
-                "couple": None,
-                "location": None,
-                "linkage": None,
-                "lag": None,
-                "modes": None,
-            }
-
-            type_map = {
-                Periods: ("periods", "timed", False),
-                Lag: ("lag", "timed", False),
-                Location: ("location", "spaced", False),
-                Linkage: ("linkage", "spaced", False),
-                Process: ("process", None, True),
-                Storage: ("storage", None, True),
-                Transport: ("transport", None, True),
-                Player: ("player", None, False),
-                Interact: ("couple", None, False),
-                Indicator: ("indicator", None, False),
-                Modes: ("modes", None, False),
-                Commodity: ("commodity", None, True),
-            }
+            args = {}
+            flags = set()
 
             samples: list[Sample] = []
-            timed, spaced = False, False
 
             for comp in index:
                 if isinstance(comp, Sample):
@@ -379,31 +385,12 @@ class Aspect:
                     samples = list(dict.fromkeys(samples))
                     continue
 
-                for typ, (attr, flag, require_primary) in type_map.items():
-                    if isinstance(comp, typ):
-                        if require_primary and (
-                            not self.primary_type
-                            or not isinstance(comp, self.primary_type)
-                        ):
-                            raise ValueError(
-                                f"For component {self} of type {type(self)}: "
-                                f"{comp} of type {type(comp)} not recognized as an index",
-                            )
-                        if not args[attr]:
-                            args[attr] = comp
-                        if flag == "timed":
-                            timed = True
-                        elif flag == "spaced":
-                            spaced = True
-                        break
-                else:
-                    raise ValueError(
-                        f"For component {self} of type {type(self)}: "
-                        f"{comp} of type {type(comp)} not recognized as an index",
-                    )
+                attr, flag = self._index_field(comp)
+                if not args.get(attr):
+                    args[attr] = comp
+                flags.add(flag)
 
-            args = {k: v for k, v in args.items() if v is not None}
-
+            timed, spaced = "timed" in flags, "spaced" in flags
             if samples:
                 args["samples"] = samples
 
@@ -413,7 +400,11 @@ class Aspect:
             timed = spaced = True
 
         return Sample(
-            aspect=self, domain=domain, timed=timed, spaced=spaced, report=report
+            aspect=self,
+            domain=domain,
+            timed=timed,
+            spaced=spaced,
+            report=report,
         )
 
     def __str__(self):

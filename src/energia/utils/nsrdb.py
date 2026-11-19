@@ -16,7 +16,7 @@ except ImportError:
     import_all = True
 
 
-def fetch_nsrdb_data(
+def fetch_nsrdb_data(  # noqa: PLR0917, RUF100 -- preserve positional calls
     attrs: list[str],
     year: int,
     lat_lon: tuple[float] | None = None,
@@ -88,7 +88,7 @@ def fetch_nsrdb_data(
         # population(get_metric)]
         get_metric = get.split("-")[1]
 
-        if get.split("-")[0] == "min":
+        if get.split("-", maxsplit=1)[0] == "min":
             latitude = float(
                 county_data["latitude"][
                     county_data[get_metric] == min(county_data[get_metric])
@@ -104,7 +104,7 @@ def fetch_nsrdb_data(
                 & (county_data["longitude"] == longitude)
             ]
 
-        if get.split("-")[0] == "max":
+        if get.split("-", maxsplit=1)[0] == "max":
             latitude = float(
                 county_data["latitude"][
                     county_data[get_metric] == max(county_data[get_metric])

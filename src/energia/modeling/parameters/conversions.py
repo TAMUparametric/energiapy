@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class Production(Conversion):
     """Process Production."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         operation: Operation | Storage | None = None,
         resource: Commodity | None = None,
@@ -47,14 +47,14 @@ class Production(Conversion):
 class Construction(Conversion):
     """Operation Construction Conversion."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         operation: Operation | Storage | None = None,
         aspect: str = "capacity",
         resource: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
-        symbol: str = "γ",
+        symbol: str = "\N{GREEK SMALL LETTER GAMMA}",
         use_max_time: bool = True,
     ):
         """Tie resource disposal and use to a change in installed capacity."""
@@ -76,7 +76,7 @@ class Construction(Conversion):
 class Transportation(Conversion):
     """Transport Conversion."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         operation: Operation | Storage | None = None,
         resource: Commodity | None = None,
@@ -103,7 +103,10 @@ class Transportation(Conversion):
     # overwrite, since transportation balance is slightly different
     def write(self, space: Linkage, time: Periods | Lag, modes: Modes | None = None):
         """Writes equations for conversion balance."""
-        res = list(self)[0]
+        if not self.balance:
+            message = "list index out of range"
+            raise IndexError(message)
+        res = next(iter(self))
 
         par = self[res]
 

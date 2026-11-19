@@ -115,7 +115,7 @@ class Space(_Dimension):
 
         # sum up all not nested locations to make a network
         ntw = sum(not_nested)
-        setattr(self.model, "ntw", ntw)
+        self.model.ntw = ntw
         return ntw
 
     @property
@@ -137,7 +137,9 @@ class Space(_Dimension):
         return self.locations + self.linkages
 
     def _lower(
-        self, loc: Location, hierarchy: dict[int, list[Location]]
+        self,
+        loc: Location,
+        hierarchy: dict[int, list[Location]],
     ) -> list[Location]:
         """Return all locations at lower hierarchy than loc."""
         if loc.hierarchy + 1 in hierarchy:
@@ -145,13 +147,13 @@ class Space(_Dimension):
         return []
 
     def _upper(
-        self, loc: Location, hierarchy: dict[int, list[Location]]
+        self,
+        loc: Location,
+        hierarchy: dict[int, list[Location]],
     ) -> Location | None:
         """Return Location at higher hierarchy than loc."""
-        try:
-            return [lc for lc in hierarchy[loc.hierarchy - 1] if loc in lc.has][0]
-        except IndexError:
-            return None
+        parents = hierarchy[loc.hierarchy - 1]
+        return next((parent for parent in parents if loc in parent.has), None)
 
     def split(self, loc: Location) -> tuple[list[Location], Location | None]:
         """Gives a list of locations at a higher and lower hierarchy than loc."""

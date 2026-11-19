@@ -67,7 +67,7 @@ class Modes(_X):
         return [Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)]
 
     @cached_property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Index set of modes."""
         if self.parent:
             _ = self.parent.I  # makes sure the parent is indexed
@@ -90,17 +90,11 @@ class Modes(_X):
         # overwrite X.cons property
         # this gets the actual constraint objects from the program
         # based on the pname (attribute name) in the program
+        constraints = super().cons
         if self.parent:
-            return [getattr(self.program, c) for c in self.constraints]
-        return list(
-            set(
-                [getattr(self.program, c) for c in self.constraints]
-                + sum(
-                    [m.cons for m in self],
-                    [],
-                )
-            )
-        )
+            return constraints
+        constraints.extend(c for mode in self for c in mode.cons)
+        return list(set(constraints))
 
     def __eq__(self, other: Modes) -> bool:
         """Compare two modes by their assigned names."""

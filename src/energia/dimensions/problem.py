@@ -114,15 +114,19 @@ class Problem(_Dimension):
                 return {d: [dom.tup for dom in d.domains] for d in keysset if d.domains}
             return {d: getattr(d, values) for d in keysset if getattr(d, values)}
 
-        if keys in ["domains"]:
-            dict_ = {d: [] for d in self.domains}
+        if keys == "domains":
+            return self._values_by_domain(values)
 
-            for dom in self.domains:
-                for val in self.get(keys=values, values=keys):
-                    if dom in self.get(keys=values, values=keys)[val]:
-                        dict_[dom].append(val)
-            return {k.tup: v for k, v in dict_.items() if v}
+        message = "keys must be one of aspects, states, controls, streams, consequences, domains"
+        raise ValueError(message)
 
-        raise ValueError(
-            "keys must be one of aspects, states, controls, streams, consequences, domains",
-        )
+    def _values_by_domain(self, values):
+        """Group the selected problem values by domain."""
+        dict_ = {d: [] for d in self.domains}
+
+        by_value = self.get(keys=values, values="domains") if dict_ else {}
+        for dom in self.domains:
+            for val, domains in by_value.items():
+                if dom in domains:
+                    dict_[dom].append(val)
+        return {k.tup: v for k, v in dict_.items() if v}

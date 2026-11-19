@@ -18,6 +18,7 @@ from ..components.commodities.material import Material
 from ..components.commodities.resource import Resource
 from ..components.game.couple import Interact
 from ..components.game.player import Player
+
 # from ..components.graph.edge import Edge
 # from ..components.graph.node import Node
 from ..components.impact.categories import Economic, Environ, Social
@@ -39,9 +40,17 @@ from ..dimensions.system import System
 from ..dimensions.time import Time
 from ..library.aliases import aspect_aliases
 from ..library.instructions import costing_commodity, costing_operation
-from ..library.recipes import (capacity_sizing, economic, environmental,
-                               free_movement, inventory_sizing, operating,
-                               social, trade, usage)
+from ..library.recipes import (
+    capacity_sizing,
+    economic,
+    environmental,
+    free_movement,
+    inventory_sizing,
+    operating,
+    social,
+    trade,
+    usage,
+)
 from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
@@ -268,7 +277,7 @@ class Model:
         ]
         # word -> words and word_sets
         self.program_attrs += [
-            w + s for w in self.program_attrs for s in ['s', '_sets']
+            w + s for w in self.program_attrs for s in ["s", "_sets"]
         ]
         self.program_attrs += [
             "solution",
@@ -278,7 +287,7 @@ class Model:
             "evaluation",
         ]
         # word -> n_word
-        self.program_attrs += ['n_' + w for w in self.program_attrs]
+        self.program_attrs += ["n_" + w for w in self.program_attrs]
         self.program_attrs += [
             "index_sets",
             "indices",
@@ -309,14 +318,17 @@ class Model:
 
         self.reserved_names += _program_matrices
 
-        self.properties = {i: self.program for i in _program_matrices}
+        self.properties = dict.fromkeys(_program_matrices, self.program)
 
         # --------------------------------------------------------------------
         # * Default Components
         # --------------------------------------------------------------------
         # if any of these attributes are called,
         # or an exiting one is returned
-        self.default_components: dict[str, Callable[[], Location | Periods | Currency]] = {
+        self.default_components: dict[
+            str,
+            Callable[[], Location | Periods | Currency],
+        ] = {
             "l": self._l0,
             "l0": self._l0,
             "t0": self._t0,
@@ -358,7 +370,7 @@ class Model:
 
         # * General Resource Balances
         self.balances: BalanceType = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(list))
+            lambda: defaultdict(lambda: defaultdict(list)),
         )
         # Dictionary which tells you what aspects of what component
         # have been bound at what location and time
@@ -499,7 +511,7 @@ class Model:
         value: _X,
         represent: str,
         collection: str,
-        aspects: list[str] | None = None,
+        aspects: list[str] | None = None,  # noqa: ARG002, RUF100 -- public keyword
     ):
         """
         Update the Model with a new value.
@@ -512,7 +524,7 @@ class Model:
         :type represent: str
         :param collection: Collection within the representation to which the value belongs
         :type collection: str
-        :param aspects: Aspects to be added to the value, defaults to None
+        :param aspects: Retained for compatibility with callers using this keyword.
         :type aspects: list[str], optional
         """
         value.name = name
@@ -522,7 +534,8 @@ class Model:
         if name in self.added:
             # do not allow overriding of components
             # throw error if name already exists
-            raise AttributeError(f"{name} already defined")
+            message = f"{name} already defined"
+            raise AttributeError(message)
             # added is the list of all components that have been added to the model
         self.added.append(name)
 
@@ -547,7 +560,9 @@ class Model:
             "linkages",
         ]:
             setattr(
-                self.program, collection, getattr(self.program, collection) | value.I
+                self.program,
+                collection,
+                getattr(self.program, collection) | value.I,
             )
 
         # # set aspect samples on the components
@@ -565,7 +580,7 @@ class Model:
     # -------------------------------------------------------------------
     # These take an action on attribute inputs
 
-    def Recipe(
+    def Recipe(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         name: str,
         kind: type[Aspect],
@@ -697,10 +712,10 @@ class Model:
                 m.alias("installed", of="capacity")
                 assert m.installed is m.capacity
         """
-        _add = dict.fromkeys(list(names), {of: self.cookbook[of]})
-        self.directory = {**self.directory, **_add}
+        recipe = self.cookbook[of]
+        self.directory = {**self.directory, **{name: {of: recipe} for name in names}}
 
-    def Instruction(
+    def Instruction(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         name: str,
         kind: type[_Component],
@@ -771,10 +786,11 @@ class Model:
         """
         if source - sink:
             # if source and sink are already linked
-            raise ValueError(
+            message = (
                 f"A link already defined between {source} and {sink}.\n"
-                "For multiple linkages with different attributes, use model.named_link = Link(...)",
+                "For multiple linkages with different attributes, use model.named_link = Link(...)"
             )
+            raise ValueError(message)
 
         link = Linkage(source=source, sink=sink, dist=dist, bi=bi, auto=True)
         setattr(self, f"{source.name}-{sink.name}", link)
@@ -792,7 +808,7 @@ class Model:
         setattr(self, names[-1], Periods())
         # pick up the period that was just created
         # use it as the root
-        root = getattr(self, "periods")[-1]
+        root = self.periods[-1]
         discretizations = list(reversed(discretizations))
 
         names = list(reversed(names[:-1]))
@@ -803,7 +819,7 @@ class Model:
 
         for disc, name in zip(discretizations, names):
             setattr(self, name, disc * root)
-            root = getattr(self, "periods")[-1]
+            root = self.periods[-1]
 
     def Modes(self, size: int, sample: Sample):
         """
@@ -826,9 +842,9 @@ class Model:
                 assert len(load) == 2
                 assert load[0].parent is load
         """
-        modes = Modes(size=size, sample=sample, n=len(getattr(self, "modes")))
+        modes = Modes(size=size, sample=sample, n=len(self.modes))
         periods = sample.domain.periods or self.time.horizon
-        setattr(self, f'_{periods}{len(periods.modes)}', modes)
+        setattr(self, f"_{periods}{len(periods.modes)}", modes)
         periods.modes.append(modes)
         return modes
 
@@ -872,7 +888,7 @@ class Model:
             self.program.draw(n_sol=n_sol)
 
     # * III Solution
-    def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
+    def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):  # noqa: ARG002, RUF100 -- public slack argument
         """
         Display a solution's objective and variable values.
 
@@ -936,7 +952,10 @@ class Model:
 
     # * Solution evaluation
     def eval(
-        self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
+        self,
+        *theta_vals: float,
+        n_sol: int = 0,
+        roundoff: int = 4,
     ) -> dict[V, float]:
         """
         Evaluate the model variables at given theta values.
@@ -960,7 +979,8 @@ class Model:
             with open(self.name + ".energia", "wb") as f:
                 dump(self.solution, f)
         else:
-            raise ValueError(f"Unknown type {as_type} for saving the model")
+            message = f"Unknown type {as_type} for saving the model"
+            raise ValueError(message)
 
     # ------------------------------------------------------------------------
     # * Default Components
@@ -976,7 +996,7 @@ class Model:
         :return: Periods object
         :rtype: Periods
         """
-        periods = getattr(self, "periods")
+        periods = self.periods
 
         if not periods:
             if size > 1:
@@ -998,7 +1018,7 @@ class Model:
 
     def _cash(self) -> Currency:
         """Return a default currency."""
-        currencies = getattr(self, "currencies")
+        currencies = self.currencies
         if currencies:
             return currencies[0]
         self.cash = Currency(label="$")
@@ -1034,7 +1054,6 @@ class Model:
 
         # Special linkage instructions
         if isinstance(value, Linkage):
-
             self.space.sources.append(value.source)
             self.space.sinks.append(value.sink)
 
@@ -1056,8 +1075,7 @@ class Model:
         # this will not intefere with the setting of
         # attributes what this name
         if name in self.default_components:
-            component = self.default_components[name]()
-            return component
+            return self.default_components[name]()
 
         # Inherits collections based on ancestry
         if name in self.ancestry:
@@ -1076,7 +1094,11 @@ class Model:
         if name in self.properties:
             return getattr(self.properties[name], name)
 
-        # already declare and mapped to aspect
+        return self._resolve_aspect(name)
+
+    def _resolve_aspect(self, name):
+        """Look up a registered aspect or create it from its recipe."""
+        # already declared and mapped to an aspect
         if name in self.registry:
             return self.registry[name]
 
@@ -1111,9 +1133,8 @@ class Model:
 
             return aspect
 
-        raise AttributeError(
-            f"{self} has no '{name}'",
-        )
+        message = f"{self} has no '{name}'"
+        raise AttributeError(message)
 
     # ---------------------------------------------------------------
     # * Call to Initialize using functions and Hashing

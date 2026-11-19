@@ -45,7 +45,7 @@ class Lag(_Name):
         self.constraints: set[str] = set()
 
     @cached_property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """
         Index set of periods - periods.
 

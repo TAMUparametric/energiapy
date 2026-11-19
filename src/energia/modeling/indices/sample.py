@@ -140,7 +140,7 @@ class Sample(_Hash):
         return self.domain.index_short
 
     @cached_property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Return the Gana index set for this component."""
         return self.domain.I
 
@@ -277,7 +277,9 @@ class Sample(_Hash):
     # ---------------------------------------------------------------------------
 
     def _init_V(
-        self, parameter: float | list[float] | None = None, length: int | None = None
+        self,
+        parameter: float | list[float] | None = None,
+        length: int | None = None,
     ):
         """Initialize making a variable."""
         self.parameter = parameter
@@ -338,7 +340,6 @@ class Sample(_Hash):
         # TODO: Will require separate aspect.indices lists
 
         if str(self.I) not in [str(i) for i in self.aspect.indices]:
-
             # if a variable has not been created for the self.I
             # create a variable
             # all energia variables are mutable by default
@@ -351,7 +352,11 @@ class Sample(_Hash):
 
         return getattr(self.program, self.aspect.name)(*self.I)
 
-    def Vinc(self, parameters: float | list = None, length: int = None) -> V:
+    def Vinc(
+        self,
+        parameters: float | list | None = None,
+        length: int | None = None,
+    ) -> V:
         """
         Returns the incidental variable.
 
@@ -420,7 +425,6 @@ class Sample(_Hash):
             self.domain.space
             not in self.model.dispositions[bound_aspect][self.domain.primary]
         ):
-
             # if the bound variable has not been defined at the given space
             logger.info(
                 "Aspect (%s) not defined at %s, a variable will be created assuming %s as the temporal index",
@@ -441,14 +445,17 @@ class Sample(_Hash):
                 domain = self.domain.edit({"periods": time})
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
-                raise ValueError(
+                message = (
                     f"Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.periods}\n"
-                    f"Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})",
+                    f"Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})"
                 )
+                raise ValueError(message)
         return bound_aspect(domain=domain).V()
 
     def X(
-        self, parameters: float | list[float] | None = None, length: int | None = None
+        self,
+        parameters: float | list[float] | None = None,
+        length: int | None = None,
     ) -> V:
         r"""
         Binary Reporting Variable.
@@ -620,7 +627,7 @@ class Sample(_Hash):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
 
-    def bar(
+    def bar(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         font_size: float = 16,
         fig_size: tuple[float, float] = (12, 6),
@@ -642,7 +649,7 @@ class Sample(_Hash):
             str_idx_lim=str_idx_lim,
         )
 
-    def line(
+    def line(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         font_size: float = 16,
         fig_size: tuple[float, float] = (12, 6),
@@ -721,18 +728,27 @@ class Sample(_Hash):
             if callable(self.of):
                 _ = self.of(*self.domain.index_primary[1:]) >= 0
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
+        return None
 
     def __gt__(self, other):
         """Translate a strict lower bound into the model's inclusive lower bound."""
         logger.info(
-            "Bind %s > %s is being written as %s >= %s", self, other, self, other
+            "Bind %s > %s is being written as %s >= %s",
+            self,
+            other,
+            self,
+            other,
         )
         _ = self >= other
 
     def __lt__(self, other):
         """Translate a strict upper bound into the model's inclusive upper bound."""
         logger.info(
-            "Bind %s < %s is being written as %s <= %s", self, other, self, other
+            "Bind %s < %s is being written as %s <= %s",
+            self,
+            other,
+            self,
+            other,
         )
         _ = self <= other
 
@@ -758,6 +774,7 @@ class Sample(_Hash):
         """Return this expression for the zero starting value used by Python's sum."""
         if not other:
             return self
+        return None
 
     def __sub__(self, other: Self | FuncOfSamples):
         """Subtract a number or another modeled expression."""
@@ -800,6 +817,7 @@ class FuncOfSamples:
         """Return this expression for the zero starting value used by Python's sum."""
         if not other:
             return self
+        return None
 
     def __sub__(self, other: Self | Sample):
         """Subtract a number or another modeled expression."""

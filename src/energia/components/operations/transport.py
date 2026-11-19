@@ -133,7 +133,6 @@ class Transport(Operation):
             _write_production = False
 
         for space, time in space_times:
-
             if space in self.spaces:
                 # if the process is already balanced for the space , Skip
                 continue

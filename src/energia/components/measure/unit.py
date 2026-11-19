@@ -59,9 +59,8 @@ class Unit(_Name):
 
         # if no common basis is found
         # raise an error
-        raise ValueError(
-            f"{self} and {basis} do not have a common basis for comparison",
-        )
+        message = f"{self} and {basis} do not have a common basis for comparison"
+        raise ValueError(message)
 
     def __truediv__(self, other: float):
         """Compare two related units or derive a unit using a numeric divisor."""
@@ -80,7 +79,7 @@ class Unit(_Name):
                 b = Unit(
                     self.basis,
                     1 / (other * self.times),
-                    f"{self.label}/{other*self.times}",
+                    f"{self.label}/{other * self.times}",
                 )
             # if self has no basis Unit
             # define new Unit using self as basis
@@ -89,6 +88,7 @@ class Unit(_Name):
                 self.basis = b
                 self.times = other
             return b
+        return None
 
     def __mul__(self, other: float):
         """
@@ -106,7 +106,8 @@ class Unit(_Name):
         """
         # can only be multiplied by a number
         if not isinstance(other, (int, float)):
-            raise TypeError(f"Cannot multiply Unit by {type(other)}")
+            message = f"Cannot multiply Unit by {type(other)}"
+            raise TypeError(message)
 
         # if multiplying by a number
         # create a new Unit
@@ -114,7 +115,11 @@ class Unit(_Name):
         # if self has a basis Unit
         # define new Unit based on the basis of self
         if self.basis:
-            b = Unit(self.basis, other * self.times, f"{self.label}.{other*self.times}")
+            b = Unit(
+                self.basis,
+                other * self.times,
+                f"{self.label}.{other * self.times}",
+            )
         # if self has no basis Unit
         # define new Unit using self as basis
         else:

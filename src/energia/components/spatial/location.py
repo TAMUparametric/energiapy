@@ -144,7 +144,7 @@ class Location(_X):
         return self == self.model.network
 
     @cached_property
-    def I(self) -> Idx:
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Gana index set."""
         # if self.has:
         #     # if component has a nested locations
@@ -190,7 +190,6 @@ class Location(_X):
             reverse = is_(self, link.sink) and is_(location, link.source)
 
             if forward or reverse:
-
                 source, sink = (self, location) if forward else (location, self)
 
                 links.append(link)
@@ -247,6 +246,7 @@ class Location(_X):
         """For allowing sum([Loc])."""
         if isinstance(number, int) and number == 0:
             return self
+        return None
 
     def __sub__(self, location: Self):
         """Creates a linkage."""
@@ -265,6 +265,7 @@ class Location(_X):
             )
         if links:
             return links[0]
+        return None
 
     def __eq__(self, other: Self):
         """Test whether the operands are the same location object."""
@@ -312,3 +313,4 @@ class Location(_X):
         """Test direct membership among the locations in this group."""
         if item in self.has:
             return True
+        return None

@@ -123,7 +123,6 @@ class Process(Operation):
         # else:
 
         for space, time in space_times:
-
             if space in self.locations:
                 # if the process is already balanced for the space , Skip
                 continue

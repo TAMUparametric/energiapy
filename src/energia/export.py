@@ -1,11 +1,12 @@
 """Export docs/examples notebooks to .py."""
 
+from pathlib import Path
+
 
 def main():
-    from pathlib import Path
-
-    import nbformat
-    from nbconvert import PythonExporter
+    # Notebook export dependencies are installed with the docs extra.
+    import nbformat  # noqa: PLC0415, RUF100
+    from nbconvert import PythonExporter  # noqa: PLC0415, RUF100
 
     # Example: export all notebooks from docs/examples
     nb_dir = Path(__file__).parent.parent.parent / "docs" / "examples"

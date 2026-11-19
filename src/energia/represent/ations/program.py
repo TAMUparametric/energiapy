@@ -78,6 +78,5 @@ class Program(Prg):
             index = I(mutable=True)
             setattr(self, item, index)
             return index
-        raise AttributeError(
-            f"{self} has no '{item}'",
-        )
+        message = f"{self} has no '{item}'"
+        raise AttributeError(message)

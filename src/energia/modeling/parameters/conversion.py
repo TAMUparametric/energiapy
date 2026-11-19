@@ -30,7 +30,9 @@ type _Arithmetic = Callable[[float, float], float]
 
 
 def _apply_coefficients(
-    left: _Coefficient, right: _Coefficient, operation: _Arithmetic
+    left: _Coefficient,
+    right: _Coefficient,
+    operation: _Arithmetic,
 ) -> _Coefficient:
     """Apply arithmetic period by period, broadcasting scalar coefficients."""
     if isinstance(left, list):
@@ -74,7 +76,7 @@ class Conversion(Mapping, _Hash):
         - Storage contains two processes (charge and discharge), hence is provided separately
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
         self,
         aspect: str = "",
         add: str = "",
@@ -123,15 +125,15 @@ class Conversion(Mapping, _Hash):
     def args(self) -> dict[str, str | Operation | Commodity | None]:
         """Arguments of the conversion."""
         return {
-            'by': self.aspect,
-            'add': self.add,
-            'sub': self.sub,
-            'operation': self.operation,
-            'basis': self.resource,
+            "by": self.aspect,
+            "add": self.add,
+            "sub": self.sub,
+            "operation": self.operation,
+            "basis": self.resource,
         }
 
     @classmethod
-    def from_balance(
+    def from_balance(  # noqa: PLR0917, RUF100 -- preserve positional calls
         cls,
         balance: dict[Commodity, float | list[float]],
         by: str = "",
@@ -207,9 +209,10 @@ class Conversion(Mapping, _Hash):
 
             if len(lengths) > 1:
                 # if there are different lengths, raise an error
-                raise ValueError(
-                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}",
+                message = (
+                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}"
                 )
+                raise ValueError(message)
 
             if any(check_list.values()):
                 length = next(iter(lengths))
@@ -223,7 +226,10 @@ class Conversion(Mapping, _Hash):
         self.balance = _balancer(self.balance)
 
     def time_checker(
-        self, commodity: Commodity, space: Location | Linkage, time: Periods
+        self,
+        commodity: Commodity,
+        space: Location | Linkage,
+        time: Periods,
     ):
         """Determine whether the conversion needs a finer time scale."""
         # This checks whether some other aspect is defined at
@@ -250,13 +256,11 @@ class Conversion(Mapping, _Hash):
             commodity = commodity.inv_of
 
         try:
-            times = list(
-                [
-                    t
-                    for t in self.model.balances[commodity][space]
-                    if self.model.balances[commodity][space][t]
-                ],
-            )
+            times = [
+                t
+                for t in self.model.balances[commodity][space]
+                if self.model.balances[commodity][space][t]
+            ]
         except KeyError:
             times = []
         # write the conversion balance at
@@ -269,7 +273,10 @@ class Conversion(Mapping, _Hash):
         return time.horizon
 
     def write(
-        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+        self,
+        space: Location | Linkage,
+        time: Periods | Lag,
+        modes: Modes | None = None,
     ):
         """Writes equations for conversion balance."""
         for res, par in self.items():
@@ -351,7 +358,6 @@ class Conversion(Mapping, _Hash):
     ):
         """Assign coefficients, a balance, or mode-specific conversions to the operation."""
         if isinstance(other, dict):
-
             collect_parents = []
             for mode, conv in other.items():
                 conv.operation = self.operation
@@ -361,20 +367,21 @@ class Conversion(Mapping, _Hash):
                 other[mode] = Conversion.from_balance({**self, **conv}, **self.args)
 
             if len(set(collect_parents)) > 1:
-                raise ValueError(
-                    f"{self}: PWL Conversion modes must belong to the same parent Modes",
+                message = (
+                    f"{self}: PWL Conversion modes must belong to the same parent Modes"
                 )
+                raise ValueError(message)
 
             if len(collect_parents[0]) != len(other):
-                raise ValueError(
-                    f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}",
-                )
+                message = f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}"
+                raise ValueError(message)
 
             setattr(
                 self.operation,
                 self.attr_name,
                 PWLConversion.from_balance(
-                    balance=other, sample=getattr(self.operation, self.aspect)
+                    balance=other,
+                    sample=getattr(self.operation, self.aspect),
                 ),
             )
             return getattr(self.operation, self.attr_name)
@@ -441,7 +448,7 @@ class Conversion(Mapping, _Hash):
             {
                 res: _apply_coefficients(par, times, operator.mul)
                 for res, par in self.items()
-            }
+            },
         )
 
     def __rmul__(self, times: _Coefficient) -> Self:
@@ -474,7 +481,6 @@ class PWLConversion(Mapping, _Hash):
         self.model = self.sample.model
 
         if conversions:
-
             self.modes = self.model.Modes(size=len(conversions), sample=sample)
             self.balance: dict[Modes, Conversion] = dict(zip(self.modes, conversions))
 
