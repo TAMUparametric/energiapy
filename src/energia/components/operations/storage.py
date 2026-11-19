@@ -218,7 +218,6 @@ class Storage(_Component):
         space: Location,
     ) -> tuple[Self, Location, Periods] | bool:
         """Apply the default inventory limit at the selected location and period."""
-
         self._init_inventory_aspect()
         time = self._filter_time(self._get_times(space))
         if self._has_upper_or_fixed_bound(self.inventory_aspect, space, time):
