@@ -2,6 +2,8 @@ import pytest
 
 from energia import *
 from energia.components.commodities.misc import Package, Human, Mana, Etc
+from energia.modeling.variables.control import Control
+from energia.modeling.variables.states import State
 
 
 def test_init():
@@ -50,3 +52,17 @@ def test_init():
     assert m.__repr__() == "mm"
 
     assert m.__hash__() == hash("mm")
+
+
+def test_redefine_recipe_preserves_child_kinds_and_signs():
+    model = Model()
+    model.Recipe("custom", State, Resource, add="up", sub="down", sub_kind=State)
+    assert model.cookbook["up"].kind is State
+    model.Recipe(
+        "custom", State, Resource, add="up", sub="down",
+        add_kind=Control, sub_kind=State,
+    )
+    assert model.cookbook["up"].kind is Control
+    assert model.cookbook["up"].ispos
+    assert model.cookbook["down"].kind is State
+    assert not model.cookbook["down"].ispos

@@ -38,6 +38,7 @@ Decision-making with Energia
    :caption: Interactive Examples
    :hidden:
 
+   examples/tiny
    examples/scheduling
    examples/design_scheduling_attrs
    examples/design_scheduling
@@ -45,6 +46,7 @@ Decision-making with Energia
    examples/material_process_modes
    examples/seattle_topeka
    examples/temporal_clustering
+   validation/ahc/README
 
 
 .. toctree::

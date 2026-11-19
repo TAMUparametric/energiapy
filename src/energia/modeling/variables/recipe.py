@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any
 
 from .aspect import Aspect
 
@@ -19,9 +19,9 @@ class Recipe:
     :param name: Name of the aspect
     :type name: str
     :param kind: Kind of aspect, e.g., Aspect, Control, etc.
-    :type kind: Type[Aspect]
+    :type kind: type[Aspect]
     :param primary_type: Primary type(s) of component the aspect can be applied to
-    :type primary_type: tuple[Type[_Component]] | Type[_Component]
+    :type primary_type: tuple[type[_Component]] | type[_Component]
     :param label: Label for plotting. Defaults to "".
     :type label: str
     :param add: Add string for constraints. Defaults to "".
@@ -46,8 +46,8 @@ class Recipe:
     """
 
     name: str
-    kind: Type[Aspect]
-    primary_type: tuple[Type[_Component]] | Type[_Component]
+    kind: type[Aspect]
+    primary_type: tuple[type[_Component]] | type[_Component]
     label: str = ""
     add: str = ""
     sub: str = ""
@@ -59,7 +59,7 @@ class Recipe:
     latex: str = ""
 
     def __post_init__(self):
-        self.args = {
+        self.args: dict[str, Any] = {
             k: v
             for k, v in asdict(self).items()
             if k not in ("name", "kind") and (isinstance(v, bool) or v)

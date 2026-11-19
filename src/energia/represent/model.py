@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Self, Type
+from typing import TYPE_CHECKING, Any, Literal
 
 from dill import dump
 
@@ -63,6 +63,8 @@ logger.addHandler(ch)
 if TYPE_CHECKING:
     from enum import Enum
     from typing import DefaultDict
+
+    from gana import V
 
     from .._core._component import _Component
     from ..components.commodities.commodity import Commodity
@@ -136,13 +138,13 @@ class Model:
     """
 
     name: str = "m"
-    init: list[Callable[[Self]]] | None = None
+    init: list[Callable[[Model], object]] | None = None
     default: bool = True
     capacitate: bool = False
 
     def __post_init__(self):
 
-        self.reserved_names = []
+        self.reserved_names: list[str | tuple[str, ...]] = []
 
         # what components have been added to the model
         self.added: list[str] = []
@@ -153,7 +155,7 @@ class Model:
         # * Component Mapping to Dimension and Collection
         # --------------------------------------------------------------------
         # Dimensions in brackets
-        self.familytree = {
+        self.familytree: dict[type[Any], tuple[str, str]] = {
             # * I Temporal (Time):
             # 1.  Periods (Periods) generates a bespoke discretization.
             Periods: ("time", "periods"),
@@ -303,7 +305,7 @@ class Model:
         # --------------------------------------------------------------------
         # if any of these attributes are called,
         # or an exiting one is returned
-        self.default_components = {
+        self.default_components: dict[str, Callable[[], Location | Periods | Currency]] = {
             "l": self._l0,
             "l0": self._l0,
             "t0": self._t0,
@@ -555,16 +557,16 @@ class Model:
     def Recipe(
         self,
         name: str,
-        kind: Type[Aspect],
-        primary_type: tuple[Type[_Component]] | Type[_Component],
+        kind: type[Aspect],
+        primary_type: tuple[type[_Component]] | type[_Component],
         label: str = "",
         latex: str = "",
         add: str = "",
         add_latex: str = "",
-        add_kind: Type[Aspect] | None = None,
+        add_kind: type[Aspect] | None = None,
         sub: str = "",
         sub_latex: str = "",
-        sub_kind: Type[Aspect] | None = None,
+        sub_kind: type[Aspect] | None = None,
         neg: str = "",
         neg_latex: str = "",
         neg_label: str = "",
@@ -578,9 +580,9 @@ class Model:
         :param name: Name of the aspect
         :type name: str
         :param kind: type of the aspect
-        :type kind: Type[Aspect]
+        :type kind: type[Aspect]
         :param primary_type: type of primary component
-        :type primary_type: tuple[Type[_Component]] | Type[_Component]
+        :type primary_type: tuple[type[_Component]] | type[_Component]
         :param label: label for the aspect. Defaults to ''.
         :type label: str, optional
         :param latex: LaTeX representation for the aspect. Defaults to None.
@@ -590,13 +592,13 @@ class Model:
         :param add_latex: LaTeX representation for the add aspect. Defaults to ''.
         :type add_latex: str, optional
         :param add_kind: type of the add aspect. Defaults to None.
-        :type add_kind: Type[Aspect], optional
+        :type add_kind: type[Aspect], optional
         :param sub: sub control variable. Defaults to ''.
         :type sub: str, optional
         :param sub_latex: LaTeX representation for the sub aspect. Defaults to ''.
         :type sub_latex: str, optional
         :param sub_kind: type of the sub aspect. Defaults to None.
-        :type sub_kind: Type[Aspect], optional
+        :type sub_kind: type[Aspect], optional
         :param neg: name of the negative aspect. Defaults to ''.
         :type neg: str, optional
         :param neg_latex: LaTeX representation for the negative aspect. Defaults to ''.
@@ -629,27 +631,27 @@ class Model:
             primary_type=primary_type,
         )
 
-        if add:
-            self.Recipe(
-                name=add,
-                kind=add_kind or sub_kind or Control,
-                label=add_latex or add,
-                ispos=True,
-                nn=True,
-                latex=latex or add,
-                primary_type=primary_type,
-            )
+        def register_control(
+            child: str,
+            preferred: type[Aspect] | None,
+            fallback: type[Aspect] | None,
+            child_label: str,
+            *,
+            positive: bool,
+        ) -> None:
+            if child:
+                self.Recipe(
+                    name=child,
+                    kind=preferred or fallback or Control,
+                    label=child_label or child,
+                    ispos=positive,
+                    nn=True,
+                    latex=latex or child,
+                    primary_type=primary_type,
+                )
 
-        if sub:
-            self.Recipe(
-                name=sub,
-                kind=sub_kind or add_kind or Control,
-                label=sub_latex or sub,
-                ispos=False,
-                nn=True,
-                latex=latex or sub,
-                primary_type=primary_type,
-            )
+        register_control(add, add_kind, sub_kind, add_latex, positive=True)
+        register_control(sub, sub_kind, add_kind, sub_latex, positive=False)
 
         if neg:
             neg_recipe = Recipe(
@@ -678,7 +680,7 @@ class Model:
     def Instruction(
         self,
         name: str,
-        kind: Type[_Component],
+        kind: type[_Component],
         deciding: str,
         depending: str,
         default: str,
@@ -713,11 +715,11 @@ class Model:
     # * Easy Birthing of Components
     # ------------------------------------------------------------------------
 
-    def declare(self, what: Type[_X], names: list[str]):
+    def declare(self, what: type[_X], names: list[str]):
         """Declares objects conveniently
 
         :param what: Type of object to be created
-        :type what: Type[X]
+        :type what: type[X]
         :param names: Names of the objects to be created
         :type names: list[str]
         """
@@ -884,9 +886,9 @@ class Model:
     # * Solution evaluation
     def eval(
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
-    ) -> list[float]:
+    ) -> dict[V, float]:
         """
-        Evaluate the objective function at given theta values
+        Evaluate the model variables at given theta values
 
         :param theta_vals: values for the parametric variables
         :type theta_vals: float
@@ -895,8 +897,8 @@ class Model:
         :param roundoff: number of decimal places to round off to, defaults to 4
         :type roundoff: int, optional
 
-        :return: list of objective function values
-        :rtype: list[float]
+        :return: evaluated values keyed by model variable
+        :rtype: dict[V, float]
         """
         return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
 
@@ -955,8 +957,8 @@ class Model:
     # * Attribute Setting and Getting
     # -------------------------------------------------------------------
 
-    def __setattr__(self, name, value):
-
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Register model components and assign their attributes."""
         if isinstance(value, (str, dict, list, bool)) or value is None:
             # if value is a string, dict, list or bool
             # set the attribute to the value
@@ -1040,15 +1042,15 @@ class Model:
         # maps many attribute names to aspects
         if name in self.directory:
             # if this is an attribute being called for the first time
-            recipe = self.directory[name]
-            aspect_name = list(recipe.keys())[0]
+            recipes = self.directory[name]
+            aspect_name = next(iter(recipes))
 
             if aspect_name in self.added:
                 # if same aspect is called by a different name
                 return getattr(self, aspect_name)
 
             # these are the arguments for the aspect
-            recipe = recipe[aspect_name]
+            recipe = recipes[aspect_name]
             aspect = recipe.kind(**recipe.args)
 
             setattr(self, aspect_name, aspect)
@@ -1065,7 +1067,7 @@ class Model:
     # * Call to Initialize using functions and Hashing
     # ---------------------------------------------------------------
 
-    def __call__(self, *funcs: Callable[[Self]]):
+    def __call__(self, *funcs: Callable[[Model], object]):
         """Set functions on the model
 
         These can include default units

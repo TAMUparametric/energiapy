@@ -186,10 +186,11 @@ exclude_patterns = [
 ]
 
 autosummary_generate = True
-autosummary_imported_members = True
+autosummary_imported_members = False
 autodoc_inherit_docstrings = True
 autodoc_default_options = {
     'members': True,
+    'ignore-module-all': True,
     'undoc-members': True,
     'show-inheritance': True,
     'inherited-members': True,
