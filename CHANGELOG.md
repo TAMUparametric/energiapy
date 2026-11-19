@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- `Model.save()` writes the latest or selected solver result atomically. It
+  accepts an explicit destination and raises before writing if no result exists.
 - A time scale inferred from a profile, or declared by dividing a coarser
   period, now creates a solver index for every subdivision. Time-sum
   constraints link the resulting decisions to their coarser totals.

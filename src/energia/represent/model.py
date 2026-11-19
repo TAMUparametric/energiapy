@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Literal
 
 from dill import dump
@@ -974,14 +977,45 @@ class Model:
         return self.program.eval(*theta_vals, n_sol=n_sol, roundoff=roundoff)
 
     # * Saving
-    def save(self, as_type: str = "dill"):
-        """Save the Model to a file."""
-        if as_type == "dill":
-            with open(self.name + ".energia", "wb") as f:
-                dump(self.solution, f)
-        else:
+    def save(
+        self,
+        as_type: str = "dill",
+        *,
+        path: str | os.PathLike[str] | None = None,
+        n_sol: int | None = None,
+    ) -> None:
+        """
+        Save a solver result atomically in the existing ``.energia`` format.
+
+        :param as_type: Serialization format. Defaults to ``"dill"``.
+        :param path: Destination file in an existing directory.
+            Defaults to ``<model name>.energia`` in the current directory.
+        :param n_sol: Zero-based solution index. Defaults to the latest result.
+        :raises ValueError: If the serialization format is unsupported.
+        :raises RuntimeError: If the program has no solver results.
+        :raises KeyError: If the requested index is absent from the solved program.
+        """
+        if as_type != "dill":
             message = f"Unknown type {as_type} for saving the model"
             raise ValueError(message)
+
+        program = self.program
+        if not program.solutions:
+            message = "Solve the model before saving a solution"
+            raise RuntimeError(message)
+        solution = program.solution if n_sol is None else program.solutions[n_sol]
+
+        destination = Path(f"{self.name}.energia" if path is None else path).absolute()
+        with NamedTemporaryFile(
+            mode="wb",
+            dir=destination.parent,
+            delete_on_close=False,
+        ) as file:
+            dump(solution, file)
+            file.flush()
+            os.fsync(file.fileno())
+            file.close()  # Close before replacing the destination on Windows.
+            Path(file.name).replace(destination)
 
     # ------------------------------------------------------------------------
     # * Default Components
