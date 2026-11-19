@@ -54,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repeated linkage-parent lookups no longer duplicate routes in spatial sums.
   This restores the Seattle-Topeka example's total cost to 153,675 instead of
   counting each route five times.
+- Registered linkages appear as leaves under their containing location in
+  `Location.tree` and `Space.tree`. `Location.all()` yields each route once.
 - Register Markdown documents with the loaded `myst-nb` parser, fixing the
   Read the Docs error "Source parser for markdown not registered". Constrain
   Sphinx and the book theme to the tested compatible versions.
