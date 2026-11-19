@@ -186,44 +186,27 @@ class Conversion(Mapping, _Hash):
         return self.operation.program
 
     def balancer(self):
-        """
-        Checks if there is a list in the conversion.
+        """Expand scalar coefficients to match the conversion's series length."""
+        lengths = {
+            len(value) for value in self.balance.values() if isinstance(value, list)
+        }
+        if not lengths:
+            return
+        if 0 in lengths:
+            message = f"Conversion: {self.name} has an empty coefficient list"
+            raise ValueError(message)
 
-        If yes, tries to make everything consistent
-        """
+        # A singleton coefficient also works as a constant alongside a longer series.
+        if len(lengths - {1}) > 1:
+            message = (
+                f"Conversion: {self.name} has inconsistent list lengths: {lengths}"
+            )
+            raise ValueError(message)
 
-        def _balancer(conversion: dict):
-
-            # check if lists are provided
-            check_list = dict.fromkeys(conversion.keys(), False)
-            # check lengths of the list, for parameter the length is 1
-            check_len = dict.fromkeys(conversion.keys(), 1)
-
-            for res, par in conversion.items():
-                if isinstance(par, list):
-                    check_list[res] = True
-                    check_len[res] = len(par)
-
-            # check if all the list lens are the same
-            lengths = {i for i in check_len.values() if i > 1}
-
-            if len(lengths) > 1:
-                # if there are different lengths, raise an error
-                message = (
-                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}"
-                )
-                raise ValueError(message)
-
-            if any(check_list.values()):
-                length = next(iter(lengths))
-                # if any of the values are a list
-                #
-                for res, par in conversion.items():
-                    if isinstance(par, (float, int)):
-                        conversion[res] = [par] * length
-            return conversion
-
-        self.balance = _balancer(self.balance)
+        length = max(lengths)
+        for resource, value in self.balance.items():
+            if isinstance(value, (float, int)):
+                self.balance[resource] = [value] * length
 
     def time_checker(
         self,

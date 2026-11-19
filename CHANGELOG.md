@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- One-period process conversions accept a single coefficient in a list, such
+  as `[-5]`, and expand scalar coefficients to the same length.
 - Locating an operation applies its default capacity bound at the finest operating
   time scale introduced by the conversion. Explicit upper and equality bounds are
   preserved, and repeated placement keeps the same operating constraints.
