@@ -959,7 +959,6 @@ class Model:
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Register model components and assign their attributes."""
-
         if isinstance(value, (str, dict, list, bool)) or value is None:
             # if value is a string, dict, list or bool
             # set the attribute to the value
