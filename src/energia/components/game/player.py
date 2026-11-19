@@ -1,12 +1,11 @@
-"""Player"""
+"""Player."""
 
 from ..._core._component import _Component
 
 
 class Player(_Component):
     """
-    Player or Actor, the one taking the decisions
-    based on information provided
+    Player or Actor, the one taking the decisions based on information provided.
 
     Players own certain processes and be responsible for the streams and impact
     caused by their decisions pertaining to this
@@ -27,8 +26,18 @@ class Player(_Component):
     :vartype domains: list[Domain]
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, Player
+
+            m = Model()
+            m.utility = Player(label="Municipal utility")
+            assert m.utility in m.game.players
     """
 
     def __init__(self, label: str = "", citations: str = "", **kwargs):
-
+        """Create a decision maker with the supplied label and component parameters."""
         _Component.__init__(self, label=label, citations=citations, **kwargs)

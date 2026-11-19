@@ -1,4 +1,4 @@
-"""energia.operation init file"""
+"""energia.operation init file."""
 
 from .process import Process
 from .storage import Storage

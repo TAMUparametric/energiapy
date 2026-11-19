@@ -1,9 +1,5 @@
 {
-  "src/energia/dimensions/problem.py:get": "97b0a58f20560f42848b08b93f04c5a091132b8226604e97019cc2d073dcdf5d",
   "src/energia/modeling/constraints/bind.py:_bind_unit_price": "74586fc1e552a75fa53f31c4b174242591df4b5f895530ec5d66eefba22cc467",
-  "src/energia/modeling/constraints/vmap.py:_map_across_space": "8b8c3d09266ec1760efa65bf649d6668db01b21e104dd08975b0ba782c7c0fc8",
-  "src/energia/modeling/variables/aspect.py:__call__": "faf67dd75faf20411a27564419b311462759260bcb8b75a8b0f6d1b719019109",
-  "src/energia/utils/decorators.py:wrapper": "fa4d256efa7727a1cdcd052011a1c596533c70d93aa97156b5e10fb3f4483ec5",
-  "src/energia/utils/dictionary.py:merge_tree_levels": "42c91a6c81d9c6ad915023888dbcef88c2afdca4fe40e6c10f1b9718b2094273",
-  "src/energia/utils/math.py:normalize": "bc4b97ee34e751a4e011d60c37d3ceab08920937bb8834a92e442b1942e1e445"
+  "src/energia/modeling/constraints/vmap.py:_map_across_space": "e7668b39a5ff4081ea743812aeb1119b60a2123d21a6948a10c39bbfb2a8eec3",
+  "src/energia/utils/math.py:normalize": "10a8dc40c4c2fd798cc9b5ea3c8a1fa17cf72b97e164c35144981003af363d87"
 }

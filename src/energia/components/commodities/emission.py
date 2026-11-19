@@ -1,4 +1,4 @@
-"""Emission"""
+"""Emission."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Emission(Commodity):
     """
-    Emission
+    Emission.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,6 +46,11 @@ class Emission(Commodity):
         citations: str = "",
         **kwargs,
     ):
+        """Create an emission measured in the optional basis unit."""
         Commodity.__init__(
-            self, basis=basis, label=label, citations=citations, **kwargs
+            self,
+            basis=basis,
+            label=label,
+            citations=citations,
+            **kwargs,
         )

@@ -1,4 +1,4 @@
-"""A Pre-set Parameter"""
+"""A Pre-set Parameter."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Instruction(_Name):
     """
-    Pre-set instructions to deal with parameter calculations
+    Pre-set instructions to deal with parameter calculations.
 
     :param deciding: Name of the deciding aspect
     :type deciding: str
@@ -39,7 +39,7 @@ class Instruction(_Name):
         label: str = "",
         latex: str = "",
     ):
-
+        """Record the component type, decision, and reference aspect used for this instruction."""
         _Name.__init__(self, label=label)
         self.name = name
         self.kind = kind
@@ -50,11 +50,11 @@ class Instruction(_Name):
         self.latex = latex or self.name
 
     def __call__(self, component: _Component):
+        """Select the component's decision relative to the model's default reference component."""
         # create the calculation
         # there has to be a model
 
         if isinstance(component, self.kind):
-
             self.model = component.model
 
             default_comp = self.model.default_components[self.default]()
@@ -64,6 +64,5 @@ class Instruction(_Name):
 
             return deciding[depending]
 
-        raise TypeError(
-            f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
-        )
+        message = f"{component} ({type(component)}): {self.name} earmarked for {self.kind.__name__}"
+        raise TypeError(message)

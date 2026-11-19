@@ -1,4 +1,4 @@
-"""energia.temporal init file"""
+"""energia.temporal init file."""
 
 from .periods import Periods
 from .scales import TemporalScales

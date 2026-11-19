@@ -1,4 +1,4 @@
-"""Different Pre-Set Conversions"""
+"""Different Pre-Set Conversions."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class Production(Conversion):
-    """Process Production"""
+    """Process Production."""
 
     def __init__(
         self,
@@ -28,6 +28,7 @@ class Production(Conversion):
         symbol: str = "η",
         use_max_time: bool = False,
     ):
+        """Tie production and expenditure flows to the operation's activity."""
         Conversion.__init__(
             self,
             operation=operation,
@@ -44,7 +45,7 @@ class Production(Conversion):
 
 
 class Construction(Conversion):
-    """Operation Construction Conversion"""
+    """Operation Construction Conversion."""
 
     def __init__(
         self,
@@ -53,9 +54,10 @@ class Construction(Conversion):
         resource: Commodity | None = None,
         balance: dict[Commodity, float | list[float]] | None = None,
         hold: int | float | None = None,
-        symbol: str = "γ",
+        symbol: str = "\N{GREEK SMALL LETTER GAMMA}",
         use_max_time: bool = True,
     ):
+        """Tie resource disposal and use to a change in installed capacity."""
         Conversion.__init__(
             self,
             operation=operation,
@@ -72,7 +74,7 @@ class Construction(Conversion):
 
 
 class Transportation(Conversion):
-    """Transport Conversion"""
+    """Transport Conversion."""
 
     def __init__(
         self,
@@ -83,6 +85,7 @@ class Transportation(Conversion):
         symbol: str = "τ",
         use_max_time: bool = False,
     ):
+        """Tie inbound and outbound shipments to transport activity."""
         Conversion.__init__(
             self,
             operation=operation,
@@ -99,9 +102,11 @@ class Transportation(Conversion):
 
     # overwrite, since transportation balance is slightly different
     def write(self, space: Linkage, time: Periods | Lag, modes: Modes | None = None):
-        """Writes equations for conversion balance"""
-
-        res = list(self)[0]
+        """Writes equations for conversion balance."""
+        if not self.balance:
+            message = "list index out of range"
+            raise IndexError(message)
+        res = next(iter(self))
 
         par = self[res]
 

@@ -1,6 +1,9 @@
-"""Utilities for plots, manages axes and such"""
+"""Utilities for plots, manages axes and such."""
 
 from matplotlib import ticker
+
+_DAYS_PER_YEAR = 365
+_HOURS_PER_YEAR = 24 * _DAYS_PER_YEAR
 
 
 def axis_formatter(axes, xcord: list, axis_labels: str = "M"):
@@ -46,16 +49,13 @@ def axis_formatter(axes, xcord: list, axis_labels: str = "M"):
         "Nov",
         "Dec",
     ]
-    if axis_labels == "M" and len(xcord) == 8760:
-        axes.xaxis.set_major_locator(ticker.FixedLocator((pos_list_8760)))
-        axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
-    if axis_labels == "M" and len(xcord) == 365:
-        axes.xaxis.set_major_locator(ticker.FixedLocator((pos_list_365)))
-        axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
-    if axis_labels == "M" and len(xcord) == 12:
-        axes.xaxis.set_major_locator(ticker.FixedLocator((list(range(12)))))
-        axes.xaxis.set_major_formatter(ticker.FixedFormatter((name_list)))
-
-    else:
-        pass
+    if axis_labels == "M":
+        positions = {
+            _HOURS_PER_YEAR: pos_list_8760,
+            _DAYS_PER_YEAR: pos_list_365,
+            len(name_list): range(len(name_list)),
+        }.get(len(xcord))
+        if positions is not None:
+            axes.xaxis.set_major_locator(ticker.FixedLocator(positions))
+            axes.xaxis.set_major_formatter(ticker.FixedFormatter(name_list))
     return axes

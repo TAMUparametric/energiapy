@@ -1,4 +1,4 @@
-"""Fetch data from NREL's NSRDB database"""
+"""Fetch data from NREL's NSRDB database."""
 
 import logging
 
@@ -27,8 +27,9 @@ def fetch_nsrdb_data(
     save: str | None = None,
 ) -> DataFrame | tuple:
     """
-    Fetches nsrdb data from nearest coordinates (latitude, longitude)
-    or from county in a state matching a particular 'get' metric
+    Fetch NSRDB data for a set of coordinates or a county within a state.
+
+    For a county, the selection metric determines which observation site to use.
 
     :param attrs: attributes to fetch
     :type attrs: list[str]
@@ -50,7 +51,6 @@ def fetch_nsrdb_data(
     :return: DataFrame with output data, (latitude, longitude)
     :rtype: DataFrame | tuple
     """
-
     if import_all:
         logger.warning(
             "⚠ This is an optional feature. Please install h5pyd, or pip install energiapy[all] ⚠",
@@ -88,7 +88,7 @@ def fetch_nsrdb_data(
         # population(get_metric)]
         get_metric = get.split("-")[1]
 
-        if get.split("-")[0] == "min":
+        if get.split("-", maxsplit=1)[0] == "min":
             latitude = float(
                 county_data["latitude"][
                     county_data[get_metric] == min(county_data[get_metric])
@@ -104,7 +104,7 @@ def fetch_nsrdb_data(
                 & (county_data["longitude"] == longitude)
             ]
 
-        if get.split("-")[0] == "max":
+        if get.split("-", maxsplit=1)[0] == "max":
             latitude = float(
                 county_data["latitude"][
                     county_data[get_metric] == max(county_data[get_metric])

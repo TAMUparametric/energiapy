@@ -1,4 +1,4 @@
-"""Bind constraint"""
+"""Bind constraint."""
 
 from __future__ import annotations
 
@@ -25,7 +25,8 @@ if TYPE_CHECKING:
 
 
 class Bind:
-    """Bind constraint
+    """
+    Bind constraint.
 
     :param sample: The sample variable to bind
     :type sample: Sample
@@ -73,6 +74,7 @@ class Bind:
         forall: list[_X | _Component] | None = None,
         parameter_name: str = "",
     ):
+        """Write the requested bound for the sample, expanding modes or indices as needed."""
         self.sample = sample
         self._parameter, self.parameter_name = parameter, parameter_name
         self.leq, self.geq, self.eq = leq, geq, eq
@@ -108,8 +110,7 @@ class Bind:
 
     @timer(logger, kind="bind")
     def write(self):
-        """Writes the bind constraint"""
-
+        """Writes the bind constraint."""
         # the lhs comes from the sample
         # calling the lhs here, updates the
         _ = self.lhs
@@ -157,7 +158,8 @@ class Bind:
             return False
         values = self.parameter
         return isinstance(values, tuple) or (
-            isinstance(values, list) and any(isinstance(value, tuple) for value in values)
+            isinstance(values, list)
+            and any(isinstance(value, tuple) for value in values)
         )
 
     def _bind_unit_price(self):
@@ -190,19 +192,19 @@ class Bind:
             self.model.scenario.update(self.sample, self.rel, price)
 
     def _listed(self):
-        """Gets the parameter as a list if needed"""
+        """Gets the parameter as a list if needed."""
         if not isinstance(self._parameter, list) and self.forall:
             return [self._parameter] * len(self.forall)
         return self._parameter
 
     def _normalized(self, _parameter):
-        """Gets the normalized parameter if needed"""
+        """Gets the normalized parameter if needed."""
         if self.norm:
             return normalize(_parameter)
         return _parameter
 
     def _nominalized(self, _parameter):
-        """Gets the nominalized parameter if needed"""
+        """Gets the nominalized parameter if needed."""
         if self.nominal:
             # if a nominal value for the self.parameter is passed
             # this is essentially the expectation
@@ -210,7 +212,7 @@ class Bind:
             # if a non iterable is passed, let an error be raised
 
             # if the sample needs to be normalized
-            _parameter = [
+            return [
                 (
                     (self.nominal * i[0], self.nominal * i[1])
                     if isinstance(i, tuple)
@@ -218,7 +220,6 @@ class Bind:
                 )
                 for i in _parameter
             ]
-            return _parameter
         return _parameter
 
     @cached_property
@@ -231,8 +232,7 @@ class Bind:
         | tuple[float, float]
         | list[tuple[float, float]]
     ):
-        """Parameter bound of the bind constraint"""
-
+        """Parameter bound of the bind constraint."""
         values = self._listed()
         if isinstance(values, tuple):
             # A single interval has two endpoints but represents one parameter.
@@ -241,8 +241,7 @@ class Bind:
 
     @cached_property
     def lhs(self):
-        """Left hand side of the bind constraint"""
-
+        """Left hand side of the bind constraint."""
         # ------Get LHS
         # lhs needs to be determined here
         # because V will be spaced and timed if not passed by user
@@ -250,25 +249,25 @@ class Bind:
         return self.sample.V(self.parameter)
 
     def _rhs_w_bound(self) -> V | F:
-        """When the rhs is bound by a variable"""
+        """When the rhs is bound by a variable."""
         _bound = self.sample.X(self.parameter) if self.report else self.sample.Vb()
         return self.parameter * _bound
 
     def _rhs_w_binary(self) -> V | F:
-        """When the rhs is bound by a binary variable"""
+        """When the rhs is bound by a binary variable."""
         _bound = self.parameter * self.sample.X(self.parameter)
         self.aspect.update(self.domain, reporting=True)
         return _bound
 
     def _handle_multiplier(self):
-        """Gets the parameter with multiplier if needed"""
+        """Gets the parameter with multiplier if needed."""
         if isinstance(self.parameter, list):
             return [p * self.domain.space.multiplier for p in self.parameter]
 
         return self.parameter * self.domain.space.multiplier
 
     def _rhs_w_multiplier(self) -> V | F | Param:
-        """When the rhs is bound by a multiplier"""
+        """When the rhs is bound by a multiplier."""
         if self.aspect.use_multiplier:
             _bound = self._handle_multiplier()
         else:
@@ -278,7 +277,7 @@ class Bind:
 
     @property
     def rhs(self) -> V | F | Param:
-        """Right hand side of the bind constraint"""
+        """Right hand side of the bind constraint."""
         if self.of:
             return self._rhs_w_multiplier()
 
@@ -292,7 +291,7 @@ class Bind:
 
     @cached_property
     def rel(self):
-        """Constraint name suffix"""
+        """Constraint name suffix."""
         if self.leq:
             return "ub"
         elif self.geq:
@@ -304,7 +303,7 @@ class Bind:
 
     @cached_property
     def cons_name(self):
-        """Constraint name"""
+        """Constraint name."""
         return rf"{self.aspect.name}{self.domain.idxname}_{self.rel}"
 
     @property
@@ -313,10 +312,8 @@ class Bind:
         return self.of is not None
 
     def _write_forall(self):
-        """Writes the bind constraint for all elements in the set"""
-
+        """Writes the bind constraint for all elements in the set."""
         for n, idx in enumerate(self.forall):
-
             lhs, rhs = self.sample(idx), self.parameter[n]
 
             if self.leq:
@@ -327,7 +324,7 @@ class Bind:
                 _ = lhs == rhs
 
     def _calc_w_modes(self):
-        """Write with modes"""
+        """Write with modes."""
         # if this is a dict, piece wise linear functions are being passed
         # Take the example of expenditure and capacity being modeled
         # sat the input is {(0, 200): 5000, (200, 300): 4000, (300, 400): 3000
@@ -350,7 +347,7 @@ class Bind:
         _ = self.of(modes)[self.sample(modes)] == list(self.parameter.values())
 
     def _write_w_modes(self):
-        """Writes the bind constraint with modes"""
+        """Writes the bind constraint with modes."""
         # create modes
         self.modes = self.model.Modes(size=len(self.parameter), sample=self.sample)
 
@@ -389,7 +386,7 @@ class Bind:
     #                 _ = s == p
 
     def _check_existing(self) -> bool:
-        """Checks if aspect already has been bound in that space"""
+        """Checks if aspect already has been bound in that space."""
         if not self.iscalc and not self.domain.modes:
             try:
                 if self.model.scenario[self.aspect][self.domain.primary][
@@ -403,7 +400,7 @@ class Bind:
         return False
 
     def _categorize(self):
-        """Categorizes the constraint"""
+        """Categorizes the constraint."""
         # categorize the constraint
         if self.iscalc:
             self.cons.categorize("Calculations")
@@ -413,8 +410,7 @@ class Bind:
             self.cons.categorize("Binds")
 
     def _inform(self):
-        """Informs the aspect and domain about the bind constraint"""
-
+        """Informs the aspect and domain about the bind constraint."""
         # let the aspect know about the new constraint
         self.aspect.constraints.add(self.cons_name)
 
@@ -425,7 +421,7 @@ class Bind:
         self.model.scenario.update(self.sample, self.rel, self.P)
 
     def _handshake(self):
-        """Borrow attributes from sample"""
+        """Borrow attributes from sample."""
         # borrowed from Sample
         self.model = self.sample.model
         self.nominal = self.sample.nominal
@@ -438,7 +434,7 @@ class Bind:
 
     @property
     def P(self):
-        """Gets the parameter set"""
+        """Gets the parameter set."""
         if isinstance(self.cons.two, F):
             return self.cons.two.one
         if isinstance(self.cons.two, V):

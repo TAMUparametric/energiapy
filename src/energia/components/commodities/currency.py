@@ -1,4 +1,4 @@
-"""Currency"""
+"""Currency."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class Currency(Commodity):
     """
-    Same as Economic Impact (Eco)
+    Same as Economic Impact (Eco).
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,6 +46,7 @@ class Currency(Commodity):
         citations: str = "",
         **kwargs,
     ):
+        """Assign this currency to the supplied locations and their recorded descendants."""
         self.locs = list(locs)
         Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
@@ -55,12 +56,25 @@ class Currency(Commodity):
         if self.locs:
             for loc in self.locs:
                 loc.currency = self
-                for l in loc.alsohas:
-                    l.currency = self
+                for child in loc.alsohas:
+                    child.currency = self
 
     def howmany(self, cash: Self):
-        """Exchange rate basically"""
+        """
+        Return the stored exchange rate relative to the supplied currency.
 
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Currency, Model
+
+                m = Model()
+                m.usd, m.credit = Currency(), Currency()
+                m.credit == 2 * m.usd
+                assert m.credit.howmany(m.usd) == 2
+                assert m.usd.howmany(m.credit) == 0.5
+        """
         if is_(cash, self):
             return 1
         if cash in self.exchange:
@@ -72,10 +86,11 @@ class Currency(Commodity):
         #         self.conversion[list(self.conversion)[0]]
         #         / cash.conversion[list(cash.conversion)[0]]
         #     )
-        raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
+        message = f"{cash} does not have an exchange rate set {self.name}"
+        raise ValueError(message)
 
     def _compare_currency(self, other: Self) -> bool:
-        """Compare two currencies for equality"""
+        """Compare two currencies for equality."""
         if is_(self, other):
             return True
 
@@ -83,20 +98,21 @@ class Currency(Commodity):
         return False
 
     def _set_exchange(self, other: Conversion) -> bool:
-        """Set exchange rates between two currencies"""
-        currency: Self = list(other.balance.keys())[0]
+        """Set exchange rates between two currencies."""
+        if not other.balance:
+            message = "list index out of range"
+            raise IndexError(message)
+        currency: Self = next(iter(other.balance))
         rate: float = other.balance[currency]
 
         # set the exchange rate of self against other
         self.exchange[currency] = rate
 
         for ex in currency.exchange:
-
             if ex not in self.exchange:
                 self.exchange[ex] = rate / currency.exchange[ex]
 
                 if self not in ex.exchange:
-
                     ex.exchange[self] = ex.exchange[currency] / rate
 
                 # if self not in ex.exchange:
@@ -107,15 +123,11 @@ class Currency(Commodity):
         return True
 
     def __eq__(self, other):
-
+        """Set reciprocal rates from a conversion, or record a unit rate for a distinct currency."""
         if isinstance(other, Currency):
-
             return self._compare_currency(other)
 
         elif isinstance(other, Conversion):
-
             return self._set_exchange(other)
 
         return False
-
-

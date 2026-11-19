@@ -1,4 +1,4 @@
-"""Conversion"""
+"""Conversion."""
 
 from __future__ import annotations
 
@@ -30,7 +30,9 @@ type _Arithmetic = Callable[[float, float], float]
 
 
 def _apply_coefficients(
-    left: _Coefficient, right: _Coefficient, operation: _Arithmetic
+    left: _Coefficient,
+    right: _Coefficient,
+    operation: _Arithmetic,
 ) -> _Coefficient:
     """Apply arithmetic period by period, broadcasting scalar coefficients."""
     if isinstance(left, list):
@@ -44,7 +46,8 @@ def _apply_coefficients(
 
 class Conversion(Mapping, _Hash):
     """
-    Processes convert one Commodity to another Commodity
+    Processes convert one Commodity to another Commodity.
+
     Conversion provides the conversion of resources
 
     :param resource: Commodity that is balanced
@@ -71,7 +74,6 @@ class Conversion(Mapping, _Hash):
         - name and operation are generated post init
         - base (__call__), conversion (__eq__), lag (__getitem__) are defined as the program is built
         - Storage contains two processes (charge and discharge), hence is provided separately
-
     """
 
     def __init__(
@@ -87,7 +89,7 @@ class Conversion(Mapping, _Hash):
         symbol: str = "η",
         use_max_time: bool = False,
     ):
-
+        """Initialize the material balance, reference commodity, and decision aspect."""
         self.resource = resource
         self.operation = operation
 
@@ -121,13 +123,13 @@ class Conversion(Mapping, _Hash):
 
     @property
     def args(self) -> dict[str, str | Operation | Commodity | None]:
-        """Arguments of the conversion"""
+        """Arguments of the conversion."""
         return {
-            'by': self.aspect,
-            'add': self.add,
-            'sub': self.sub,
-            'operation': self.operation,
-            'basis': self.resource,
+            "by": self.aspect,
+            "add": self.add,
+            "sub": self.sub,
+            "operation": self.operation,
+            "basis": self.resource,
         }
 
     @classmethod
@@ -140,7 +142,22 @@ class Conversion(Mapping, _Hash):
         operation: Operation | None = None,
         basis: Commodity | None = None,
     ) -> Self:
-        """Creates Conversion from balance dict"""
+        """
+        Creates Conversion from balance dict.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Resource
+                from energia.modeling.parameters.conversion import Conversion
+
+                m = Model()
+                m.power, m.heat = Resource(), Resource()
+                mix = Conversion.from_balance({m.power: 1, m.heat: 2})
+                assert (3 * mix)[m.heat] == 6
+                assert mix[m.heat] == 2
+        """
         conv = cls()
         # set first resource as the basis
         conv.balance = balance
@@ -153,24 +170,25 @@ class Conversion(Mapping, _Hash):
 
     @property
     def name(self) -> str:
-        """Name"""
+        """Name."""
         if self.resource:
             return f"{self.symbol}({self.operation}, {self.resource})"
         return f"{self.symbol}({self.operation})"
 
     @cached_property
     def model(self) -> Model | None:
-        """energia Model"""
+        """Energia Model."""
         return next((i.model for i in self.balance), None)
 
     @cached_property
     def program(self) -> Prg | None:
-        """gana Program"""
+        """Gana Program."""
         return self.operation.program
 
     def balancer(self):
         """
-        Checks if there is a list in the conversion
+        Checks if there is a list in the conversion.
+
         If yes, tries to make everything consistent
         """
 
@@ -191,9 +209,10 @@ class Conversion(Mapping, _Hash):
 
             if len(lengths) > 1:
                 # if there are different lengths, raise an error
-                raise ValueError(
-                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}",
+                message = (
+                    f"Conversion: {self.name} has inconsistent list lengths: {lengths}"
                 )
+                raise ValueError(message)
 
             if any(check_list.values()):
                 length = next(iter(lengths))
@@ -207,11 +226,12 @@ class Conversion(Mapping, _Hash):
         self.balance = _balancer(self.balance)
 
     def time_checker(
-        self, commodity: Commodity, space: Location | Linkage, time: Periods
+        self,
+        commodity: Commodity,
+        space: Location | Linkage,
+        time: Periods,
     ):
-        """This checks if it is actually necessary
-        to write conversion at denser temporal scales
-        """
+        """Determine whether the conversion needs a finer time scale."""
         # This checks whether some other aspect is defined at
         # a lower temporal scale
 
@@ -236,13 +256,11 @@ class Conversion(Mapping, _Hash):
             commodity = commodity.inv_of
 
         try:
-            times = list(
-                [
-                    t
-                    for t in self.model.balances[commodity][space]
-                    if self.model.balances[commodity][space][t]
-                ],
-            )
+            times = [
+                t
+                for t in self.model.balances[commodity][space]
+                if self.model.balances[commodity][space][t]
+            ]
         except KeyError:
             times = []
         # write the conversion balance at
@@ -255,9 +273,12 @@ class Conversion(Mapping, _Hash):
         return time.horizon
 
     def write(
-        self, space: Location | Linkage, time: Periods | Lag, modes: Modes | None = None
+        self,
+        space: Location | Linkage,
+        time: Periods | Lag,
+        modes: Modes | None = None,
     ):
-        """Writes equations for conversion balance"""
+        """Writes equations for conversion balance."""
         for res, par in self.items():
             resource_time = time
             if res in self.model.balances:
@@ -290,25 +311,27 @@ class Conversion(Mapping, _Hash):
             _ = lhs[rhs] == eff
 
     def items(self):
-        """Items of the conversion balance"""
+        """Items of the conversion balance."""
         return self.balance.items()
 
     def keys(self):
-        """Keys of the conversion balance"""
+        """Keys of the conversion balance."""
         return self.balance.keys()
 
     def values(self):
-        """Values of the conversion balance"""
+        """Values of the conversion balance."""
         return self.balance.values()
 
     def __getitem__(self, key: Commodity) -> float | list[float]:
-        """Used to define mode based conversions"""
+        """Used to define mode based conversions."""
         return self.balance[key]
 
     def __setitem__(self, key: Commodity, value: float | list[float]):
+        """Assign a scalar or series of coefficients to a commodity in the balance."""
         self.balance[key] = value
 
     def __call__(self, basis: Commodity | Conversion, lag: Lag | None = None) -> Self:
+        """Set the conversion basis and optionally attach a time lag."""
         # sets the basis
         if isinstance(basis, Conversion):
             # if a Conversion is provided (parameter*Commodity)
@@ -333,8 +356,8 @@ class Conversion(Mapping, _Hash):
         self,
         other: Conversion | list[Conversion] | int | float | dict[Modes, Conversion],
     ):
+        """Assign coefficients, a balance, or mode-specific conversions to the operation."""
         if isinstance(other, dict):
-
             collect_parents = []
             for mode, conv in other.items():
                 conv.operation = self.operation
@@ -344,20 +367,21 @@ class Conversion(Mapping, _Hash):
                 other[mode] = Conversion.from_balance({**self, **conv}, **self.args)
 
             if len(set(collect_parents)) > 1:
-                raise ValueError(
-                    f"{self}: PWL Conversion modes must belong to the same parent Modes",
+                message = (
+                    f"{self}: PWL Conversion modes must belong to the same parent Modes"
                 )
+                raise ValueError(message)
 
             if len(collect_parents[0]) != len(other):
-                raise ValueError(
-                    f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}",
-                )
+                message = f"{self}: PWL Conversion modes must account for all modes in {collect_parents[0]}"
+                raise ValueError(message)
 
             setattr(
                 self.operation,
                 self.attr_name,
                 PWLConversion.from_balance(
-                    balance=other, sample=getattr(self.operation, self.aspect)
+                    balance=other,
+                    sample=getattr(self.operation, self.aspect),
                 ),
             )
             return getattr(self.operation, self.attr_name)
@@ -424,7 +448,7 @@ class Conversion(Mapping, _Hash):
             {
                 res: _apply_coefficients(par, times, operator.mul)
                 for res, par in self.items()
-            }
+            },
         )
 
     def __rmul__(self, times: _Coefficient) -> Self:
@@ -432,15 +456,16 @@ class Conversion(Mapping, _Hash):
         return self * times
 
     def __len__(self):
-        """Length of the conversion balance"""
+        """Length of the conversion balance."""
         return len(self.balance)
 
     def __iter__(self):
+        """Iterate over the commodities in the conversion balance."""
         return iter(self.balance)
 
 
 class PWLConversion(Mapping, _Hash):
-    """Piece Wise Linear Conversion"""
+    """Piece Wise Linear Conversion."""
 
     def __init__(
         self,
@@ -450,13 +475,12 @@ class PWLConversion(Mapping, _Hash):
         add: str = "",
         sub: str = "",
     ):
-
+        """Pair the supplied conversions with operating modes for the selected sample."""
         self.sample = sample
         self.operation = self.sample.domain.operation or self.sample.domain.primary
         self.model = self.sample.model
 
         if conversions:
-
             self.modes = self.model.Modes(size=len(conversions), sample=sample)
             self.balance: dict[Modes, Conversion] = dict(zip(self.modes, conversions))
 
@@ -476,7 +500,7 @@ class PWLConversion(Mapping, _Hash):
         balance: dict[Modes, Conversion],
         sample: Sample,
     ) -> Self:
-        """Creates PWLConversion from balance dict"""
+        """Creates PWLConversion from balance dict."""
         conv = cls([], sample)
         conv.operation = sample.domain.operation
         conv.balance = balance
@@ -508,28 +532,28 @@ class PWLConversion(Mapping, _Hash):
 
     @property
     def name(self) -> str:
-        """Name"""
+        """Name."""
         return f"η_PWL({self.operation}, {self.modes})"
 
     def balancer(self):
-        """Balances all conversions"""
+        """Balances all conversions."""
         for conv in self.balance.values():
             conv.balancer()
 
     def items(self):
-        """Items of the conversion balance"""
+        """Items of the conversion balance."""
         return self.balance.items()
 
     def keys(self):
-        """Keys of the conversion balance"""
+        """Keys of the conversion balance."""
         return self.balance.keys()
 
     def values(self):
-        """Values of the conversion balance"""
+        """Values of the conversion balance."""
         return self.balance.values()
 
     def box(self):
-        """Consolidates the conversion dict into {resource: par} format"""
+        """Consolidates the conversion dict into {resource: par} format."""
         resources = list(set().union(*self.values()))
         _box = {r: [] for r in resources}
         for conv in self.values():
@@ -542,28 +566,27 @@ class PWLConversion(Mapping, _Hash):
         return _box
 
     def write(self, space: Location | Linkage, time: Periods | Lag):
-        """Writes equations for conversion balance"""
-
+        """Writes equations for conversion balance."""
         for mode, conv in self.items():
             conv.write(space, time, mode)
 
     def __len__(self):
-        """Length of the conversion balance"""
+        """Length of the conversion balance."""
         return len(self.balance)
 
     def __iter__(self):
+        """Iterate over the modes represented in the piecewise balance."""
         return iter(self.balance)
 
     def __setitem__(self, key: int | str | Modes, value: Conversion):
-
+        """Assign a conversion to a mode, resolving an integer through the mode group."""
         if isinstance(key, int):
             key = self.modes[key]
 
         self.balance[key] = value
 
     def __getitem__(self, key: int | str) -> Conversion:
-        """Used to define mode based conversions"""
-
+        """Used to define mode based conversions."""
         if isinstance(key, int):
             key = self.modes[key]
 

@@ -1,4 +1,4 @@
-"""Map"""
+"""Map."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 class Map:
     """
-    Maps between domains
+    Maps between domains.
 
     :param aspect: Aspect to which the constraint is applied.
     :type aspect: Aspect
@@ -37,9 +37,13 @@ class Map:
     """
 
     def __init__(
-        self, aspect: Aspect, domain: Domain, reporting=False, label: str = ""
+        self,
+        aspect: Aspect,
+        domain: Domain,
+        reporting=False,
+        label: str = "",
     ):
-
+        """Register the domain and map unlagged samples across time, space, and modes."""
         self.aspect = aspect
         self.domain = domain
         self.reporting = reporting
@@ -64,9 +68,9 @@ class Map:
     # -------------------------------------------------------------------#
     # Helper functions
     # -------------------------------------------------------------------#
-    @timer(logger, kind='map')
+    @timer(logger, kind="map")
     def write(self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False):
-        """Scales up variable to a lower dimension"""
+        """Scales up variable to a lower dimension."""
         # 1. a new domain is being added to a new disposition
         # e.g.:
         #   (water, dam, goa, year) with disposition ['resource', 'operation', 'space', 'time'] exists
@@ -93,7 +97,7 @@ class Map:
         # this will lead to adding twice. India = Goa + Madgaon + Ponje (WRONG)
         # We scale only one level up
         if self._check_validity():
-            return
+            return None
 
         v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
         dimension = (to_domain - from_domain)[0]
@@ -135,7 +139,7 @@ class Map:
 
     def _map_to_sparser_time(self, sparser_periods: list[Periods]):
         """
-        Maps to sparser time periods
+        Maps to sparser time periods.
 
         :param sparser_periods: Periods sparser than the domain period
         :type sparser_periods: list[Periods]
@@ -148,7 +152,7 @@ class Map:
 
     def _map_from_denser_time(self, denser_periods: list[Periods]):
         """
-        Maps from denser time periods
+        Maps from denser time periods.
 
         :param denser_periods: Periods denser than the domain period
         :type denser_periods: list[Periods]
@@ -170,9 +174,7 @@ class Map:
                 self.write(from_domain, self.domain, tsum=True)
 
     def _map_across_time(self):
-        """
-        Maps across time
-        """
+        """Maps across time."""
         denser_periods, sparser_periods = self.model.time.split(self.time)
 
         self._map_to_sparser_time(sparser_periods)
@@ -180,7 +182,7 @@ class Map:
 
     def _map_across_space(self):
         """
-        Maps across space
+        Maps across space.
 
         :param contained_locs: Locations contained in the domain location
         :type contained_locs: list[Space]
@@ -204,7 +206,6 @@ class Map:
 
         for space in self.domain.space.has:
             if space in self.dispositions and self.time in self.dispositions[space]:
-
                 # get deciding samples if they exist
                 samples = [
                     aspect(component)
@@ -214,7 +215,6 @@ class Map:
                     for component in components
                 ]
                 for sample in samples:
-
                     if self.domain.linkage:
                         self.write(
                             self.domain.edit({"linkage": space, "samples": [sample]}),
@@ -257,7 +257,8 @@ class Map:
             return
 
         if not self._special_modes_check(
-            self.domain, self.domain.edit({"modes": None})
+            self.domain,
+            self.domain.edit({"modes": None}),
         ):
             return
 
@@ -267,10 +268,7 @@ class Map:
             self.write(self.domain, self.domain.edit({"modes": None}), msum=True)
 
     def _special_modes_check(self, from_domain: Domain, to_domain: Domain) -> None:
-        """
-        Checks if constraints have been written for child modes
-        or for parent modes
-        """
+        """Checks if constraints have been written for child modes or for parent modes."""
         if to_domain in self.maps["modes"]:
             if from_domain.modes.parent:
                 if (
@@ -296,7 +294,6 @@ class Map:
         msum: bool = False,
     ) -> str:
         """Return canonical map constraint name based on domain relationship and aggregation type."""
-
         if tsum:
             return f"{var}{from_domain.idxname}_to_{to_domain.idxname}_tmap"
 
@@ -313,7 +310,7 @@ class Map:
         return f"{var}{to_domain.idxname}_map"
 
     def rhs(self, domain: Domain, tsum=False, msum=False):
-        """Gives the sum of the variable over the domain"""
+        """Gives the sum of the variable over the domain."""
         varname = (
             f"x_{self.aspect.name}" if (msum and self.reporting) else self.aspect.name
         )
@@ -340,20 +337,21 @@ class Map:
     # -------------------------------------------------------------------#
 
     def _check_validity(self) -> bool:
-        """Check space and time"""
+        """Check space and time."""
         if (
             self.space not in self.dispositions
             or self.time not in self.dispositions[self.space]
         ):
             return True
+        return None
 
     def _inform(self, from_domain: Domain):
-        """Inform components of new constraint"""
+        """Inform components of new constraint."""
         self.aspect.constraints.add(self.cons_name)
         from_domain.inform_components_of_cons(self.cons_name)
 
     def _handshake(self):
-        """Borrow attributes from aspect"""
+        """Borrow attributes from aspect."""
         self.model = self.aspect.model
         # these are spaces contained in location and parent location to which this location belongs
         # this gives all the dispositions at which the aspect has been defined
@@ -365,4 +363,5 @@ class Map:
         self.time, self.space = self.domain.periods, self.domain.space
 
     def __call__(self, *index: _X):
+        """Select a sample of the mapped aspect using the supplied indices."""
         return self.aspect(*index)

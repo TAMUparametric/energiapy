@@ -1,4 +1,4 @@
-"""Bound Parameter Input"""
+"""Bound Parameter Input."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Value(_Name):
-    """Input Value"""
+    """Input Value."""
 
     def __init__(
         self,
@@ -27,6 +27,7 @@ class Value(_Name):
         ) = None,
         periods: Periods | None = None,
     ):
+        """Pair a scalar or coefficient series with its time scale."""
         self.value = value
         self.periods = periods
         _Name.__init__(self, label="")

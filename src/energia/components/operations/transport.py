@@ -1,4 +1,4 @@
-"""Transport"""
+"""Transport."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class Transport(Operation):
     """
-    Exports Resource through Link basically, moves Resources between Locations
+    Exports Resource through Link basically, moves Resources between Locations.
 
     :param basis: Unit basis of the component. Defaults to None.
     :type basis: Unit, optional
@@ -50,10 +50,25 @@ class Transport(Operation):
     :vartype _fab_balanced: bool
     :ivar linkages: List of Linkages where the transport is located. Defaults to [].
     :vartype linkages: list[Linkage]
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Linkage, Location, Model, Resource, Transport
+
+            m = Model()
+            m.field, m.refinery = Location(), Location()
+            m.pipeline = Linkage(m.field, m.refinery)
+            m.gas = Resource()
+            m.pump = Transport()
+            m.pump(m.gas) == 1
+            m.pump.locate(m.pipeline)
+            assert m.pipeline in m.pump.linkages
     """
 
     def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
-
+        """Initialize conversion balances for transportation and its supporting production."""
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
         self.linkages: list[Linkage] = []
 
@@ -67,22 +82,21 @@ class Transport(Operation):
 
     @property
     def transportation(self):
-        """Alias for primary_conversion"""
+        """Alias for primary_conversion."""
         return self.primary_conversion
 
     @transportation.setter
     def transportation(self, value):
-        """Set primary_conversion"""
+        """Set primary_conversion."""
         self.primary_conversion = value
 
     @property
     def spaces(self) -> list[Linkage]:
-        """Locations at which the process is balanced"""
+        """Locations at which the process is balanced."""
         return self.linkages
 
     def _set_transportation_balance(self):
-        """Get the transportation balance from the primary conversion"""
-
+        """Get the transportation balance from the primary conversion."""
         self.transportation = Transportation.from_balance(
             balance={self.basis: self.primary_conversion.balance[self.basis]},
             **self.primary_conversion.args,
@@ -91,8 +105,7 @@ class Transport(Operation):
         self.transportation.balancer()
 
     def _set_production_balance(self):
-        """Get the production balance from the primary conversion"""
-
+        """Get the production balance from the primary conversion."""
         self.production = Production.from_balance(
             balance={
                 k: v
@@ -106,8 +119,7 @@ class Transport(Operation):
 
     @timer(logger, kind="production")
     def write_primary_conversion(self, space_times: list[tuple[Location, Periods]]):
-        """Write the production constraints for the process"""
-
+        """Write the production constraints for the process."""
         if len(self.primary_conversion) > 1:
             # this means that there are other dependent conversions
             # besides transport such as production and expending of other resources
@@ -121,7 +133,6 @@ class Transport(Operation):
             _write_production = False
 
         for space, time in space_times:
-
             if space in self.spaces:
                 # if the process is already balanced for the space , Skip
                 continue

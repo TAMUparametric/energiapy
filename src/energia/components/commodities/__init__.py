@@ -1,4 +1,4 @@
-"""energiapy.commodities module"""
+"""energiapy.commodities module."""
 
 from .currency import Currency
 from .emission import Emission

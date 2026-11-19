@@ -1,12 +1,11 @@
-"""Impact Indicator Categories"""
+"""Impact Indicator Categories."""
 
 from .indicator import Indicator
 
 
 class Environ(Indicator):
     """
-    Environmental Impact
-
+    Environmental Impact.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -27,13 +26,13 @@ class Environ(Indicator):
     """
 
     def __init__(self, label: str = "", citations: str = "", **kwargs):
-
+        """Create an environmental indicator with the supplied label and parameters."""
         Indicator.__init__(self, label=label, citations=citations, **kwargs)
 
 
 class Social(Indicator):
     """
-    Social Impact
+    Social Impact.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -54,13 +53,13 @@ class Social(Indicator):
     """
 
     def __init__(self, label: str = "", citations: str = "", **kwargs):
-
+        """Create a social indicator with the supplied label and parameters."""
         Indicator.__init__(self, label=label, citations=citations, **kwargs)
 
 
 class Economic(Indicator):
     """
-    Economic impact
+    Economic impact.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -81,5 +80,5 @@ class Economic(Indicator):
     """
 
     def __init__(self, label: str = "", citations: str = "", **kwargs):
-
+        """Create an economic indicator with the supplied label and parameters."""
         Indicator.__init__(self, label=label, citations=citations, **kwargs)

@@ -1,4 +1,4 @@
-"""System"""
+"""System."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 @dataclass
 class Game(_Dimension):
     """
-    System representation as a Resource Task Network (RTN)
+    System representation as a Resource Task Network (RTN).
+
     All resources and tasks are attached to this object
 
     :param model: Model to which the representation belongs.
@@ -30,6 +31,7 @@ class Game(_Dimension):
     """
 
     def __post_init__(self):
+        """Initialize the player and interaction collections for the model."""
         # ------------Decision-Makers----------------------
         self.players: list[Player] = []
         self.interacts: list[Interact] = []

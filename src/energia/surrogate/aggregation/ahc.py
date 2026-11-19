@@ -1,4 +1,5 @@
-"""Compatibility imports for Vaelchi's chronology-constrained clustering.
+"""
+Compatibility imports for Vaelchi's chronology-constrained clustering.
 
 Clustering is maintained in Vaelchi. New callers should import ``ahc`` and
 ``AHCResult`` from ``vaelchi`` directly. This module preserves Energia's

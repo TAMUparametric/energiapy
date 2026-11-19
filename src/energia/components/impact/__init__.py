@@ -1,3 +1,5 @@
+"""Indicators of economic, environmental, and social impact."""
+
 from .categories import Economic, Environ, Social
 
 __all__ = [

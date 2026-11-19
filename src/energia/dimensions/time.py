@@ -1,4 +1,4 @@
-"""Time"""
+"""Time."""
 
 import logging
 from dataclasses import dataclass
@@ -34,6 +34,7 @@ class Time(_Dimension):
     """
 
     def __post_init__(self):
+        """Initialize the period and operating-mode collections."""
         self.periods: list[Periods] = []
         self.modes: list[Modes] = []
         _Dimension.__post_init__(self)
@@ -44,13 +45,13 @@ class Time(_Dimension):
 
     @property
     def tree(self) -> dict[int | float, Periods]:
-        """Return the tree of periods"""
+        """Return the tree of periods."""
         hrz = self.horizon
         return {int(hrz.howmany(prd)): prd for prd in self.periods}
 
     @property
     def sorted_periods(self) -> list[Periods]:
-        """Sorted periods from densest to sparsest"""
+        """Sorted periods from densest to sparsest."""
         return sorted(self.periods)
 
     # -----------------------------------------------------
@@ -59,29 +60,28 @@ class Time(_Dimension):
 
     @property
     def densest(self) -> Periods:
-        """The densest period"""
+        """The densest period."""
         if self.periods:
             return min(self.periods, key=lambda x: x.true_size)
         return self.horizon
 
     @property
     def sparsest(self) -> Periods:
-        """The sparsest period"""
+        """The sparsest period."""
         if self.periods:
             return max(self.periods, key=lambda x: x.true_size)
         return self.horizon
 
     @property
     def horizon(self) -> Periods:
-        """The sparsest scale is treated as the horizon"""
+        """The sparsest scale is treated as the horizon."""
         if self.periods:
             return self.sparsest
         # if nothing found, make a default period
         return self.model._t0()
 
     def find(self, size: int | float) -> Periods:
-        """Find the period that has the length"""
-
+        """Find the period that has the length."""
         if size not in self.tree:
             # if no math make a default period
             logger.info(
@@ -94,8 +94,7 @@ class Time(_Dimension):
         return self.tree[size]
 
     def split(self, period: Periods) -> tuple[list[Periods], list[Periods]]:
-        """Gives a list of periods which are denser and sparser than period"""
-
+        """Gives a list of periods which are denser and sparser than period."""
         periods = self.sorted_periods
         index = periods.index(period)
         return periods[:index], periods[index + 1 :]

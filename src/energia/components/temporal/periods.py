@@ -1,4 +1,4 @@
-"""Time Periods"""
+"""Time Periods."""
 
 from __future__ import annotations
 
@@ -65,6 +65,7 @@ class Periods(_X):
         citations: str = "",
         weight: int | float = 1,
     ):
+        """Define a period scale and register it with its basis when one is supplied."""
         self.size = size
         self.weight = weight
 
@@ -99,6 +100,7 @@ class Periods(_X):
         """Is used to define another period?"""
         if self.of is None:
             return True
+        return None
 
     def ishorizon(self) -> bool:
         """Is this the horizon of the model?"""
@@ -106,7 +108,7 @@ class Periods(_X):
 
     @property
     def tree(self) -> dict[Self, dict]:
-        """Tree representation of the Periods"""
+        """Tree representation of the Periods."""
         if self.of is None:
             return {self: {}}
 
@@ -114,23 +116,22 @@ class Periods(_X):
 
     @property
     def cons(self) -> list[C]:
-        """Constraints"""
+        """Constraints."""
         return [getattr(self.program, c) for c in self.constraints]
 
     @property
     def horizon(self) -> Self:
-        """Time Horizon"""
+        """Time Horizon."""
         return self.time.horizon
 
     @cached_property
     def time(self) -> Time:
-        """Time to which the Periods belongs"""
+        """Time to which the Periods belongs."""
         return self.model.time
 
     @cached_property
-    def I(self) -> Idx:
-        """Index tuple"""
-
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
+        """Index tuple."""
         # given that temporal scale is an ordered set and not a self contained set
         # any time periods will be a fraction of the horizon
         if self.slice is not None:
@@ -140,27 +141,26 @@ class Periods(_X):
             return self.of.I[self.n]
 
         if self.isof:
-            return self.isof[0].I + (self.i,)
+            return (*self.isof[0].I, self.i)
         return (self.i,)
 
     @cached_property
     def i(self) -> Idx:
-        """Only Index"""
+        """Only Index."""
         _i = Idx(size=self.isof[0].size if self.isof else 1, tag=self.label or "")
         setattr(self.program, self.name, _i)
         return _i
 
     @property
     def true_size(self) -> float:
-        """True size of the Periods"""
+        """True size of the Periods."""
         if self.of is None:
             return self.size
 
         return self.size * self.of.true_size
 
     def howmany(self, of: Periods):
-        """How many periods make this period"""
-
+        """Return the number of periods at the supplied scale per period at this scale."""
         # Cached result?
         if of in self._howmany:
             return self._howmany[of]
@@ -175,15 +175,16 @@ class Periods(_X):
         for attempt in attempts:
             try:
                 result = attempt()
-                self._howmany[of] = result
-                return result
             except NotFoundError:
                 continue
+            self._howmany[of] = result
+            return result
 
-        raise ValueError(f"No common basis between {self} and {of}")
+        message = f"No common basis between {self} and {of}"
+        raise ValueError(message)
 
     def __mul__(self, times: int | float):
-
+        """Create a scaled period, a lag for a negative factor, or zero for a zero factor."""
         if times == 0:
             return 0
 
@@ -201,6 +202,20 @@ class Periods(_X):
         return Periods(size=times, of=self)
 
     def __truediv__(self, other: int | float):
+        """
+        Compare two period scales or subdivide this scale by a numeric factor.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Periods
+
+                m = Model()
+                m.shift = Periods()
+                m.hour = m.shift / 8
+                assert m.shift / m.hour == 8
+        """
         if isinstance(other, Periods):
             return self.howmany(other)
 
@@ -209,45 +224,68 @@ class Periods(_X):
         # return Periods(periods=other, of=self)
 
     def __rtruediv__(self, other: int | float):
+        """Attach a numeric value to this period as a rate."""
         return Value(value=other, periods=self)
 
     def __rmul__(self, other: int | float):
+        """Apply a scale factor to the period with the number on the left."""
         return self * other
 
     # def __call__(self, times):
     #     return Periods(size=times, of=self)
 
     def __neg__(self):
+        """
+        Return a lag of one period at this scale.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Periods
+
+                m = Model()
+                m.hour = Periods()
+                previous_hour = -m.hour
+                assert previous_hour.of is m.hour
+                assert previous_hour.periods == 1
+        """
         return self * -1
 
     def __len__(self):
+        """Return the integer ratio computed by comparing this scale to the model horizon."""
         return int(self.howmany(self.time.horizon))
 
     def __eq__(self, other: Self | Lag):
+        """Test whether both operands refer to the same period object."""
         return is_(self, other)
 
     def __ge__(self, other: Self):
+        """Test whether this period is longer than or equal in duration to the other."""
         if isinstance(other, Periods):
             return self.time.horizon.howmany(self) <= self.time.horizon.howmany(other)
         raise NotImplementedError
 
     def __gt__(self, other: Self):
+        """Test whether this period is longer than the other on their common horizon."""
         if isinstance(other, Periods):
             return self.time.horizon.howmany(self) < self.time.horizon.howmany(other)
         raise NotImplementedError
 
     def __le__(self, other: Self):
+        """Test whether this period is shorter than or equal in duration to the other."""
         if isinstance(other, Periods):
             return self.time.horizon.howmany(self) >= self.time.horizon.howmany(other)
         raise NotImplementedError
 
     def __lt__(self, other: Self):
+        """Test whether this period is shorter than the other on their common horizon."""
         if isinstance(other, Periods):
             return self.time.horizon.howmany(self) > self.time.horizon.howmany(other)
         raise NotImplementedError
 
     def __getitem__(self, key: int | slice):
-
+        """Select an indexed period or a slice while retaining the parent scale."""
         periods = Periods()
         periods.parent = self
         periods.of = self.of

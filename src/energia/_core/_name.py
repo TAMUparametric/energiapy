@@ -1,4 +1,4 @@
-"""Inherited _Name (reprs) class"""
+"""Inherited _Name (reprs) class."""
 
 from ._hash import _Hash
 

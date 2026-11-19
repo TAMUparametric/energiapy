@@ -1,4 +1,4 @@
-"""Sample of an Aspect"""
+"""Sample of an Aspect."""
 
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ class Sample(_Hash):
         spaced: bool = False,
         report: bool = False,
     ):
-
+        """Register an aspect selection on its domain and initialize its binding state."""
         self.aspect = aspect
         self.domain = domain
         self.timed = timed
@@ -104,7 +104,7 @@ class Sample(_Hash):
 
     @property
     def of(self) -> Self | None:
-        """Sample being calculated"""
+        """Sample being calculated."""
         return self.domain.samples[0] if self.domain.samples else None
 
     @cached_property
@@ -124,55 +124,55 @@ class Sample(_Hash):
 
     @cached_property
     def name(self) -> str:
-        """Name of the constraint"""
+        """Name of the constraint."""
         # can have a sample without aspect or primary
         # safe to cache
         return f"{self.domain.primary}.{self.aspect.name}"
 
     @property
     def index(self) -> list[_Component]:
-        """_Index"""
+        """_Index."""
         return self.domain.index
 
     @property
     def index_short(self) -> list[_X | Sample]:
-        """Short Index"""
+        """Short Index."""
         return self.domain.index_short
 
     @cached_property
-    def I(self) -> Idx:
-        """gana index set (I)"""
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
+        """Return the Gana index set for this component."""
         return self.domain.I
 
     @property
     def x(self) -> Self:
-        """Binary Reporting Variable"""
+        """Binary Reporting Variable."""
         self.report = True
         return self
 
     @property
     def add(self) -> Self:
-        """Positive Control Response"""
+        """Positive Control Response."""
         return self.aspect.add(*self.index)
 
     @property
     def sub(self) -> Self:
-        """Negative Control Response"""
+        """Negative Control Response."""
         return self.aspect.sub(*self.index)
 
     @property
     def F(self):
-        """Function"""
+        """Function."""
         return self.X(1) if self.report else self.V(1)
 
     @property
     def constraints(self):
-        """Constraints"""
+        """Constraints."""
         return self.aspect.constraints
 
     @cached_property
     def space(self):
-        """Assigns to network is spatial index is not given"""
+        """Use the network when the selection omits a spatial index."""
         if not self.spaced:
             # if spatial index is not explicity given
             # default to the network
@@ -182,7 +182,9 @@ class Sample(_Hash):
 
     @cached_property
     def time(self):
-        """Matches an appropriate temporal scale
+        """
+        Matches an appropriate temporal scale.
+
         Sets domain.periods if needed and
         returns domain.periods
         """
@@ -191,7 +193,7 @@ class Sample(_Hash):
         return self.domain.periods
 
     def _match_time(self):
-        """Matches an appropriate temporal scale"""
+        """Matches an appropriate temporal scale."""
         if isinstance(self.parameter, list):
             # if list is given, find using length of the list
             if self.domain.modes is not None:
@@ -209,7 +211,7 @@ class Sample(_Hash):
         return self.aspect.horizon
 
     def _handshake(self):
-        """Take what is needed"""
+        """Take what is needed."""
         self.model = self.aspect.model
         self.program = self.model.program
         self.balances = self.model.balances
@@ -217,7 +219,7 @@ class Sample(_Hash):
         self.bound = self.aspect.bound
 
     def _inform(self):
-        """Informs the aspect and domain about the sample"""
+        """Informs the aspect and domain about the sample."""
         # updated the indices
         # we can be confident that the self.I is unique
         # because of the check above
@@ -254,7 +256,7 @@ class Sample(_Hash):
 
     def prep(self, nominal: float = 1, norm: bool = True) -> Self:
         """
-        Nominal value
+        Nominal value.
 
         :param nominal: If the input argument (bounds) are to be scaled, defaults to 1
         :type nominal: float, optional
@@ -266,7 +268,7 @@ class Sample(_Hash):
         return self
 
     def forall(self, index) -> Self:
-        """Returns the function at the given index"""
+        """Returns the function at the given index."""
         self._forall = index
         return self
 
@@ -275,10 +277,11 @@ class Sample(_Hash):
     # ---------------------------------------------------------------------------
 
     def _init_V(
-        self, parameter: float | list[float] | None = None, length: int | None = None
+        self,
+        parameter: float | list[float] | None = None,
+        length: int | None = None,
     ):
-        """Initialize making a variable"""
-
+        """Initialize making a variable."""
         self.parameter = parameter
         self.length = length
 
@@ -298,6 +301,7 @@ class Sample(_Hash):
     ) -> V:
         """
         Returns a gana variable (V) using .domain as the index.
+
         If time and space are (or) not given, i.e. .spaced or .timed are False,
         They can be determined.
 
@@ -320,7 +324,6 @@ class Sample(_Hash):
         .. note::
             - parameters and length are mutually exclusive
         """
-
         self._init_V(parameter, length)
 
         # with lag it is assumed that the variable of which this is a lagged subset is
@@ -337,7 +340,6 @@ class Sample(_Hash):
         # TODO: Will require separate aspect.indices lists
 
         if str(self.I) not in [str(i) for i in self.aspect.indices]:
-
             # if a variable has not been created for the self.I
             # create a variable
             # all energia variables are mutable by default
@@ -350,9 +352,13 @@ class Sample(_Hash):
 
         return getattr(self.program, self.aspect.name)(*self.I)
 
-    def Vinc(self, parameters: float | list = None, length: int = None) -> V:
+    def Vinc(
+        self,
+        parameters: float | list | None = None,
+        length: int | None = None,
+    ) -> V:
         """
-        Returns the incidental variable
+        Returns the incidental variable.
 
         :param parameters: the parameter/parameter set. Defaults to None.
         :type parameters: float | list, optional
@@ -393,7 +399,8 @@ class Sample(_Hash):
 
     def Vb(self) -> V:
         r"""
-        Bound Variable
+        Bound Variable.
+
         These apply when there are multiple levels of variable-making
         Endogenous bounds apply, i.e.
 
@@ -409,7 +416,6 @@ class Sample(_Hash):
         - :math:`t^{i}` are bespoke discretizations of the horizon
         - :math:`i \in \{-, +\}` are variable-making levels
         """
-
         bound_aspect = getattr(self.model, self.aspect.bound)
 
         if bound_aspect not in self.model.dispositions:
@@ -419,7 +425,6 @@ class Sample(_Hash):
             self.domain.space
             not in self.model.dispositions[bound_aspect][self.domain.primary]
         ):
-
             # if the bound variable has not been defined at the given space
             logger.info(
                 "Aspect (%s) not defined at %s, a variable will be created assuming %s as the temporal index",
@@ -440,17 +445,21 @@ class Sample(_Hash):
                 domain = self.domain.edit({"periods": time})
             else:
                 # this is if the binding variable has a sparser temporal index compared to time
-                raise ValueError(
+                message = (
                     f"Incompatible temporal indices: {bound_aspect} defined in time {time} and {self.aspect} defined in time {self.domain.periods}\n"
-                    f"Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})",
+                    f"Binding variable ({bound_aspect}) cannot have a denser discretization than variable being bound ({self.aspect})"
                 )
+                raise ValueError(message)
         return bound_aspect(domain=domain).V()
 
     def X(
-        self, parameters: float | list[float] | None = None, length: int | None = None
+        self,
+        parameters: float | list[float] | None = None,
+        length: int | None = None,
     ) -> V:
         r"""
-        Binary Reporting Variable
+        Binary Reporting Variable.
+
         These report whether a variable has been made or not
         Also useful to make the variable space semi-continuous
 
@@ -463,7 +472,6 @@ class Sample(_Hash):
             - :math:`\theta` is the parameter set
             - :math:`t` some bespoke discretization of the horizon
         """
-
         self._init_V(parameters, length)
 
         if self.domain.lag:
@@ -491,7 +499,7 @@ class Sample(_Hash):
         return v_rpt(*self.I)
 
     def Vlag(self):
-        """Handles lagged domains"""
+        """Handles lagged domains."""
         # with lag it is assumed that the variable of which this is a lagged subset is
         # already defined
         # for example, if opr_t = opr_t-1 + x_t, then opr_t is already defined
@@ -528,7 +536,7 @@ class Sample(_Hash):
 
     def obj(self, maximize: bool = False):
         """
-        Set the sample itself as the objective
+        Set the sample itself as the objective.
 
         :param max: if maximization, defaults to False
         :type max: bool, optional
@@ -566,7 +574,7 @@ class Sample(_Hash):
 
     def opt(self, maximize: bool = False):
         """
-        Optimize
+        Optimize.
 
         :param maximize: if maximization, defaults to False
         :type maximize: bool, optional
@@ -576,7 +584,7 @@ class Sample(_Hash):
         self.program.opt()
 
     def bounds(self):
-        """Finds the bounds of the variable"""
+        """Finds the bounds of the variable."""
         # TODO
         self.opt()
         bmin = self.program.obj()
@@ -586,7 +594,7 @@ class Sample(_Hash):
 
     def eval(self, *values: float):
         """
-        Evaluate the variable using parametric variable values
+        Evaluate the variable using parametric variable values.
 
         :param values: values for the parametric variables
         :type values: float
@@ -599,7 +607,7 @@ class Sample(_Hash):
 
     def output(self, aslist: bool = False, asdict: bool = False, compare: bool = False):
         """
-        Solution
+        Solution.
 
         :param aslist: Returns the solution as list, otherwise as a variable
         :type aslist: bool, optional
@@ -611,8 +619,7 @@ class Sample(_Hash):
         return self.V().output(aslist=aslist, asdict=asdict, compare=compare)
 
     def show(self, descriptive=False):
-        """Pretty print constraints"""
-
+        """Pretty print constraints."""
         for c in (
             set(chain.from_iterable(i.constraints for i in self.index))
             & self.aspect.constraints
@@ -630,7 +637,7 @@ class Sample(_Hash):
         usetex: bool = True,
         str_idx_lim: int = 10,
     ):
-        """Draws the variable as a bar chart"""
+        """Draws the variable as a bar chart."""
         v = self.V()
         v.bar(
             font_size=font_size,
@@ -652,7 +659,7 @@ class Sample(_Hash):
         usetex: bool = True,
         str_idx_lim: int = 10,
     ):
-        """Draws the variable as a line chart"""
+        """Draws the variable as a line chart."""
         v = self.V()
         v.line(
             font_size=font_size,
@@ -669,15 +676,29 @@ class Sample(_Hash):
     # ---------------------------------------------------------------------------
 
     def __getattr__(self, other):
+        """Apply the named model aspect to this sample."""
         aspect = getattr(self.model, other)
         return aspect(self)
 
     def __le__(self, other):
+        """
+        Bind this sample to an upper limit.
 
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location, Model, Periods, Process
+
+                m = Model()
+                m.site, m.hour, m.boiler = Location(), Periods(), Process()
+                m.boiler.operate(m.site, m.hour) <= 12
+                assert m.scenario[m.operate][m.boiler][m.site][m.hour]["ub"] == 12
+        """
         Bind(sample=self, parameter=other, leq=True, forall=self._forall)
 
     def __ge__(self, other):
-
+        """Bind a lower limit, declaring the variable for a nonnegative sample bounded at zero."""
         if self.aspect.nn and isinstance(other, (int, float)) and other == 0:
             # if a zero lower bound is given
             # just declare the variable
@@ -688,10 +709,11 @@ class Sample(_Hash):
             Bind(sample=self, parameter=other, geq=True, forall=self._forall)
 
     def __hash__(self):
+        """Hash the model identity together with the selected indices."""
         return hash((id(self.model), self._selection))
 
     def __eq__(self, other):
-
+        """Compare sample selections, declare a variable with True, or bind an equality."""
         if other is True:
             # if a truth value is give
             # just declare the variable
@@ -706,23 +728,36 @@ class Sample(_Hash):
             if callable(self.of):
                 _ = self.of(*self.domain.index_primary[1:]) >= 0
             Bind(sample=self, parameter=other, eq=True, forall=self._forall)
+        return None
 
     def __gt__(self, other):
+        """Translate a strict lower bound into the model's inclusive lower bound."""
         logger.info(
-            "Bind %s > %s is being written as %s >= %s", self, other, self, other
+            "Bind %s > %s is being written as %s >= %s",
+            self,
+            other,
+            self,
+            other,
         )
         _ = self >= other
 
     def __lt__(self, other):
+        """Translate a strict upper bound into the model's inclusive upper bound."""
         logger.info(
-            "Bind %s < %s is being written as %s <= %s", self, other, self, other
+            "Bind %s < %s is being written as %s <= %s",
+            self,
+            other,
+            self,
+            other,
         )
         _ = self <= other
 
     def __call__(self, *index) -> Sample:
+        """Extend the aspect selection with additional indices, preserving reporting mode."""
         return self.aspect(*self.domain.index_short, *index, report=self.report)
 
     def __getitem__(self, calculate: Sample):
+        """Select an indexed function or evaluate another sample on the same space and time."""
         if isinstance(calculate, int):
             f = self.F(self.F.index[calculate])
             f.report = self.report
@@ -730,84 +765,102 @@ class Sample(_Hash):
         return calculate(self(), *self.domain.index_spatiotemporal)
 
     def __add__(self, other: Self | FuncOfSamples):
+        """Build the sum of the modeled expression and a number or another expression."""
         if isinstance(other, (int, float)):
             return FuncOfSamples(F=self.F + other, program=self.program)
         return FuncOfSamples(F=self.F + other.F, program=self.program)
 
     def __radd__(self, other):
+        """Return this expression for the zero starting value used by Python's sum."""
         if not other:
             return self
+        return None
 
     def __sub__(self, other: Self | FuncOfSamples):
+        """Subtract a number or another modeled expression."""
         if isinstance(other, (int, float)):
             return FuncOfSamples(F=self.F - other, program=self.program)
         return FuncOfSamples(F=self.F - other.F, program=self.program)
 
     def __rsub__(self, other: int | float):
+        """Subtract the modeled expression from a numeric left operand."""
         return FuncOfSamples(F=other - self.F, program=self.program)
 
     def __mul__(self, other: Self | FuncOfSamples):
+        """Multiply the underlying functions of two modeled expressions."""
         return FuncOfSamples(F=self.F * other.F, program=self.program)
 
     def __rmul__(self, other: int | float):
+        """Scale the modeled expression by a numeric left operand."""
         return FuncOfSamples(F=other * self.F, program=self.program)
 
 
 class FuncOfSamples:
-    """Some Function of Samples
+    """
+    Some Function of Samples.
 
     This is used to bind a function of variables to a given parameter (set)
-
     """
 
     def __init__(self, F: F, program: Prg):
+        """Associate the combined Gana function with the program that owns its constraints."""
         self.program = program
         self.F = F
 
     def __add__(self, other: Self | Sample):
+        """Build the sum of the modeled expression and a number or another expression."""
         if isinstance(other, (int, float)):
             return FuncOfSamples(F=self.F + other, program=self.program)
         return FuncOfSamples(F=self.F + other.F, program=self.program)
 
     def __radd__(self, other):
+        """Return this expression for the zero starting value used by Python's sum."""
         if not other:
             return self
+        return None
 
     def __sub__(self, other: Self | Sample):
+        """Subtract a number or another modeled expression."""
         if isinstance(other, (int, float)):
             return FuncOfSamples(F=self.F - other, program=self.program)
         return FuncOfSamples(F=self.F - other.F, program=self.program)
 
     def __rsub__(self, other: int | float):
+        """Subtract the modeled expression from a numeric left operand."""
         return FuncOfSamples(F=other - self.F, program=self.program)
 
     def __mul__(self, other: Self | Sample):
+        """Multiply the underlying functions of two modeled expressions."""
         return FuncOfSamples(F=self.F * other.F, program=self.program)
 
     def __rmul__(self, other: int | float):
+        """Scale the modeled expression by a numeric left operand."""
         return FuncOfSamples(F=other * self.F, program=self.program)
 
     def __eq__(self, other):
+        """Register and return an equality constraint on the combined expression."""
         func = self.F == other
         setattr(self.program, f"eq_{self.F.name}", func)
         return func
 
     def __le__(self, other):
+        """Register and return an upper-bound constraint on the combined expression."""
         func = self.F <= other
         setattr(self.program, f"le_{self.F.name}", func)
         return func
 
     def __ge__(self, other):
+        """Register and return a lower-bound constraint on the combined expression."""
         func = self.F >= other
         setattr(self.program, f"ge_{self.F.name}", func)
         return func
 
     def opt(self, maximize=False):
-        """Optimize the function
+        """
+        Optimize the function.
 
         :param max: if maximization, defaults to False
         :type max: bool, optional
         """
-
         setattr(self.program, f"min_{self.F.name}", inf(self.F))
         self.program.opt(maximize=maximize)

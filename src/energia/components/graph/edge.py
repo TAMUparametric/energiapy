@@ -1,4 +1,4 @@
-"""Edge"""
+"""Edge."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Edge(_Name):
     """
-    Edge of a Graph
+    Edge of a Graph.
 
     :param label: Label of the component, used for plotting. Defaults to None.
     :type label: str, optional
@@ -26,5 +26,6 @@ class Edge(_Name):
     """
 
     def __init__(self, label: str = ""):
+        """Create a labeled edge awaiting assignment to a graph."""
         self.graph: Graph | None = None
         _Name.__init__(self, label=label)

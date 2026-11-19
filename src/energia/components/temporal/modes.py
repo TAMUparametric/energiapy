@@ -1,4 +1,4 @@
-"""Operational Mode attached to a Parameter"""
+"""Operational Mode attached to a Parameter."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 class Modes(_X):
     """
     Represents a discrete choice to be taken within a spatiotemporal disposition.
+
     Modes can split usage. A Mode of Operation can be used for Conversion, Use, etc.
 
     :param n_modes: Number of modes. Defaults to 1.
@@ -48,6 +49,7 @@ class Modes(_X):
         parent: Self | None = None,
         n: int | None = None,
     ):
+        """Describe a group of operating modes or a single indexed mode within its parent."""
         self.size = size
         self.sample = sample
         self.parent = parent
@@ -61,13 +63,12 @@ class Modes(_X):
 
     @cached_property
     def _(self) -> list[Self]:
-        """Child modes"""
+        """Child modes."""
         return [Modes(sample=self.sample, parent=self, n=i) for i in range(self.size)]
 
     @cached_property
-    def I(self) -> Idx:
-        """Index set of modes"""
-
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
+        """Index set of modes."""
         if self.parent:
             _ = self.parent.I  # makes sure the parent is indexed
             # do not set a new index set, get from parent
@@ -85,33 +86,43 @@ class Modes(_X):
 
     @property
     def cons(self) -> list[C]:
-        """Constraints"""
+        """Constraints."""
         # overwrite X.cons property
         # this gets the actual constraint objects from the program
         # based on the pname (attribute name) in the program
+        constraints = super().cons
         if self.parent:
-            return [getattr(self.program, c) for c in self.constraints]
-        return list(
-            set(
-                [getattr(self.program, c) for c in self.constraints]
-                + sum(
-                    [m.cons for m in self],
-                    [],
-                )
-            )
-        )
+            return constraints
+        constraints.extend(c for mode in self for c in mode.cons)
+        return list(set(constraints))
 
     def __eq__(self, other: Modes) -> bool:
+        """Compare two modes by their assigned names."""
         if isinstance(other, Modes) and other.name == self.name:
             return True
         return False
 
     def __len__(self) -> int:
+        """Return the number of operating modes in this group."""
         return self.size
 
     def __getitem__(self, key: int) -> _X:
+        """
+        Return the child mode at the given integer index.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia.components.temporal.modes import Modes
+
+                levels = Modes(size=3)
+                assert [level.n for level in levels] == [0, 1, 2]
+                assert levels[1].parent is levels
+        """
         return self._[key]
 
     def __iter__(self):
+        """Yield the child modes in index order."""
         for i in range(self.size):
             yield self[i]

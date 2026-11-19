@@ -1,4 +1,4 @@
-"""Interact"""
+"""Interact."""
 
 from __future__ import annotations
 
@@ -9,8 +9,9 @@ if TYPE_CHECKING:
 
 
 class Interact:
-    """Interaction between Players
-    
+    """
+    Interaction between Players.
+
     :param player1: First player
     :type player1: Player
     :param player2: Second player

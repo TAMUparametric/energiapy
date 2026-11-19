@@ -1,4 +1,4 @@
-"""Graph"""
+"""Graph."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Graph(_Hash):
-    """Graph representation
+    """
+    Graph representation.
 
     :param model: Model to which the graph belongs.
     :type model: Model
@@ -35,6 +36,7 @@ class Graph(_Hash):
     model: Model
 
     def __post_init__(self):
+        """Name the graph for its model and initialize its node and edge collections."""
         self.name = f"Graph({self.model})"
         self.nodes: list[Node] = []
         self.edges: list[Edge] = []

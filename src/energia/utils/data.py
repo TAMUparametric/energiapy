@@ -1,4 +1,4 @@
-"""Data management utilities"""
+"""Data management utilities."""
 
 import numpy as np
 import pandas as pd
@@ -31,8 +31,8 @@ def make_henry_price_df(
     -------
     :class:`pandas.DataFrame`
         DataFrame containing varying natural gas prices with missing values filled.
-    """
 
+    """
     df = pd.read_csv(file_name, skiprows=5, names=["date", "CH4"])
 
     df[["month", "day", "year"]] = df["date"].str.split("/", expand=True)
@@ -54,7 +54,7 @@ def make_henry_price_df(
                         pd.DataFrame.from_records(
                             [
                                 {
-                                    "CH4": df["CH4"][df["doy"] == 2].values[0],
+                                    "CH4": df["CH4"][df["doy"] == i + 1].values[0],
                                     "month": 1,
                                     "day": 1,
                                     "year": year,
@@ -87,15 +87,13 @@ def make_henry_price_df(
     df["CH4"] = df["CH4"] / 22.4  # convert from $/MMBtu to $/kg
     df = df[["CH4", "doy"]].rename(columns={"doy": "day"})
     if stretch is False:
-        df = df
         df["scales"] = [(0, int(i - 1)) for i in df["day"]]
 
     else:
         df = df.loc[df.index.repeat(24)].reset_index(drop=True)
         df["hour"] = [int(i) for i in range(0, 24)] * 365
         df["scales"] = [(0, int(i - 1), int(j)) for i, j in zip(df["day"], df["hour"])]
-    df = df[["CH4", "scales"]]
-    return df
+    return df[["CH4", "scales"]]
 
 
 def remove_outliers(
@@ -112,7 +110,7 @@ def remove_outliers(
     ----------
     data : :class:`pandas.DataFrame`
         Input data.
-    sd_cutoff : :class:`int`, optional
+    sd_cuttoff : :class:`int`, optional
         Remove data points that are beyond this many standard deviations. Defaults to ``2``.
     mean_range : :class:`int`, optional
         Number of neighboring data points on each side to average over when replacing outliers. Defaults to ``1``.
@@ -121,6 +119,7 @@ def remove_outliers(
     -------
     :class:`pandas.DataFrame`
         DataFrame with outliers replaced by local means.
+
     """
     data_mean, data_std = data.mean(), data.std()
     # identify outliers

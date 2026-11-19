@@ -1,4 +1,4 @@
-"""Impact Indicator"""
+"""Impact Indicator."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Indicator(_Component):
     """
-    Impact Indicator
+    Impact Indicator.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -33,10 +33,10 @@ class Indicator(_Component):
     """
 
     def __init__(self, label: str = "", citations: str = "", **kwargs):
-
+        """Initialize the label, citations, and component parameters of an impact indicator."""
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
     @property
     def impact(self) -> Impact:
-        """Impact object"""
+        """Impact object."""
         return self.model.impact

@@ -1,9 +1,10 @@
-"""Export docs/examples notebooks to .py"""
+"""Export docs/examples notebooks to .py."""
+
+from pathlib import Path
 
 
 def main():
-    from pathlib import Path
-
+    # Notebook export dependencies are installed with the docs extra.
     import nbformat
     from nbconvert import PythonExporter
 

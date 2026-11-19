@@ -1,4 +1,4 @@
-"""Location where Operations can reside"""
+"""Location where Operations can reside."""
 
 from __future__ import annotations
 
@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 class Location(_X):
     """
-    A discretization of Space. A location can be inclusive of other locations
-
+    A discretization of Space. A location can be inclusive of other locations.
 
     :param has: Locations contained in this Location.
     :type has: tuple[IsLocation]
@@ -52,7 +51,7 @@ class Location(_X):
     """
 
     def __init__(self, *has: Self, label: str = "", citations: str = ""):
-
+        """Group the supplied locations and register named children in the spatial hierarchy."""
         # the other locations contained in this location
         self.has: tuple[Self] = has
 
@@ -87,7 +86,7 @@ class Location(_X):
         self.multiplier = 1
 
     def __setattr__(self, name, value):
-
+        """Propagate an assigned currency to the locations contained in this location."""
         if name == "currency" and value:
             # all locations within a location have the same currency
             for loc in self.has + self.alsohas:
@@ -96,7 +95,7 @@ class Location(_X):
         super().__setattr__(name, value)
 
     def locate(self, *operations: Process | Storage):
-        """Locates the Operations"""
+        """Locates the Operations."""
         # locates an operation
         # which leads to the conversion balances being written
         for opr in operations:
@@ -104,7 +103,7 @@ class Location(_X):
 
     @property
     def tree(self) -> dict[Self, dict]:
-        """Prints the tree of Locations"""
+        """Prints the tree of Locations."""
         # a tree visualizing the hierarchy of locations
         if self.has:
             return {loc: loc.tree for loc in self.has}
@@ -114,30 +113,29 @@ class Location(_X):
 
     @property
     def parent(self) -> Self | None:
-        """Finds the parent Location"""
+        """Finds the parent Location."""
         return self.isin
 
     @property
     def depth(self):
-        """Finds the depth of the Location"""
+        """Finds the depth of the Location."""
         # gets the level of hierarchy of the Location
         return get_depth(self.tree)
 
     def update_hierarchy(self, hierarchy: int = 0):
-        """Updates the hierarchy of the locations"""
-
+        """Updates the hierarchy of the locations."""
         self.hierarchy = hierarchy
         for loc in self.has:
             loc.update_hierarchy(hierarchy + 1)
 
     @property
     def space(self) -> Space:
-        """Space to which the Location belongs"""
+        """Space to which the Location belongs."""
         return self.model.space
 
     @property
     def network(self) -> Self:
-        """Network to which the Location belongs"""
+        """Network to which the Location belongs."""
         return self.model.network
 
     @property
@@ -146,8 +144,8 @@ class Location(_X):
         return self == self.model.network
 
     @cached_property
-    def I(self) -> Idx:
-        """gana index set"""
+    def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
+        """Gana index set."""
         # if self.has:
         #     # if component has a nested locations
         #     _index = Idx(*[loc.name for loc in self.has], tag=self.label or "")
@@ -159,20 +157,20 @@ class Location(_X):
         return _index
 
     def sink(self):
-        """Tells whether the location is a sink"""
+        """Tells whether the location is a sink."""
         if self in self.space.sinks:
             return True
         return False
 
     def source(self):
-        """Tells whether the location is a source"""
+        """Tells whether the location is a source."""
         if self in self.space.sources:
             return True
         return False
 
     def links(self, location, show: bool = True) -> list[Linkage]:
         """
-        Finds the links between two Locations
+        Finds the links between two Locations.
 
         :param location: Location to find links with
         :type location: IsLocation
@@ -192,7 +190,6 @@ class Location(_X):
             reverse = is_(self, link.sink) and is_(location, link.source)
 
             if forward or reverse:
-
                 source, sink = (self, location) if forward else (location, self)
 
                 links.append(link)
@@ -202,7 +199,7 @@ class Location(_X):
 
     def connected(self, location, show: bool = False) -> bool:
         """
-        Finds whether the Locations are connected
+        Finds whether the Locations are connected.
 
         :param location: Location to verify Links with
         :type location: IsLocation
@@ -218,7 +215,7 @@ class Location(_X):
         return False
 
     def all(self):
-        """gives locations within"""
+        """Gives locations within."""
         # yeilds all locations within the location and all locations within those locations
         if self.has:
             for loc in self.has:
@@ -226,19 +223,33 @@ class Location(_X):
                 yield from loc.all()
 
     def __add__(self, location: Self):
-        """Creates another location which consists of self and other"""
+        """
+        Group two locations in a new containing location.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location, Model
+
+                m = Model()
+                m.north, m.south = Location(), Location()
+                m.grid = m.north + m.south
+                assert set(m.grid.has) == {m.north, m.south}
+        """
         if not self.name:
             # this handles when adding multiple locations
             return Location(*self.has, location)
         return Location(location, self)
 
     def __radd__(self, number: int):
-        """For allowing sum([Loc])"""
+        """For allowing sum([Loc])."""
         if isinstance(number, int) and number == 0:
             return self
+        return None
 
     def __sub__(self, location: Self):
-        """Creates a linkage"""
+        """Creates a linkage."""
         # subtracting a location creates a link
         # alternatively Model.Link can be used
         # for multiple links across the same two locations
@@ -254,30 +265,52 @@ class Location(_X):
             )
         if links:
             return links[0]
+        return None
 
     def __eq__(self, other: Self):
+        """Test whether the operands are the same location object."""
         # the objects need to be the same
         return is_(self, other)
 
     def __lt__(self, other: Self):
+        """
+        Test whether this location is a child or a recorded descendant of the other location.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location
+
+                plant = Location()
+                region = Location(plant)
+                assert plant < region
+                assert not region < plant
+        """
         # if a location is nested within another
         return self in other.has or self in other.alsohas
 
     def __le__(self, other: Self):
+        """Test whether this location is the other location or one of its descendants."""
         # same as less than & equality
         return self < other or self == other
 
     def __gt__(self, other: Self):
+        """Test whether the other location is a descendant of this location."""
         # reverse check
         return other < self
 
     def __ge__(self, other: Self):
+        """Test whether the other location is this location or one of its descendants."""
         # reverse check
         return other <= self
 
     def __iter__(self):
+        """Yield the tuple of direct members as a single group."""
         yield self.has
 
     def __contains__(self, item: Self):
+        """Test direct membership among the locations in this group."""
         if item in self.has:
             return True
+        return None
