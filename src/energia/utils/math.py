@@ -66,7 +66,8 @@ def generate_connectivity_matrix(scale_len) -> numpy.array:
 
 
 def normalize(data: list, how: str = "max") -> list:
-    """Normalize a series of values or (lower, upper) intervals.
+    """
+    Normalize a series of values or (lower, upper) intervals.
 
     The ``max`` method divides by the series maximum. If the maximum is
     zero, it uses the largest magnitude, leaving an all-zero series at zero.
@@ -76,6 +77,7 @@ def normalize(data: list, how: str = "max") -> list:
     :param data: Time-series values or (lower, upper) pairs.
     :param how: Normalization method, either ``max`` or ``min_max``.
     :return: Normalized values in the same grouping as the input.
+    :raises ValueError: If the method is unknown or interval bounds are reversed.
     """
     if how not in ("max", "min_max"):
         message = f"Unknown normalization method {how!r}"

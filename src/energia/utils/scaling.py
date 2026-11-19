@@ -7,7 +7,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataFrame:
-    """Scale each DataFrame column independently and retain both axes.
+    """
+    Scale each DataFrame column independently and retain both axes.
 
     Max scaling divides by the column maximum, using the largest magnitude
     when the maximum is zero. All-zero columns remain zero.
@@ -15,6 +16,7 @@ def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataF
     :param data: Input DataFrame.
     :param how: Scaling method, one of ``max``, ``minmax``, or ``standard``.
     :return: Scaled DataFrame with the input index and column labels.
+    :raises ValueError: If the input is not a DataFrame or the method is unknown.
     """
     if not isinstance(data, DataFrame):
         raise ValueError("please provide DataFrame")
