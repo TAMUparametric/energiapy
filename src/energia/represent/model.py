@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal, Type
+from typing import TYPE_CHECKING, Any, Literal
 
 from dill import dump
 
@@ -557,16 +557,16 @@ class Model:
     def Recipe(
         self,
         name: str,
-        kind: Type[Aspect],
-        primary_type: tuple[Type[_Component]] | Type[_Component],
+        kind: type[Aspect],
+        primary_type: tuple[type[_Component]] | type[_Component],
         label: str = "",
         latex: str = "",
         add: str = "",
         add_latex: str = "",
-        add_kind: Type[Aspect] | None = None,
+        add_kind: type[Aspect] | None = None,
         sub: str = "",
         sub_latex: str = "",
-        sub_kind: Type[Aspect] | None = None,
+        sub_kind: type[Aspect] | None = None,
         neg: str = "",
         neg_latex: str = "",
         neg_label: str = "",
@@ -580,9 +580,9 @@ class Model:
         :param name: Name of the aspect
         :type name: str
         :param kind: type of the aspect
-        :type kind: Type[Aspect]
+        :type kind: type[Aspect]
         :param primary_type: type of primary component
-        :type primary_type: tuple[Type[_Component]] | Type[_Component]
+        :type primary_type: tuple[type[_Component]] | type[_Component]
         :param label: label for the aspect. Defaults to ''.
         :type label: str, optional
         :param latex: LaTeX representation for the aspect. Defaults to None.
@@ -592,13 +592,13 @@ class Model:
         :param add_latex: LaTeX representation for the add aspect. Defaults to ''.
         :type add_latex: str, optional
         :param add_kind: type of the add aspect. Defaults to None.
-        :type add_kind: Type[Aspect], optional
+        :type add_kind: type[Aspect], optional
         :param sub: sub control variable. Defaults to ''.
         :type sub: str, optional
         :param sub_latex: LaTeX representation for the sub aspect. Defaults to ''.
         :type sub_latex: str, optional
         :param sub_kind: type of the sub aspect. Defaults to None.
-        :type sub_kind: Type[Aspect], optional
+        :type sub_kind: type[Aspect], optional
         :param neg: name of the negative aspect. Defaults to ''.
         :type neg: str, optional
         :param neg_latex: LaTeX representation for the negative aspect. Defaults to ''.
@@ -631,27 +631,27 @@ class Model:
             primary_type=primary_type,
         )
 
-        if add:
-            self.Recipe(
-                name=add,
-                kind=add_kind or sub_kind or Control,
-                label=add_latex or add,
-                ispos=True,
-                nn=True,
-                latex=latex or add,
-                primary_type=primary_type,
-            )
+        def register_control(
+            child: str,
+            preferred: type[Aspect] | None,
+            fallback: type[Aspect] | None,
+            child_label: str,
+            *,
+            positive: bool,
+        ) -> None:
+            if child:
+                self.Recipe(
+                    name=child,
+                    kind=preferred or fallback or Control,
+                    label=child_label or child,
+                    ispos=positive,
+                    nn=True,
+                    latex=latex or child,
+                    primary_type=primary_type,
+                )
 
-        if sub:
-            self.Recipe(
-                name=sub,
-                kind=sub_kind or add_kind or Control,
-                label=sub_latex or sub,
-                ispos=False,
-                nn=True,
-                latex=latex or sub,
-                primary_type=primary_type,
-            )
+        register_control(add, add_kind, sub_kind, add_latex, positive=True)
+        register_control(sub, sub_kind, add_kind, sub_latex, positive=False)
 
         if neg:
             neg_recipe = Recipe(
@@ -680,7 +680,7 @@ class Model:
     def Instruction(
         self,
         name: str,
-        kind: Type[_Component],
+        kind: type[_Component],
         deciding: str,
         depending: str,
         default: str,
@@ -715,11 +715,11 @@ class Model:
     # * Easy Birthing of Components
     # ------------------------------------------------------------------------
 
-    def declare(self, what: Type[_X], names: list[str]):
+    def declare(self, what: type[_X], names: list[str]):
         """Declares objects conveniently
 
         :param what: Type of object to be created
-        :type what: Type[X]
+        :type what: type[X]
         :param names: Names of the objects to be created
         :type names: list[str]
         """
@@ -958,6 +958,7 @@ class Model:
     # -------------------------------------------------------------------
 
     def __setattr__(self, name: str, value: Any) -> None:
+        """Register model components and assign their attributes."""
 
         if isinstance(value, (str, dict, list, bool)) or value is None:
             # if value is a string, dict, list or bool
@@ -1043,7 +1044,7 @@ class Model:
         if name in self.directory:
             # if this is an attribute being called for the first time
             recipes = self.directory[name]
-            aspect_name = list(recipes)[0]
+            aspect_name = next(iter(recipes))
 
             if aspect_name in self.added:
                 # if same aspect is called by a different name
