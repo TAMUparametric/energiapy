@@ -36,10 +36,24 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .[test]
+          pip install -e '.[test]' build
+
+      - name: Build wheel from source distribution
+        run: python -m build
+
+      - name: Validate installed wheel and solve a one-period model
+        working-directory: ${{ runner.temp }}
+        run: |
+          python -m venv wheel-env
+          wheel-env/bin/python -m pip install "$GITHUB_WORKSPACE"/dist/*.whl
+          wheel-env/bin/python -m pip check
+          wheel-env/bin/python -I "$GITHUB_WORKSPACE/tools/wheel_smoke.py"
 
       - name: Run tests
-        run: pytest --cov=energia --cov-report=xml --cov-report=term-missing tests/
+        run: pytest --cov=energia --cov-branch --cov-report=json --cov-report=xml --cov-report=term-missing tests/
+
+      - name: Enforce statement and branch coverage floors
+        run: python tools/check_coverage.py
 
       - name: Upload test results to Codecov
         uses: codecov/codecov-action@v5
