@@ -208,7 +208,7 @@ html_last_updated_fmt = ""
 source_suffix = {".rst": 'restructuredtext', ".md": 'myst-nb', ".ipynb": 'myst-nb'}
 html_context = {
     # ...
-    "default_mode": "dark"
+    "default_mode": "auto"
 }
 
 suppress_warnings = [
