@@ -94,7 +94,8 @@ class Model:
 
     :param name: Name of the Model. Defaults to m.
     :type name: str
-    :param init: List of functions to initialize the Model. Defaults to None.
+    :param init: Functions to run in order before the optional default initializers.
+        Each model copies the supplied list. Defaults to None.
     :type init: list[Callable], optional
     :param default: True if some default objects should be declared.
     :type default: bool
@@ -414,9 +415,7 @@ class Model:
         # --------------------------------------------------------------------
         # * Model Initialization
         # --------------------------------------------------------------------
-        # functions are passed and initialized on self
-        if not self.init:
-            self.init = []
+        self.init = list(self.init) if self.init is not None else []
 
         if self.default:
             self.init += [
