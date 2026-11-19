@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from operator import is_
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 from gana import I
 
@@ -44,7 +44,8 @@ class Linkage(_X):
     :vartype network: Loc
     """
 
-    def __init__(  # noqa: PLR0917 -- preserve the public positional arguments
+    @override
+    def __init__(
         self,
         source: Location,
         sink: Location,
@@ -54,6 +55,7 @@ class Linkage(_X):
         label: str = "",
         citations: str = "",
     ):
+        """Connect the source and sink locations."""
         if is_(source, sink):
             # if the source and sink are the same, throw error
             message = f"source and sink can't both be {source}"
@@ -167,7 +169,7 @@ class Linkage(_X):
         return False
 
     @cached_property
-    def I(self) -> I:  # noqa: E743 -- Gana index set
+    def I(self) -> I:  # noqa: E743, RUF100 -- public Gana index name; Codacy omits E743
         """gana index set (I)"""
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
