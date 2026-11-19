@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- A time scale inferred from a profile, or declared by dividing a coarser
+  period, now creates a solver index for every subdivision. Time-sum
+  constraints link the resulting decisions to their coarser totals.
 - Each model copies its initializer list. Reusing a list across models now runs
   the default recipes and instructions only for models that request them, once per model.
 - One-period process conversions accept a single coefficient in a list, such

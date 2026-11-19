@@ -147,7 +147,7 @@ class Map:
         for sp in sparser_periods:
             # check if the aspect has been defined for a sparser period
             # this creates a map from this domain to a sparser domain
-            if sp in self.dispositions[self.space] and is_(sp.of, self.time):
+            if sp in self.dispositions[self.space] and sp in self.time.coarser_periods:
                 self.write(self.domain, self.domain.edit({"periods": sp}), tsum=True)
 
     def _map_from_denser_time(self, denser_periods: list[Periods]):
@@ -158,7 +158,7 @@ class Map:
         :type denser_periods: list[Periods]
         """
         for dp in denser_periods:
-            if dp in self.dispositions[self.space] and is_(self.time.of, dp):
+            if dp in self.dispositions[self.space] and self.time in dp.coarser_periods:
                 binds_dict = self.dispositions[self.space][dp]
                 # here I am re creating Bind objects
                 # from the dict of the form {aspect: {component: {aspect: {component: {...}}}}}

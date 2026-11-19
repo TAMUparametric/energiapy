@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from functools import cached_property
+from math import ulp
 from operator import is_
 from typing import TYPE_CHECKING, Self
 
@@ -129,6 +130,14 @@ class Periods(_X):
         """Time to which the Periods belongs."""
         return self.model.time
 
+    @property
+    def coarser_periods(self) -> list[Self]:
+        """Direct containing scales, whether declared by multiplication or division."""
+        coarser = [period for period in self.isof if period.size >= 1]
+        if self.of is not None and self.size < 1:
+            coarser.insert(0, self.of)
+        return coarser
+
     @cached_property
     def I(self) -> Idx:  # noqa: E743, RUF100 -- public Gana index
         """Index tuple."""
@@ -140,14 +149,21 @@ class Periods(_X):
         if self.n is not None:
             return self.of.I[self.n]
 
-        if self.isof:
-            return (*self.isof[0].I, self.i)
+        if coarser := self.coarser_periods:
+            return (*coarser[0].I, self.i)
         return (self.i,)
 
     @cached_property
     def i(self) -> Idx:
-        """Only Index."""
-        _i = Idx(size=self.isof[0].size if self.isof else 1, tag=self.label or "")
+        """Index the subdivisions within one containing period."""
+        coarser = self.coarser_periods
+        size = coarser[0].howmany(self) if coarser else 1
+        if size != int(size):
+            message = (
+                f"{coarser[0]} contains a nonintegral number of {self} periods: {size}"
+            )
+            raise ValueError(message)
+        _i = Idx(size=int(size), tag=self.label or "")
         setattr(self.program, self.name, _i)
         return _i
 
@@ -177,6 +193,10 @@ class Periods(_X):
                 result = attempt()
             except NotFoundError:
                 continue
+            # Taking the reciprocal of a subdivision can miss an integer by roundoff.
+            nearest = round(result)
+            if abs(result - nearest) <= ulp(result):
+                result = nearest
             self._howmany[of] = result
             return result
 

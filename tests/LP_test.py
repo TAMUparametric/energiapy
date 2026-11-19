@@ -1,4 +1,5 @@
 import pytest
+from gurobipy import GRB
 
 # from energia import Currency, Model, Periods, Process, Resource
 
@@ -23,9 +24,10 @@ def m(request):
     return _m
 
 
-# TODO: "wo_time" not ready yet
-@pytest.mark.parametrize("m", ["attrs", "plain"], indirect=True)
+@pytest.mark.parametrize("m", ["attrs", "plain", "wo_time"], indirect=True)
 def test_small_1L_1T_1O_LP(m):
+    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert m.program.formulation.ObjVal == pytest.approx(1_081_000)
     assert len(m.periods) == 2
     assert m.locations == [m.network]
     assert m.resources == [m.wind, m.power]
@@ -38,6 +40,10 @@ def test_small_1L_1T_1O_LP(m):
     assert m.operate.output(aslist=True) == pytest.approx(
         [60.0, 70.0, 100.0, 30.0, 260.0], rel=1e-9
     )
+    assert m.wf.operate(m.time.densest).output(aslist=True) == pytest.approx(
+        [60, 70, 100, 30]
+    )
+    assert m.wf.operate(m.horizon).output(aslist=True) == pytest.approx([260])
     assert m.spend.output(aslist=True) == pytest.approx(
         [240000.0, 294000.0, 430000.0, 117000.0, 1081000.0], rel=1e-9
     )
