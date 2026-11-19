@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
+from collections.abc import Iterator
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,10 @@ from ...utils.decorators import timer
 logger = logging.getLogger("energia")
 
 if TYPE_CHECKING:
+    from gana.sets.constraint import C
+    from gana.sets.function import F
+
+    from ...modeling.indices.domain import Domain
     from ...modeling.indices.sample import Sample
     from ...modeling.variables.aspect import Aspect
     from ..commodities.resource import Resource
@@ -156,22 +161,64 @@ class Operation(_Component):
 
         return False
 
-    @timer(logger, kind="assume-operate")
-    def _check_operate_bound(self, space: Location | Linkage):
-        """Check if operate is bounded in space"""
-        if self not in self.operate_aspect.bound_spaces:
-            # ensure that the bound_spaces dict is initialized
-            self.operate_aspect.bound_spaces[self] = {"ub": [], "lb": []}
+    def _operating_time(self, space: Location | Linkage) -> Periods:
+        operations = self.model.dispositions.get(self.operate_aspect, {})
+        return min(operations.get(self, {}).get(space, ()), default=self.horizon)
 
-        if space not in self.operate_aspect.bound_spaces[self]["ub"]:
-            operations = self.model.dispositions.get(self.operate_aspect, {})
-            periods = operations.get(self, {}).get(space, ())
-            time = min(periods, default=self.horizon)
-            _ = self.operate_sample(space, time) <= 1
+    def _mapped_totals(self, domain: Domain) -> Iterator[Domain]:
+        """Yield coarser domains connected by existing time-sum constraints."""
+        time_maps = self.operate_aspect.maps["time"]
+        for period in domain.periods.isof:
+            total = domain.edit({"periods": period})
+            if domain in time_maps.get(total, ()):
+                yield total
+                yield from self._mapped_totals(total)
 
-            return self, space, time
+    @staticmethod
+    def _implies_capacity(bound: C, reference: F) -> bool:
+        """Check each aggregate row against activity - capacity <= 0."""
+        if len(bound) != len(reference):
+            return False
+        for row, limit in zip(bound, reference, strict=True):
+            # Gana stores parameter columns in Z, the constant RHS in B, and
+            # variable columns and their coefficients in P and A, respectively.
+            if row.Z or row.B > 0:
+                return False
+            # A nonpositive cap on activity also implies the capacity bound.
+            if row.P == limit.P[:1] and row.A == [1]:
+                continue
+            if row.P != limit.P or row.A[0] != 1 or row.A[1] < -1:
+                return False
+        return True
 
+    def _inherits_capacity_bound(self, sample: Sample) -> bool:
+        # Operating activity is nonnegative, so every term in a time sum is
+        # bounded by its total. Only a bound against the same capacity counts.
+        aspect = self.operate_aspect
+        for total in self._mapped_totals(sample.domain):
+            for relation in ("ub", "eq"):
+                name = f"{aspect.name}{total.idxname}_{relation}"
+                if name in aspect.constraints:
+                    reference = aspect(domain=total).V() - sample.Vb()
+                    if self._implies_capacity(getattr(self.program, name), reference):
+                        return True
         return False
+
+    @timer(logger, kind="assume-operate")
+    def _check_operate_bound(self, space: Location | Linkage, time: Periods):
+        aspect = self.operate_aspect
+        try:
+            bounds = self.model.scenario[aspect][self][space][time]
+        except KeyError:
+            bounds = {}
+        if "ub" in bounds or "eq" in bounds:
+            return False
+
+        sample = self.operate_sample(space, time)
+        if aspect.nn and self._inherits_capacity_bound(sample):
+            return False
+        _ = sample <= 1
+        return self, space, time
 
     def _update_space_times(
         self,
@@ -197,11 +244,12 @@ class Operation(_Component):
 
         space_times: list[tuple[Location | Linkage, Periods]] = []
 
-        # get location, time tuples where operation is defined
+        placements = []
         for space in spaces:
             self._check_capacity_bound(space)
-
-            self._check_operate_bound(space)
+            time = self._operating_time(space)
+            placements.append((space, time))
+            self._check_operate_bound(space, time)
 
             space_times = self._update_space_times(space, space_times)
 
@@ -209,6 +257,11 @@ class Operation(_Component):
 
         if self.construction:
             self.write_construction(self.space_times)
+
+        for space, initial_time in placements:
+            time = self._operating_time(space)
+            if time is not initial_time:
+                self._check_operate_bound(space, time)
 
         return self, spaces
 
