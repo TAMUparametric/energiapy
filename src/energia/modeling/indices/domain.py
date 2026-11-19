@@ -259,7 +259,14 @@ class Domain(_Hash):
         :returns: list of bind indices
         :rtype: list[X]
         """
-        return [x for b in self.samples for x in (b.aspect, b.domain.primary)]
+        # Bind indices record the aspect and primary only. A sample and a
+        # time-qualified selection of it contribute the same pair to the variable.
+        pairs = []
+        for sample in self.samples:
+            pair = (sample.aspect, sample.domain.primary)
+            if pair not in pairs:
+                pairs.append(pair)
+        return [index for pair in pairs for index in pair]
 
     @property
     def index_modes(self) -> list[Modes]:
