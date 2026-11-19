@@ -29,7 +29,8 @@ class Instruction(_Name):
     :raises TypeError: If the component provided is not of the correct kind.
     """
 
-    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def __init__(
         self,
         name: str,
         kind: Type[_Component],

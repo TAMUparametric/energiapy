@@ -5,8 +5,11 @@ from pathlib import Path
 
 def main():
     # Notebook export dependencies are installed with the docs extra.
-    import nbformat  # noqa: PLC0415, RUF100
-    from nbconvert import PythonExporter  # noqa: PLC0415, RUF100
+    # ruff: ignore[PLC0415]
+    import nbformat
+
+    # ruff: ignore[PLC0415]
+    from nbconvert import PythonExporter
 
     # Example: export all notebooks from docs/examples
     nb_dir = Path(__file__).parent.parent.parent / "docs" / "examples"

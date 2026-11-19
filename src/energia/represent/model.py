@@ -511,7 +511,8 @@ class Model:
         value: _X,
         represent: str,
         collection: str,
-        aspects: list[str] | None = None,  # noqa: ARG002, RUF100 -- public keyword
+        # ruff: ignore[ARG002]  # Public keyword.
+        aspects: list[str] | None = None,
     ):
         """
         Update the Model with a new value.
@@ -580,7 +581,8 @@ class Model:
     # -------------------------------------------------------------------
     # These take an action on attribute inputs
 
-    def Recipe(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def Recipe(
         self,
         name: str,
         kind: type[Aspect],
@@ -715,7 +717,8 @@ class Model:
         recipe = self.cookbook[of]
         self.directory = {**self.directory, **{name: {of: recipe} for name in names}}
 
-    def Instruction(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def Instruction(
         self,
         name: str,
         kind: type[_Component],
@@ -888,7 +891,8 @@ class Model:
             self.program.draw(n_sol=n_sol)
 
     # * III Solution
-    def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):  # noqa: ARG002, RUF100 -- public slack argument
+    # ruff: ignore[ARG002]  # Public slack argument.
+    def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
         """
         Display a solution's objective and variable values.
 

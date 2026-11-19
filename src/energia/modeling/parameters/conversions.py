@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 class Production(Conversion):
     """Process Production."""
 
-    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def __init__(
         self,
         operation: Operation | Storage | None = None,
         resource: Commodity | None = None,
@@ -47,7 +48,8 @@ class Production(Conversion):
 class Construction(Conversion):
     """Operation Construction Conversion."""
 
-    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def __init__(
         self,
         operation: Operation | Storage | None = None,
         aspect: str = "capacity",
@@ -76,7 +78,8 @@ class Construction(Conversion):
 class Transportation(Conversion):
     """Transport Conversion."""
 
-    def __init__(  # noqa: PLR0917, RUF100 -- preserve positional calls
+    # ruff: ignore[PLR0917]  # Preserve positional calls.
+    def __init__(
         self,
         operation: Operation | Storage | None = None,
         resource: Commodity | None = None,

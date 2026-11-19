@@ -26,7 +26,8 @@ except ImportError:
     import_all = True
 
 
-def pvlib(  # noqa: PLR0917, RUF100 -- preserve positional calls
+# ruff: ignore[PLR0917]  # Preserve positional calls.
+def pvlib(
     data: DataFrame,
     coord: tuple[float, float],
     sam: str = "cecmod",
@@ -100,7 +101,8 @@ def pvlib(  # noqa: PLR0917, RUF100 -- preserve positional calls
     return [float(i) for i in array]
 
 
-def windpowerlib(  # noqa: PLR0917, RUF100 -- preserve positional calls
+# ruff: ignore[PLR0917]  # Preserve positional calls.
+def windpowerlib(
     data: DataFrame,
     roughness_length: float = 0.1,
     turbine_type: str = "V100/1800",
