@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- Locating storage now recognizes upper and equality bounds on inventory capacity
+  in the scenario at the selected location and horizon, including a bound of zero.
 - `Sample` equality and hashing use the aspect and its selected domain. Samples
   at different times or locations keep separate dictionary entries, and selecting
   the same sample again retrieves its entry after binding.
