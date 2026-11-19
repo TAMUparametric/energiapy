@@ -7,29 +7,31 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataFrame:
-    """Scales input DataFrame
+    """
+    Scale each DataFrame column independently and retain both axes.
 
-    :param data: input data
-    :type data: DataFrame
-    :param how: 'max', 'minmax', 'standard'
-    :type how: Literal['max', 'minmax', 'standard']
+    Max scaling divides by the column maximum, using the largest magnitude
+    when the maximum is zero. All-zero columns remain zero.
 
-    :return: scaled DataFrame
-    :rtype: DataFrame
-
-    :raises ValueError: if data is not DataFrame
+    :param data: Input DataFrame.
+    :param how: Scaling method, one of ``max``, ``minmax``, or ``standard``.
+    :return: Scaled DataFrame with the input index and column labels.
+    :raises ValueError: If the input is not a DataFrame or the method is unknown.
     """
     if not isinstance(data, DataFrame):
         raise ValueError("please provide DataFrame")
 
     if how == "max":
-        data = data / data.max()
+        maxima = data.max()
+        divisors = maxima.mask(maxima == 0, data.min().abs()).replace(0, 1)
+        return data / divisors
 
+    if how == "minmax":
+        scaler = MinMaxScaler()
+    elif how == "standard":
+        scaler = StandardScaler()
     else:
-        if how == "standard":
-            scaler = StandardScaler()
-        if how == "minmax":
-            scaler = MinMaxScaler()
-        data = DataFrame(scaler.fit_transform(data))
-
-    return data
+        message = f"Unknown scaling method {how!r}"
+        raise ValueError(message)
+    values = scaler.fit_transform(data.to_numpy(na_value=float("nan")))
+    return DataFrame(values, index=data.index, columns=data.columns)

@@ -233,7 +233,11 @@ class Bind:
     ):
         """Parameter bound of the bind constraint"""
 
-        return self._nominalized(self._normalized(self._listed()))
+        values = self._listed()
+        if isinstance(values, tuple):
+            # A single interval has two endpoints but represents one parameter.
+            return self._nominalized(self._normalized([values]))[0]
+        return self._nominalized(self._normalized(values))
 
     @cached_property
     def lhs(self):

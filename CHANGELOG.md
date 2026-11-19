@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- Normalization uses a common scale for interval endpoints and preserves a
+  shared resource price interval passed to `prep()`. Constant series normalize
+  to zero with min–max scaling. Max scaling keeps an all-zero series at zero.
+- DataFrame scaling preserves the index and column labels for `minmax` and
+  `standard`, handles zero maxima, and raises `ValueError` for an unknown method.
 - Ordinary variable mappings use `Aspect.maps` and reporting variable mappings use
   `Aspect.maps_report`. Repeating a mapping preserves the constraint coefficients.
 - The `price` instruction now handles a resource price interval through Gana 1.2.0. It calculates `spend` as resource price times `consume`. The tiny example evaluates `spend` across that interval and initializes the paper-sorting model independently.
