@@ -44,7 +44,7 @@ class Operation(_Component):
     :ivar aspects: Aspects associated with the component with domains.
     :vartype aspects: dict[Aspect, list[Domain]]
     :ivar conversion: Operational conversion associated with the operation. Defaults to None.
-    :vartype conversion : Conversion, optional
+    :vartype conversion: Conversion, optional
     :ivar fab: Material conversion associated with the operation. Defaults to None.
     :vartype fab: Conversion, optional
     :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
