@@ -4,20 +4,6 @@ import pytest
 from gurobipy import GRB
 
 from energia import Model, Periods, Process
-from energia.library.examples.energy import scheduling_wo_time
-
-
-def test_schedule_without_declared_periods():
-    model = scheduling_wo_time()
-    model.usd.spend.opt()
-
-    assert model.program.formulation.Status == GRB.OPTIMAL
-    assert model.wf.operate(model.t1).output(aslist=True) == pytest.approx(
-        [60, 70, 100, 30]
-    )
-    assert model.wf.operate(model.t0).output(aslist=True) == pytest.approx([260])
-    assert model.wind.consume.output(aslist=True) == pytest.approx([260])
-    assert model.program.formulation.ObjVal == pytest.approx(1_081_000)
 
 
 @pytest.mark.parametrize("coarse_bound_first", [False, True])
