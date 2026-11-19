@@ -1,4 +1,4 @@
-"""Export docs/examples notebooks to .py"""
+"""Export docs/examples notebooks to .py."""
 
 
 def main():

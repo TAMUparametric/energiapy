@@ -1,4 +1,4 @@
-"""Energia"""
+"""Energia."""
 
 from .components.commodities.currency import Currency
 from .components.commodities.emission import Emission

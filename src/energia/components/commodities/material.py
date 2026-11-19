@@ -1,4 +1,4 @@
-"""Material"""
+"""Material."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Material(Resource):
     """
-    Materials are Resources, that are used to set up Operations
+    Materials are Resources, that are used to set up Operations.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,4 +46,5 @@ class Material(Resource):
         citations: str = "",
         **kwargs,
     ):
+        """Create a material resource with an optional measurement basis."""
         Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)

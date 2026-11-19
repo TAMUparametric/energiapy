@@ -1,10 +1,10 @@
-"""Model classifiers"""
+"""Model classifiers."""
 
 from enum import Enum
 
 
 class Uncertainty(Enum):
-    """Model uncertainty"""
+    """Model uncertainty."""
 
     DETERMINISTIC = "Deterministic (certain inputs)"
     STOCHASTIC = "Stochastic (random inputs)"
@@ -12,7 +12,7 @@ class Uncertainty(Enum):
 
 
 class Structure(Enum):
-    """Model Mathematical Structure/Order/Variable Types"""
+    """Model Mathematical Structure/Order/Variable Types."""
 
     LINEAR = "Linear"
     NONLINEAR = "Nonlinear"
@@ -21,14 +21,14 @@ class Structure(Enum):
 
 
 class Scale(Enum):
-    """Model Scale/Order"""
+    """Model Scale/Order."""
 
     MULTI = "Multi"
     SINGLE = "Single"
 
 
 class Paradigm(Enum):
-    """Modeling Paradigm"""
+    """Modeling Paradigm."""
 
     DESIGN = "Design"
     SCHEDULING = "Scheduling"

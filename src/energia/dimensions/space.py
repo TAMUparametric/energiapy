@@ -1,4 +1,4 @@
-"""Space"""
+"""Space."""
 
 from dataclasses import dataclass
 
@@ -50,6 +50,7 @@ class Space(_Dimension):
     """
 
     def __post_init__(self):
+        """Initialize the location, source, sink, and linkage collections."""
         self.locations: list[Location] = []
         self.sources: list[Location] = []
         self.sinks: list[Location] = []
@@ -63,7 +64,20 @@ class Space(_Dimension):
 
     @property
     def tree(self) -> dict:
-        """creates a nested dictionary of locations"""
+        """
+        Creates a nested dictionary of locations.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location, Model
+
+                m = Model()
+                m.site = Location()
+                m.region = Location(m.site)
+                assert m.space.tree[m.region][m.site] == {}
+        """
         tree_ = {self.network: {}}
 
         for loc in self.network.has:
@@ -73,7 +87,7 @@ class Space(_Dimension):
 
     @property
     def hierarchy(self) -> dict[int, list[Location]]:
-        """gives position in tree"""
+        """Gives position in tree."""
         self.network.update_hierarchy()
         hierarchy_ = {}
         for spc in self.s:
@@ -84,7 +98,7 @@ class Space(_Dimension):
 
     @property
     def not_nested(self) -> list[Location]:
-        """List of locations that are not nested under another location"""
+        """List of locations that are not nested under another location."""
         return [loc for loc in self.locations if not loc.isin]
 
     # -----------------------------------------------------
@@ -92,10 +106,7 @@ class Space(_Dimension):
     # -----------------------------------------------------
 
     def _ntw_from_not_nested(self) -> Location:
-        """
-        Make a location to be held as network
-        Using all existing non-nested locations
-        """
+        """Make a location to be held as network Using all existing non-nested locations."""
         # property, make it do the work only once
         not_nested = self.not_nested
         if len(not_nested) == 1:
@@ -109,8 +120,7 @@ class Space(_Dimension):
 
     @property
     def network(self) -> Location:
-        """An encompassing location"""
-
+        """An encompassing location."""
         # if no location is available, create a default one
         if not self.locations:
             return self.model._l0()
@@ -123,13 +133,13 @@ class Space(_Dimension):
 
     @property
     def s(self) -> list[Location | Linkage]:
-        """List of spatial components"""
+        """List of spatial components."""
         return self.locations + self.linkages
 
     def _lower(
         self, loc: Location, hierarchy: dict[int, list[Location]]
     ) -> list[Location]:
-        """Return all locations at lower hierarchy than loc"""
+        """Return all locations at lower hierarchy than loc."""
         if loc.hierarchy + 1 in hierarchy:
             return [lc for lc in hierarchy[loc.hierarchy + 1] if lc in loc.has]
         return []
@@ -137,14 +147,14 @@ class Space(_Dimension):
     def _upper(
         self, loc: Location, hierarchy: dict[int, list[Location]]
     ) -> Location | None:
-        """Return Location at higher hierarchy than loc"""
+        """Return Location at higher hierarchy than loc."""
         try:
             return [lc for lc in hierarchy[loc.hierarchy - 1] if loc in lc.has][0]
         except IndexError:
             return None
 
     def split(self, loc: Location) -> tuple[list[Location], Location | None]:
-        """Gives a list of locations at a higher and lower hierarchy than loc"""
+        """Gives a list of locations at a higher and lower hierarchy than loc."""
         # hierarchy is a property
         # we want it at this stage
         hierarchy = self.hierarchy

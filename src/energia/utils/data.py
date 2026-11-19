@@ -1,4 +1,4 @@
-"""Data management utilities"""
+"""Data management utilities."""
 
 import numpy as np
 import pandas as pd
@@ -31,8 +31,8 @@ def make_henry_price_df(
     -------
     :class:`pandas.DataFrame`
         DataFrame containing varying natural gas prices with missing values filled.
-    """
 
+    """
     df = pd.read_csv(file_name, skiprows=5, names=["date", "CH4"])
 
     df[["month", "day", "year"]] = df["date"].str.split("/", expand=True)
@@ -112,7 +112,7 @@ def remove_outliers(
     ----------
     data : :class:`pandas.DataFrame`
         Input data.
-    sd_cutoff : :class:`int`, optional
+    sd_cuttoff : :class:`int`, optional
         Remove data points that are beyond this many standard deviations. Defaults to ``2``.
     mean_range : :class:`int`, optional
         Number of neighboring data points on each side to average over when replacing outliers. Defaults to ``1``.
@@ -121,6 +121,7 @@ def remove_outliers(
     -------
     :class:`pandas.DataFrame`
         DataFrame with outliers replaced by local means.
+
     """
     data_mean, data_std = data.mean(), data.std()
     # identify outliers

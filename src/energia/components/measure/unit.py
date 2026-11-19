@@ -1,4 +1,4 @@
-"""Unit"""
+"""Unit."""
 
 from operator import is_
 from typing import Self
@@ -8,7 +8,7 @@ from ..._core._name import _Name
 
 class Unit(_Name):
     """
-    Unit of measure for a quantity provided as input to a component
+    Unit of measure for a quantity provided as input to a component.
 
     :param label: Label of the component, used for plotting. Defaults to None.
     :type label: str, optional
@@ -27,6 +27,7 @@ class Unit(_Name):
         times: int | float | None = None,
         label: str = "",
     ):
+        """Define a base unit or a multiple of a supplied basis unit."""
         # A basis can itself be measured using another basis
         self.basis = basis
         # How many times that basis is self?
@@ -36,7 +37,7 @@ class Unit(_Name):
 
     def howmany(self, basis: Self):
         """
-        How many times is this basis contained in the other basis
+        How many times is this basis contained in the other basis.
 
         :param basis: Basis to compare with.
         :type basis: Unit
@@ -63,6 +64,7 @@ class Unit(_Name):
         )
 
     def __truediv__(self, other: float):
+        """Compare two related units or derive a unit using a numeric divisor."""
         # can only be divided by a number
         # if dividing by another Unit
         # return the times of self divided by the times of the other Unit
@@ -89,6 +91,19 @@ class Unit(_Name):
             return b
 
     def __mul__(self, other: float):
+        """
+        Create a unit scaled by the numeric factor, linking it to the common basis.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Unit
+
+                watt = Unit(label="W")
+                kilowatt = watt * 1000
+                assert kilowatt.howmany(watt) == 1000
+        """
         # can only be multiplied by a number
         if not isinstance(other, (int, float)):
             raise TypeError(f"Cannot multiply Unit by {type(other)}")
@@ -109,4 +124,5 @@ class Unit(_Name):
         return b
 
     def __rmul__(self, other: float):
+        """Create a scaled unit with the numeric factor on the left."""
         return self * other

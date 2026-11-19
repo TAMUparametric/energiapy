@@ -1,4 +1,4 @@
-"""Decision Space of the Model"""
+"""Decision Space of the Model."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def capacity_sizing(model: Model):
-    """Sets capacity sizing decisions"""
+    """Sets capacity sizing decisions."""
     model.Recipe(
         "capacity",
         Size,
@@ -37,8 +37,7 @@ def capacity_sizing(model: Model):
 
 
 def operating(model: Model):
-    """Operating/Scheduling decisions"""
-
+    """Operating/Scheduling decisions."""
     model.Recipe(
         "operate",
         SetPoint,
@@ -76,7 +75,7 @@ def operating(model: Model):
 
 
 def inventory_sizing(model: Model):
-    """Inventory management decisions"""
+    """Inventory management decisions."""
     model.Recipe(
         "invcapacity",
         Size,
@@ -101,7 +100,7 @@ def inventory_sizing(model: Model):
 
 
 def usage(model: Model):
-    """Resource usage decisions"""
+    """Resource usage decisions."""
     model.Recipe(
         "dispose",
         EndoStream,
@@ -115,7 +114,8 @@ def usage(model: Model):
 
 def free_movement(model: Model):
     """
-    Free movement entails consumption or release of resources
+    Free movement entails consumption or release of resources.
+
     This is an interaction with the system exterior
 
     .. note::
@@ -133,7 +133,7 @@ def free_movement(model: Model):
 
 
 def trade(model: Model):
-    """Trade decisions"""
+    """Trade decisions."""
     model.Recipe(
         "buy",
         ExoStream,
@@ -144,7 +144,7 @@ def trade(model: Model):
 
 
 def economic(model: Model):
-    """Economic decisions"""
+    """Economic decisions."""
     model.Recipe(
         "earn",
         IndStream,
@@ -155,7 +155,7 @@ def economic(model: Model):
 
 
 def environmental(model: Model):
-    """Environmental impact decisions"""
+    """Environmental impact decisions."""
     model.Recipe(
         "emit",
         IndStream,
@@ -165,7 +165,7 @@ def environmental(model: Model):
 
 
 def social(model: Model):
-    """Social impact decisions"""
+    """Social impact decisions."""
     model.Recipe(
         "benefit",
         IndStream,

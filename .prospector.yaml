@@ -1,0 +1,5 @@
+# Multiline summaries start on the line following the opening quotes (D213).
+pydocstyle:
+  run: true
+  disable:
+    - D212

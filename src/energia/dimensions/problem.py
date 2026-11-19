@@ -1,4 +1,4 @@
-"""Decision Tree"""
+"""Decision Tree."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ class Problem(_Dimension):
     """
 
     def __post_init__(self):
-
+        """Initialize the state, control, stream, and consequence collections."""
         self.states: list[State] = []
         self.controls: list[Control] = []
         self.streams: list[Stream] = []
@@ -54,22 +54,22 @@ class Problem(_Dimension):
 
     @cached_property
     def time(self) -> Time:
-        """Time"""
+        """Time."""
         return self.model.time
 
     @cached_property
     def space(self) -> Space:
-        """Space"""
+        """Space."""
         return self.model.space
 
     @property
     def aspects(self) -> list[Consequence | Stream | Control | State]:
-        """All Decisions"""
+        """All Decisions."""
         return self.states + self.controls + self.streams + self.consequences
 
     @property
     def domains(self) -> list[Domain]:
-        """All Domains"""
+        """All Domains."""
         return list(set(chain.from_iterable(d.domains for d in self.aspects)))
 
     def get(
@@ -91,7 +91,8 @@ class Problem(_Dimension):
             "domains",
         ] = "domains",
     ) -> dict[Aspect | Domain, list[Aspect | Domain]]:
-        """Get a dictionary of the tree with a particular structure
+        """
+        Get a dictionary of the tree with a particular structure.
 
         :param keys: Keys to use for the dictionary. Defaults to 'aspects'.
         :type keys: Literal[ 'aspects', 'states', 'controls', 'streams', 'consequences', 'domains' ], optional

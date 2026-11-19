@@ -1,4 +1,4 @@
-"""Balance"""
+"""Balance."""
 
 from __future__ import annotations
 
@@ -26,7 +26,8 @@ if TYPE_CHECKING:
 
 
 class Balance(_Hash):
-    """Performs a general commodity balance
+    """
+    Performs a general commodity balance.
 
     :param aspect: Aspect to which the constraint is applied
     :type aspect: Aspect
@@ -35,6 +36,7 @@ class Balance(_Hash):
     """
 
     def __init__(self, aspect: Aspect, domain: Domain):
+        """Register the balance for an aspect and domain and write its constraint."""
         self.aspect = aspect
         self.domain = domain
 
@@ -43,8 +45,7 @@ class Balance(_Hash):
         self.write()
 
     def write(self) -> tuple[Domain, Aspect] | Domain | bool | None:
-        """Writes the stream balance constraint"""
-
+        """Writes the stream balance constraint."""
         if self._check_existing():
             return False
 
@@ -60,12 +61,12 @@ class Balance(_Hash):
 
     @cached_property
     def stored(self):
-        """If the commodity is a Stored commodity"""
+        """If the commodity is a Stored commodity."""
         return isinstance(self.commodity, Stored)
 
     @cached_property
     def space(self) -> Location | Linkage | None:
-        """Location or Linkage of the constraint"""
+        """Location or Linkage of the constraint."""
         if (
             self._space.isin
             and self.balances[self.commodity][self._space.isin][self.time]
@@ -76,7 +77,7 @@ class Balance(_Hash):
 
     @cached_property
     def _space(self):
-        """Location where balance is applied"""
+        """Location where balance is applied."""
         if self.domain.linkage:
             # if outgoing, apply at sink
             return (
@@ -88,22 +89,22 @@ class Balance(_Hash):
 
     @cached_property
     def name(self) -> str:
-        """Name of the constraint"""
+        """Name of the constraint."""
         return f"{self.aspect.name}{self.domain}"
 
     @cached_property
     def cons_name(self) -> str:
-        """Name of the constraint"""
+        """Name of the constraint."""
         return f"{self.commodity}_{self.space}_{self.time}_grb"
 
     @property
     def existing_aspects(self):
-        """Exisiting Aspects"""
+        """Exisiting Aspects."""
         return self.balances[self.commodity][self.space][self.time]
 
     @cached_property
     def updated_part(self) -> V | F | int:
-        """Returns the part of the constraint that is new"""
+        """Returns the part of the constraint that is new."""
         if self.stored and self.aspect == "inventory":
             # if inventory is being add to GRB
             if len(self.time) == 1:
@@ -120,12 +121,11 @@ class Balance(_Hash):
     @timer(logger, "balance-init")
     def _birth_constraint(self) -> Domain | bool:
         """
-        Births a new General Resource Balance constraint
+        Births a new General Resource Balance constraint.
 
         :returns: Domain if constraint is created, else False
         :rtype: Domain | bool
         """
-
         cons_grb = (
             self.updated_part == 0 if self.aspect.ispos else -self.updated_part == 0
         )
@@ -151,12 +151,11 @@ class Balance(_Hash):
         self,
     ) -> tuple[Domain, Aspect]:
         """
-        Updates an existing General Resource Balance constraint
+        Updates an existing General Resource Balance constraint.
 
         :returns: The domain and aspect of the updated constraint for logging purposes
         :rtype: tuple[Domain, Aspect]
         """
-
         cons_grb: C = getattr(self.program, self.cons_name)
 
         setattr(
@@ -175,7 +174,7 @@ class Balance(_Hash):
         return self.domain, self.aspect
 
     def _check_existing(self) -> bool:
-        """Checks if the balance constraint already exists"""
+        """Checks if the balance constraint already exists."""
         if (
             (not self.samples and self.commodity)
             or (self.aspect(self.commodity, self.time) not in self.existing_aspects)
@@ -186,7 +185,8 @@ class Balance(_Hash):
 
     def _inform(self):
         """
-        Updates the constraints in all the indices of self.domain
+        Updates the constraints in all the indices of self.domain.
+
         Add constraint name to aspect
         """
         self.domain.inform_components_of_cons(self.cons_name)
@@ -197,7 +197,7 @@ class Balance(_Hash):
         self.existing_aspects.append(self)
 
     def _handshake(self):
-        """Borrow attributes from aspect and domain"""
+        """Borrow attributes from aspect and domain."""
         # take from aspect
         self.model = self.aspect.model
 
@@ -211,10 +211,7 @@ class Balance(_Hash):
         self.time = self.domain.time
 
     def _init_sample(self):
-        """Initializes the sample for the balance constraint
-        if needed
-        """
-
+        """Initializes the sample for the balance constraint if needed."""
         _balances = self.balances[self.commodity][self.space]
 
         lower_times = [t for t in _balances if t > self.time] if _balances else False
@@ -223,8 +220,9 @@ class Balance(_Hash):
             _ = self.aspect(self.commodity, self.space, lower_times[0]) >= 0
 
     def __eq__(self, other: Self):
+        """Compare the aspect identity and domain of two balances."""
         return is_(self.aspect, other.aspect) and self.domain == other.domain
 
     def __call__(self, *index: _X):
-        """Returns the variable for the aspect at the given index"""
+        """Returns the variable for the aspect at the given index."""
         return self.aspect(*index)

@@ -1,4 +1,4 @@
-"""energia.spatial init file"""
+"""energia.spatial init file."""
 
 from .linkage import Linkage
 from .location import Location

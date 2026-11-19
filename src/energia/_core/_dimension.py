@@ -1,4 +1,4 @@
-"""Inherited Dimension class"""
+"""Inherited Dimension class."""
 
 from __future__ import annotations
 
@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 @dataclass
 class _Dimension(_Hash):
     """
-    Inherited by components that are a representation of
-    some dimension of the model.
+    Inherited by components that are a representation of some dimension of the model.
 
     :param model: Model to which the representation belongs.
     :type model: Model

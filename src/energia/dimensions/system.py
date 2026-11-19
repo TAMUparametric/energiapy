@@ -1,4 +1,4 @@
-"""System"""
+"""System."""
 
 from __future__ import annotations
 
@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 @dataclass
 class System(_Dimension):
     """
-    System representation as a Resource Task Network (RTN)
+    System representation as a Resource Task Network (RTN).
+
     All resources and tasks are attached to this object
 
     :param model: Model to which the representation belongs.
@@ -48,6 +49,7 @@ class System(_Dimension):
     """
 
     def __post_init__(self):
+        """Initialize the model's commodity and operation collections."""
         # -------Commodities/Resources ----------
 
         self.resources: list[Resource] = []
@@ -66,5 +68,5 @@ class System(_Dimension):
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:
-        """All Operations"""
+        """All Operations."""
         return self.processes + self.storages + self.transports

@@ -1,4 +1,4 @@
-"""Control Variable"""
+"""Control Variable."""
 
 from __future__ import annotations
 
@@ -15,10 +15,7 @@ if TYPE_CHECKING:
 @dataclass
 class Control(Aspect):
     """
-    Some action to be performed by a component
-    that adjusts a state variable
-    can have a consequence (Impact)
-    or elicit a motion (Stream) that has a consequence (Impact)
+    Some action to be performed by a component that adjusts a state variable can have a consequence (Impact) or elicit a motion (Stream) that has a consequence (Impact).
 
     :param primary_types: associated components type(s). Defaults to None.
     :type primary_types: Type[_Component] | tuple[Type[_Component], ...]
@@ -50,6 +47,7 @@ class Control(Aspect):
     """
 
     def __post_init__(self):
+        """Initialize links to the controlled state, streams, impacts, and mapped domains."""
         Aspect.__post_init__(self)
 
         # a state that is being controlled
@@ -66,7 +64,6 @@ class Control(Aspect):
         self.mapped_from: list[Domain] = []
 
     def update(self, domain: Domain, reporting: bool = False):
-        """Add a domain to the decision variable"""
-
+        """Add a domain to the decision variable."""
         # Write a mapping constraint
         self.Map(domain=domain, reporting=reporting)

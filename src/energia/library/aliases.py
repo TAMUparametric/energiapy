@@ -1,4 +1,4 @@
-"""Aliases for aspects"""
+"""Aliases for aspects."""
 
 from __future__ import annotations
 
@@ -92,8 +92,8 @@ default_aliases = _create_default_aliases()
 
 
 def aspect_aliases(m: Model):
-    """Define aspect aliases for the model.
-
+    """
+    Define aspect aliases for the model.
 
     :param m:  The model instance to define aliases for.
     :type m: Model
@@ -103,9 +103,7 @@ def aspect_aliases(m: Model):
         I have added what I could think off. Update this for reconfiguration.
         For just adding aliases use:
         model.aliases('alias1', ..., to='aspect') or model.aspect.aliases('alias', ...)
-
     """
-
     for aspect, aliases in default_aliases.items():
         m.alias(*aliases, of=aspect)
 

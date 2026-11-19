@@ -1,4 +1,4 @@
-"""energiapy.game init file"""
+"""energiapy.game init file."""
 
 from .couple import Interact
 from .player import Player

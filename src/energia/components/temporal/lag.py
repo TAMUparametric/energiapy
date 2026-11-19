@@ -1,4 +1,4 @@
-"""Temporal Lag"""
+"""Temporal Lag."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ class Lag(_Name):
     """
 
     def __init__(self, of: Periods | None = None, periods: int | float = 1):
-
+        """Record the number of periods to look back and the period to which the lag applies."""
         _Name.__init__(self, label="")
         self.of = of
         self.periods = periods
@@ -46,7 +46,9 @@ class Lag(_Name):
 
     @cached_property
     def I(self) -> Idx:
-        """Index set of periods - periods
+        """
+        Index set of periods - periods.
+
         Basically,
         if t is set of hours and lag is 5
         this returns the set of t - 5
@@ -62,11 +64,11 @@ class Lag(_Name):
 
     @property
     def horizon(self) -> Periods:
-        """Horizon of the lag"""
+        """Horizon of the lag."""
         return self.of.horizon
 
     def __eq__(self, other: Self | Periods) -> bool:
-        """Check if two lags are equal"""
+        """Check if two lags are equal."""
         if isinstance(other, Lag):
             return is_(self.of, other.of) and self.periods == other.periods
         return is_(self.of, other)

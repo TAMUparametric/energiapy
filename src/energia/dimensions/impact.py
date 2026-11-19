@@ -1,4 +1,4 @@
-"""Consequence"""
+"""Consequence."""
 
 from dataclasses import dataclass
 
@@ -9,8 +9,7 @@ from ..components.impact.categories import Economic, Environ, Social
 @dataclass
 class Impact(_Dimension):
     """
-    A representation of the Consequence of the system dimensions based on the impact
-    determined as the product of activity and indicators.
+    A representation of the Consequence of the system dimensions based on the impact determined as the product of activity and indicators.
 
     All impact indicators are attached to this object.
 
@@ -29,10 +28,10 @@ class Impact(_Dimension):
     .. note::
         - name is self generated
         - environ, socs, and ecos are populated as model is defined
-
     """
 
     def __post_init__(self):
+        """Initialize the economic, environmental, and social indicator collections."""
         # economic impact
         self.economy: list[Economic] = []
         # environmental impact
@@ -44,5 +43,5 @@ class Impact(_Dimension):
 
     @property
     def indicators(self) -> list[Environ | Social | Economic]:
-        """All indicators"""
+        """All indicators."""
         return self.environment + self.society + self.economy

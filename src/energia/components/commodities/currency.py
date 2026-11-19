@@ -1,4 +1,4 @@
-"""Currency"""
+"""Currency."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class Currency(Commodity):
     """
-    Same as Economic Impact (Eco)
+    Same as Economic Impact (Eco).
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,6 +46,7 @@ class Currency(Commodity):
         citations: str = "",
         **kwargs,
     ):
+        """Assign this currency to the supplied locations and their recorded descendants."""
         self.locs = list(locs)
         Commodity.__init__(self, label=label, citations=citations, **kwargs)
 
@@ -59,8 +60,21 @@ class Currency(Commodity):
                     l.currency = self
 
     def howmany(self, cash: Self):
-        """Exchange rate basically"""
+        """
+        Return the stored exchange rate relative to the supplied currency.
 
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Currency, Model
+
+                m = Model()
+                m.usd, m.credit = Currency(), Currency()
+                m.credit == 2 * m.usd
+                assert m.credit.howmany(m.usd) == 2
+                assert m.usd.howmany(m.credit) == 0.5
+        """
         if is_(cash, self):
             return 1
         if cash in self.exchange:
@@ -75,7 +89,7 @@ class Currency(Commodity):
         raise ValueError(f"{cash} does not have an exchange rate set {self.name}")
 
     def _compare_currency(self, other: Self) -> bool:
-        """Compare two currencies for equality"""
+        """Compare two currencies for equality."""
         if is_(self, other):
             return True
 
@@ -83,7 +97,7 @@ class Currency(Commodity):
         return False
 
     def _set_exchange(self, other: Conversion) -> bool:
-        """Set exchange rates between two currencies"""
+        """Set exchange rates between two currencies."""
         currency: Self = list(other.balance.keys())[0]
         rate: float = other.balance[currency]
 
@@ -107,7 +121,7 @@ class Currency(Commodity):
         return True
 
     def __eq__(self, other):
-
+        """Set reciprocal rates from a conversion, or record a unit rate for a distinct currency."""
         if isinstance(other, Currency):
 
             return self._compare_currency(other)

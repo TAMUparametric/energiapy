@@ -1,4 +1,4 @@
-"""Miscellaneous Commodities"""
+"""Miscellaneous Commodities."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Package(Resource):
     """
-    Package, discrete
+    Package, discrete.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,12 +46,13 @@ class Package(Resource):
         citations: str = "",
         **kwargs,
     ):
+        """Create a discrete packaging resource with an optional unit basis."""
         Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Human(Resource):
     """
-    Human
+    Human.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -85,12 +86,13 @@ class Human(Resource):
         citations: str = "",
         **kwargs,
     ):
+        """Create a human resource with an optional unit basis."""
         Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Mana(Resource):
     """
-    Mana
+    Mana.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -124,12 +126,13 @@ class Mana(Resource):
         citations: str = "",
         **kwargs,
     ):
+        """Create a mana resource with an optional unit basis."""
         Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)
 
 
 class Etc(Resource):
     """
-    Etc, used for resources that do not fit into the other categories
+    Etc, used for resources that do not fit into the other categories.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -163,4 +166,5 @@ class Etc(Resource):
         citations: str = "",
         **kwargs,
     ):
+        """Create a miscellaneous resource with an optional unit basis."""
         Resource.__init__(self, basis=basis, label=label, citations=citations, **kwargs)

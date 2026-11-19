@@ -1,4 +1,4 @@
-"""Pre-set Parameters"""
+"""Pre-set Parameters."""
 
 from __future__ import annotations
 
@@ -13,8 +13,7 @@ if TYPE_CHECKING:
 
 
 def costing_operation(model: Model):
-    """Sets costing parameters for operations"""
-
+    """Sets costing parameters for operations."""
     model.Instruction(
         name="capex",
         kind=Operation,
@@ -56,8 +55,7 @@ def costing_operation(model: Model):
 
 
 def costing_commodity(model: Model):
-    """Sets costing parameters for resources"""
-
+    """Sets costing parameters for resources."""
     model.Instruction(
         name="price",
         kind=Commodity,

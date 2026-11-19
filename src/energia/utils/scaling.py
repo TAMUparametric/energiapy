@@ -1,4 +1,4 @@
-"""Function for scaling input data"""
+"""Function for scaling input data."""
 
 from typing import Literal
 
@@ -17,6 +17,18 @@ def scaling(data: DataFrame, how: Literal['max', 'minmax', 'standard']) -> DataF
     :param how: Scaling method, one of ``max``, ``minmax``, or ``standard``.
     :return: Scaled DataFrame with the input index and column labels.
     :raises ValueError: If the input is not a DataFrame or the method is unknown.
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from pandas import DataFrame
+            from energia.utils.scaling import scaling
+
+            demand = DataFrame({"heat": [0, 8], "power": [2, 4]})
+            scaled = scaling(demand, how="max")
+            assert scaled["heat"].tolist() == [0.0, 1.0]
+            assert scaled["power"].tolist() == [0.5, 1.0]
     """
     if not isinstance(data, DataFrame):
         raise ValueError("please provide DataFrame")

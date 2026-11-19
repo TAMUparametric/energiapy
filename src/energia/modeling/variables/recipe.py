@@ -1,4 +1,4 @@
-"""Recipes to create Aspects"""
+"""Recipes to create Aspects."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @dataclass
 class Recipe:
     """
-    Recipe to create Aspects
+    Recipe to create Aspects.
 
     :param name: Name of the aspect
     :type name: str
@@ -59,6 +59,7 @@ class Recipe:
     latex: str = ""
 
     def __post_init__(self):
+        """Collect the recipe options used to construct its modeling aspect."""
         self.args: dict[str, Any] = {
             k: v
             for k, v in asdict(self).items()
@@ -66,10 +67,13 @@ class Recipe:
         }
 
     def __str__(self):
+        """Return the name of the recipe."""
         return self.name
 
     def __repr__(self):
+        """Return the name of the recipe."""
         return self.name
 
     def __hash__(self):
+        """Hash the recipe name."""
         return hash(self.name)

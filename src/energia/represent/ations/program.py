@@ -1,4 +1,4 @@
-"""Program"""
+"""Program."""
 
 from __future__ import annotations
 
@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Program(Prg):
-    """The mathematical program of the model
+    """
+    The mathematical program of the model.
 
     :ivar players: Players index set
     :vartype players: I
@@ -65,13 +66,14 @@ class Program(Prg):
     model: Model | None = None
 
     def __post_init__(self):
+        """Initialize the Gana program and give it the associated model's name."""
         Prg.__post_init__(self)
 
         # Component Index Sets
         self.name = f"Program({self.model})"
 
     def __getattr__(self, item):
-
+        """Create a mutable index for a recognized model collection on first access."""
         if self.model is not None and item in self.model.ancestry:
             index = I(mutable=True)
             setattr(self, item, index)

@@ -1,4 +1,6 @@
-"""Resource are:
+"""
+Resources can participate in the following operations.
+
 1. converted by Processes
 2. stored by Storage
 3. transported by Transits
@@ -42,6 +44,17 @@ class Resource(Commodity):
     :vartype conversions: list[Conversion]
     :ivar insitu: If the commodity only exists insitu, i.e., does not scale any domains
     :vartype insitu: bool, optional
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, Resource, Unit
+
+            m = Model()
+            m.kg = Unit(label="kg")
+            m.water = Resource(basis=m.kg)
+            assert m.water.basis is m.kg
     """
 
     def __init__(
@@ -51,6 +64,7 @@ class Resource(Commodity):
         citations: str = "",
         **kwargs,
     ):
+        """Create a resource with no associated inventory until it is linked to storage."""
         Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )
@@ -59,6 +73,7 @@ class Resource(Commodity):
         self.inv_of: Resource | None = None
 
     def __init_subclass__(cls):
+        """Preserve the resource representation and hashing behavior on subclasses."""
         # the hashing will be inherited by the subclasses
         cls.__repr__ = Resource.__repr__
         cls.__hash__ = Resource.__hash__

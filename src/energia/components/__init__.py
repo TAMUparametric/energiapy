@@ -1,4 +1,4 @@
-"""energia.components module"""
+"""energia.components module."""
 
 from .commodities.currency import Currency
 from .commodities.emission import Emission

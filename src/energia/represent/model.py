@@ -1,4 +1,4 @@
-"""A Model"""
+"""A Model."""
 
 from __future__ import annotations
 
@@ -135,6 +135,17 @@ class Model:
 
 
     :raises ValueError: If an attribute name already exists in the Model.
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, Resource
+
+            m = Model()
+            m.heat = Resource(label="Useful heat")
+            assert m.heat.name == "heat"
+            assert m.heat in m.system.resources
     """
 
     name: str = "m"
@@ -143,7 +154,7 @@ class Model:
     capacitate: bool = False
 
     def __post_init__(self):
-
+        """Initialize the component registries, representations, and default modeling recipes."""
         self.reserved_names: list[str | tuple[str, ...]] = []
 
         # what components have been added to the model
@@ -421,27 +432,27 @@ class Model:
     # -------------------------------------------------------------------
     @property
     def problem(self) -> Problem:
-        """The active problem"""
+        """The active problem."""
         return self.problems[-1]
 
     @property
     def graph(self) -> Graph:
-        """The active graph"""
+        """Return the active model graph."""
         return self.graphs[-1]
 
     @property
     def program(self) -> Program:
-        """The active program"""
+        """The active program."""
         return self.programs[-1]
 
     @property
     def scenario(self) -> Scenario:
-        """The active scenario"""
+        """The active scenario."""
         return self.scenarios[-1]
 
     @property
     def game(self) -> Game:
-        """The active game"""
+        """The active game."""
         return self.games[-1]
 
     # -------------------------------------------------------------------
@@ -450,32 +461,32 @@ class Model:
 
     @property
     def horizon(self) -> Periods:
-        """Time horizon"""
+        """Time horizon."""
         return self.time.horizon
 
     @property
     def network(self) -> Location:
-        """Encompassing Location"""
+        """Encompassing Location."""
         return self.space.network
 
     @property
     def indicators(self) -> list[Environ | Social | Economic]:
-        """Impact indicators"""
+        """Impact indicators."""
         return self.impact.indicators
 
     @property
     def operations(self) -> list[Process | Storage | Transport]:
-        """System operations"""
+        """System operations."""
         return self.system.operations
 
     @property
     def aspects(self) -> list[Consequence | Stream | Control | State]:
-        """Problem aspects"""
+        """Problem aspects."""
         return self.problem.aspects
 
     @property
     def domains(self) -> list[Domain]:
-        """Problem domains"""
+        """Problem domains."""
         return self.problem.domains
 
     # -------------------------------------------------------------------
@@ -490,7 +501,8 @@ class Model:
         collection: str,
         aspects: list[str] | None = None,
     ):
-        """Update the Model with a new value
+        """
+        Update the Model with a new value.
 
         :param name: Name of the value to be added
         :type name: str
@@ -503,7 +515,6 @@ class Model:
         :param aspects: Aspects to be added to the value, defaults to None
         :type aspects: list[str], optional
         """
-
         value.name = name
         # every component is handed the model
         value.model = self
@@ -575,7 +586,8 @@ class Model:
         nn: bool = True,
         use_multiplier: bool = False,
     ):
-        """Creates a Recipe and updates recipes
+        """
+        Creates a Recipe and updates recipes.
 
         :param name: Name of the aspect
         :type name: str
@@ -667,12 +679,23 @@ class Model:
             self.cookbook[neg] = neg_recipe
 
     def alias(self, *names: str, of: str):
-        """Set aspect aliases
+        """
+        Set aspect aliases.
 
         :param names: Names of the aliases
         :type names: str
         :param to: Name of the aspect to which the aliases point
         :type to: str
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model
+
+                m = Model()
+                m.alias("installed", of="capacity")
+                assert m.installed is m.capacity
         """
         _add = dict.fromkeys(list(names), {of: self.cookbook[of]})
         self.directory = {**self.directory, **_add}
@@ -687,7 +710,8 @@ class Model:
         label: str = "",
         latex: str = "",
     ):
-        """Creates an Instruction and updates the manual
+        """
+        Creates an Instruction and updates the manual.
 
         :param deciding: Name of the deciding aspect
         :type deciding: str
@@ -700,7 +724,6 @@ class Model:
         :param latex: LaTeX representation for the parameter. Defaults to ''.
         :type latex: str, optional
         """
-
         self.manual[name] = Instruction(
             name=name,
             kind=kind,
@@ -716,7 +739,8 @@ class Model:
     # ------------------------------------------------------------------------
 
     def declare(self, what: type[_X], names: list[str]):
-        """Declares objects conveniently
+        """
+        Declares objects conveniently.
 
         :param what: Type of object to be created
         :type what: type[X]
@@ -734,7 +758,7 @@ class Model:
         bi: bool = False,
     ):
         """
-        Link two Locations
+        Link two Locations.
 
         :param source: Source Location
         :type source: Location
@@ -757,7 +781,7 @@ class Model:
 
     def TemporalScales(self, discretizations: list[int], names: list[str]):
         """
-        This is an easy way to define multiple time periods (scales)
+        Register a hierarchy of named time scales on the model.
 
         :param discretizations: List of discretizations for the temporal scale.
         :type discretizations: list[int]
@@ -783,12 +807,24 @@ class Model:
 
     def Modes(self, size: int, sample: Sample):
         """
-        This is an easy way to define modes within a period
+        Create operating modes for a sample on its time scale.
 
         :param size: Number of modes to create
         :type size: int
-        :param name: Name of the modes. Defaults to "modes".
-        :type name: str, optional
+        :param sample: Decision sample to which the modes belong.
+        :type sample: Sample
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Process
+
+                m = Model()
+                m.boiler = Process()
+                load = m.Modes(size=2, sample=m.boiler.operate)
+                assert len(load) == 2
+                assert load[0].parent is load
         """
         modes = Modes(size=size, sample=sample, n=len(getattr(self, "modes")))
         periods = sample.domain.periods or self.time.horizon
@@ -808,7 +844,7 @@ class Model:
         category: str = "",
     ):
         """
-        Pretty print the Model
+        Pretty print the Model.
 
         :param descriptive: Whether to show descriptive information. Defaults to False.
         :type descriptive: bool, optional
@@ -822,13 +858,12 @@ class Model:
     # * II Graphical
     def draw(self, variable: Aspect | Sample | None = None, n_sol: int = 0):
         """
-        Draw the solution for a variable
+        Draw the solution for a variable.
 
         :param variable: Variable to draw. Defaults to None.
         :type variable: Aspect | Sample | None, optional
         :param n_sol: Solution number to draw. Defaults to 0.
         :type n_sol: int, optional
-
         """
         if variable is not None:
             self.program.draw(variable=variable.V(), n_sol=n_sol)
@@ -838,7 +873,8 @@ class Model:
 
     # * III Solution
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):
-        """Display a solution's objective and variable values.
+        """
+        Display a solution's objective and variable values.
 
         :param n_sol: Index of the solution to display.
         :param slack: Retained for compatibility. Has no effect on the display.
@@ -850,7 +886,8 @@ class Model:
     # * Solution Prep, Generation, and  Handling
     # ------------------------------------------------------------------------
     def locate(self, *operations: Process | Storage):
-        """Locate operations in the network
+        """
+        Locate operations in the network.
 
         :param operations: Operations to locate
         :type operations: Process | Storage
@@ -875,12 +912,26 @@ class Model:
         ] = "combinatorial",
     ):
         """
-        Solve the multiparametric program
+        Solve the multiparametric program.
 
         :param using: The solving method to use. Defaults to "combinatorial".
         :type using: Literal
-        """
 
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from math import isclose
+                from energia import Model, Resource
+
+                m = Model()
+                m.labor = Resource(take=True, price=(7.86, 8.89))
+                m.labor.release == 2
+                m.cash.spend.obj()
+                m.solve()
+                cost = m.eval(8.375)[m.cash.spend.V()[0]]
+                assert isclose(cost, 16.75)
+        """
         self.program.solve(using=using)
 
     # * Solution evaluation
@@ -888,7 +939,7 @@ class Model:
         self, *theta_vals: float, n_sol: int = 0, roundoff: int = 4
     ) -> dict[V, float]:
         """
-        Evaluate the model variables at given theta values
+        Evaluate the model variables at given theta values.
 
         :param theta_vals: values for the parametric variables
         :type theta_vals: float
@@ -904,7 +955,7 @@ class Model:
 
     # * Saving
     def save(self, as_type: str = "dill"):
-        """Save the Model to a file"""
+        """Save the Model to a file."""
         if as_type == "dill":
             with open(self.name + ".energia", "wb") as f:
                 dump(self.solution, f)
@@ -916,7 +967,8 @@ class Model:
     # ------------------------------------------------------------------------
 
     def _t0(self, size: int = 1) -> Periods:
-        """Return a default period
+        """
+        Return a default period.
 
         :param size: Size of the period. Defaults to 0.
         :type size: int, optional
@@ -924,7 +976,6 @@ class Model:
         :return: Periods object
         :rtype: Periods
         """
-
         periods = getattr(self, "periods")
 
         if not periods:
@@ -941,12 +992,12 @@ class Model:
         return self.t0
 
     def _l0(self) -> Location:
-        """Return a default location"""
+        """Return a default location."""
         self.l0 = Location(label="l")
         return self.l0
 
     def _cash(self) -> Currency:
-        """Return a default currency"""
+        """Return a default currency."""
         currencies = getattr(self, "currencies")
         if currencies:
             return currencies[0]
@@ -996,6 +1047,7 @@ class Model:
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
+        """Resolve default components, model collections, and attributes of the underlying program."""
         # Only called when attribute does not exist
 
         # if something like t, t0 is called
@@ -1068,20 +1120,22 @@ class Model:
     # ---------------------------------------------------------------
 
     def __call__(self, *funcs: Callable[[Model], object]):
-        """Set functions on the model
+        """
+        Set functions on the model.
 
         These can include default units
-
         """
-
         for f in funcs:
             f(self)
 
     def __str__(self):
+        """Return the model's assigned name."""
         return self.name
 
     def __repr__(self):
+        """Return the model's assigned name."""
         return self.name
 
     def __hash__(self):
+        """Hash the model name."""
         return hash(self.name)

@@ -1,4 +1,4 @@
-"""Decorators for functions"""
+"""Decorators for functions."""
 
 import logging
 import time
@@ -6,7 +6,7 @@ from functools import wraps
 
 
 def once(func):
-    """Ensures the function is executed only once"""
+    """Ensures the function is executed only once."""
 
     def wrapper(*args, **kwargs):
         if not hasattr(wrapper, "has_run"):
@@ -21,9 +21,7 @@ def timer(
     kind=None,
     level=logging.INFO,
 ):
-    """
-    Logs execution time and optionally shows a full computation using function arguments and result.
-    """
+    """Logs execution time and optionally shows a full computation using function arguments and result."""
 
     def decorator(func):
         @wraps(func)

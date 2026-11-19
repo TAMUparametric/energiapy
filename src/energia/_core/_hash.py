@@ -1,4 +1,4 @@
-"""Hashing Base Class"""
+"""Hashing Base Class."""
 
 
 class _Hash:

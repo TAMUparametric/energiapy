@@ -1,4 +1,4 @@
-"""Fetch data from NREL's NSRDB database"""
+"""Fetch data from NREL's NSRDB database."""
 
 import logging
 
@@ -27,8 +27,7 @@ def fetch_nsrdb_data(
     save: str | None = None,
 ) -> DataFrame | tuple:
     """
-    Fetches nsrdb data from nearest coordinates (latitude, longitude)
-    or from county in a state matching a particular 'get' metric
+    Fetches nsrdb data from nearest coordinates (latitude, longitude) or from county in a state matching a particular 'get' metric.
 
     :param attrs: attributes to fetch
     :type attrs: list[str]
@@ -50,7 +49,6 @@ def fetch_nsrdb_data(
     :return: DataFrame with output data, (latitude, longitude)
     :rtype: DataFrame | tuple
     """
-
     if import_all:
         logger.warning(
             "⚠ This is an optional feature. Please install h5pyd, or pip install energiapy[all] ⚠",

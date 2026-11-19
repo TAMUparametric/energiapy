@@ -1,4 +1,4 @@
-"""Domain"""
+"""Domain."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 @dataclass
 class Domain(_Hash):
     """
-    Point represented by a tuple of indices
+    Point represented by a tuple of indices.
 
     :param indicator: Indicates the impact of some activity through an equivalency,
         e.g. GWP, ODP.
@@ -67,7 +67,6 @@ class Domain(_Hash):
 
     :ivar model: Model to which the Domain belongs.
     :vartype model: Model
-
     """
 
     # the reason I keep these individual
@@ -97,6 +96,7 @@ class Domain(_Hash):
     samples: list[Sample] = field(default_factory=list)
 
     def __post_init__(self):
+        """Associate the domain with the model of its first populated index."""
         # Domains are structured something like this:
         # (primary_component ...aspect_n, secondary_component_n....,decision-makers, space, time
         # primary_component can be an indicator, commodity, or operation (process | storage | transport)
@@ -118,19 +118,19 @@ class Domain(_Hash):
 
     @property
     def stream(self) -> Indicator | Commodity | None:
-        """Stream"""
+        """Stream."""
         return self.indicator or self.commodity
 
     @property
     def operation(self) -> Process | Storage | Transport | None:
-        """Operation"""
+        """Operation."""
         return self.process or self.storage or self.transport
 
     @property
     def primary(
         self,
     ) -> Indicator | Commodity | Process | Storage | Transport | list[Sample]:
-        """Primary component"""
+        """Primary component."""
         _primary = self.stream or self.operation or self.samples
         if not _primary:
             raise ValueError("Domain must have at least one primary index")
@@ -138,24 +138,24 @@ class Domain(_Hash):
 
     @property
     def sample(self) -> Sample | None:
-        """Sample"""
+        """Sample."""
         if self.samples:
             return self.samples[0]
         return None
 
     @property
     def space(self) -> Location | Linkage | None:
-        """Space"""
+        """Space."""
         return self.linkage or self.location
 
     @property
     def maker(self) -> Player | Interact | None:
-        """Decision-maker"""
+        """Decision-maker."""
         return self.couple or self.player
 
     @property
     def time(self) -> Periods | Lag:
-        """Time"""
+        """Time."""
         if self.periods is not None:
             return self.periods
 
@@ -166,12 +166,12 @@ class Domain(_Hash):
 
     @property
     def linked(self) -> bool:
-        """Linked"""
+        """Linked."""
         return True if self.linkage else False
 
     @property
     def lagged(self) -> bool:
-        """Lagged"""
+        """Lagged."""
         return True if self.lag else False
 
     # -----------------------------------------------------
@@ -180,22 +180,14 @@ class Domain(_Hash):
 
     @property
     def isroot(self) -> bool:
-        """
-        This implies that the domain is of the form
-        <object, space, time>
-        """
+        """Test for an unlagged domain with three index dimensions."""
         if not self.lag and self.size == 3:
             return True
         return False
 
     @property
     def isrootroot(self) -> bool:
-        """
-        This implies that the domain is of the form
-        <object, network, horizon>
-        Thus, an element attached to this domain has the
-        lowest possible dimensionality
-        """
+        """Test whether the root domain spans the model network and horizon."""
         if self.isroot:
             if is_(self.time, self.time.horizon):
                 if is_(self.space, self.space.network):
@@ -204,7 +196,7 @@ class Domain(_Hash):
 
     @property
     def disposition(self) -> tuple[str, ...]:
-        """Disposition"""
+        """Disposition."""
         return tuple(self._.keys())
 
     # -----------------------------------------------------
@@ -213,12 +205,12 @@ class Domain(_Hash):
 
     @property
     def name(self):
-        """Name"""
+        """Name."""
         return f"{tuple(self.index)}"
 
     @property
     def idxname(self):
-        """Name of the index"""
+        """Name of the index."""
         return "_" + "_".join(f"{i}" for i in self.index)
 
     # -----------------------------------------------------
@@ -227,14 +219,15 @@ class Domain(_Hash):
 
     @property
     def index(self) -> list[Aspect | _X]:
-        """list of _Index elements"""
+        """List of _Index elements."""
         return self.index_primary + self.index_binds + self.index_modes
 
     @property
     def index_primary(
         self,
     ) -> list[Indicator | Commodity | Process | Storage | Transport]:
-        """Primary index
+        """
+        Primary index.
 
         :returns: list of primary indices
         :rtype: list[X]
@@ -245,7 +238,8 @@ class Domain(_Hash):
 
     @property
     def index_spatiotemporal(self) -> list[Aspect | _X]:
-        """List of indices with modes
+        """
+        List of indices with modes.
 
         :returns: list of indices with modes
         :rtype: list[X]
@@ -254,7 +248,8 @@ class Domain(_Hash):
 
     @property
     def index_binds(self) -> list[Aspect | _X]:
-        """List of bind indices
+        """
+        List of bind indices.
 
         :returns: list of bind indices
         :rtype: list[X]
@@ -270,19 +265,19 @@ class Domain(_Hash):
 
     @property
     def index_modes(self) -> list[Modes]:
-        """Set of mode indices"""
+        """Set of mode indices."""
         return [self.modes] if self.modes else []
 
     @property
     def index_short(
         self,
     ) -> list[Indicator | Commodity | Process | Storage | Transport | Sample | Modes]:
-        """Set of indices"""
+        """Set of indices."""
         return self.index_primary + self.samples + self.index_modes
 
     @property
     def tree(self) -> dict:
-        """Convert index into tree"""
+        """Convert index into tree."""
         tree = {}
         node = tree
         for key in self.index:
@@ -292,7 +287,7 @@ class Domain(_Hash):
 
     @property
     def aspects(self) -> list[Aspect]:
-        """Aspects"""
+        """Aspects."""
         return [b.aspect for b in self.samples]
 
     @property
@@ -314,7 +309,7 @@ class Domain(_Hash):
         | list[Sample]
         | None,
     ]:
-        """Dictionary of indices"""
+        """Dictionary of indices."""
         return {
             "indicator": self.indicator,
             "commodity": self.commodity,
@@ -349,7 +344,7 @@ class Domain(_Hash):
         | list[Sample]
         | None,
     ]:
-        """Dictionary of Components"""
+        """Dictionary of Components."""
         return {
             "primary": self.primary,
             "player": self.player,
@@ -365,22 +360,22 @@ class Domain(_Hash):
 
     @property
     def _(self):
-        """Dictionary of indices that are not None"""
+        """Dictionary of indices that are not None."""
         return {i: j for i, j in self.dictionary.items() if j is not None}
 
     @property
     def tup(self):
-        """Tuple of objects"""
+        """Tuple of objects."""
         return tuple(self._.values())
 
     @property
     def lst(self):
-        """Tuple of objects"""
+        """Tuple of objects."""
         return list(self._.values())
 
     @cached_property
     def I(self) -> list[Idx | list[V]]:
-        """List of I"""
+        """List of I."""
         _I = []
         for idx in self.index:
             if isinstance(idx, list):
@@ -394,7 +389,7 @@ class Domain(_Hash):
 
     @property
     def size(self) -> int:
-        """Size of the domain"""
+        """Size of the domain."""
         return len(self.index)
 
     # -----------------------------------------------------
@@ -402,14 +397,13 @@ class Domain(_Hash):
     # -----------------------------------------------------
 
     def inform_components_of_cons(self, cons_name: str):
-        """Update the constraints declared at every index"""
+        """Update the constraints declared at every index."""
         for idx in self.index:
             idx.constraints.add(cons_name)
 
     def inform_components_of_domain(self, aspect: Aspect):
         """
-        Update all components in the domains with the aspects
-        that they have been modeled in
+        Update all components in the domains with the aspects that they have been modeled in.
 
         :param aspect: Aspect being modeled
         :type aspect: Aspect
@@ -429,15 +423,15 @@ class Domain(_Hash):
                 j.aspects[aspect] = {self}
 
     def copy(self) -> Self:
-        """Make a copy of self"""
+        """Make a copy of self."""
         return Domain(**self.args)
 
     def edit(self, what: dict[str, _X]) -> Self:
-        """Change some aspects and return a new Domain"""
+        """Change some aspects and return a new Domain."""
         return Domain(**{**self.args, **what})
 
     def param_tree(self, parameter: float | list[float], rel: str) -> dict:
-        """Tree representation of the Domain"""
+        """Tree representation of the Domain."""
         tree = {}
         node = tree
         n_last = len(self.index) - 1
@@ -456,17 +450,34 @@ class Domain(_Hash):
     # -----------------------------------------------------
 
     def __getitem__(self, index: str) -> _X:
-        """Get the index by name"""
+        """Get the index by name."""
         return self._[index]
 
     def __iter__(self):
-        """Iterate over the indices"""
+        """Iterate over the indices."""
         return iter(self.index_short)
 
     def __call__(self, *args: str) -> Self:
+        """
+        Project the domain onto the named index fields.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location, Periods, Resource
+                from energia.modeling.indices.domain import Domain
+
+                water, site = Resource(), Location()
+                selection = Domain(commodity=water, location=site, periods=Periods())
+                spatial = selection("commodity", "location")
+                assert spatial.commodity is water
+                assert spatial.location is site and spatial.periods is None
+        """
         return Domain(**{i: j for i, j in self.args.items() if i in args})
 
     def __len__(self):
+        """Return the number of entries in the domain's disposition."""
         return len(self.disposition)
 
     # -----------------------------------------------------
@@ -475,38 +486,39 @@ class Domain(_Hash):
 
     def __truediv__(self, other: list[str]) -> Self:
         """
-        Will give you the Domain minus a particular index
+        Return a domain with the named index fields removed.
 
-        :param other: index you wish to remove
-        :type other: str | list[str]
+        .. admonition:: Example
 
-        :returns: lower dimensional domain
-        :rtype: Domain
+            .. code-block:: python
 
-        .. example::
-            >>> domain = Domain(commodity=water, operation=dam, space=goa, time=year)
-            (water, dam, goa, year)
-            >>> domain/'operation'
-            (water, goa, year)
-            >>> domain/['commodity', 'operation']
-            (goa, year)
+                from energia import Location, Periods, Resource
+                from energia.modeling.indices.domain import Domain
+
+                water = Resource()
+                selection = Domain(commodity=water, location=Location(), periods=Periods())
+                spatial_total = selection / ["periods"]
+                assert spatial_total.commodity is water
+                assert spatial_total.periods is None
         """
-
         return Domain(**{i: j for i, j in self.args.items() if i not in other})
 
     def __sub__(self, other: Self) -> list[str]:
         """
-        Will give you a list of indices that are not common between two domains
+        List index fields that are absent or refer to different objects.
 
-        :param other: another Domain object
-        :type other: Self
+        .. admonition:: Example
 
-        .. example::
-            >>> domain1 = Domain(commodity=water, operation=dam, space=goa, time=year)
-            >>> domain2 = Domain(commodity=water, space=mumbai, time=year)
-            >>> domain1 - domain2
-            ['operation', 'space']
+            .. code-block:: python
 
+                from energia import Location, Model, Resource
+                from energia.modeling.indices.domain import Domain
+
+                m = Model()
+                m.water, m.north, m.south = Resource(), Location(), Location()
+                north = Domain(commodity=m.water, location=m.north)
+                south = Domain(commodity=m.water, location=m.south)
+                assert "space" in (north - south)
         """
         notcommon = []
         for i, j in self._.items():
@@ -525,6 +537,7 @@ class Domain(_Hash):
         return notcommon
 
     def __add__(self, other: Self) -> Self:
+        """Combine index fields from both domains, giving the right operand precedence."""
         return Domain(**{**self.args, **other.args})
 
     # -----------------------------------------------------
@@ -532,14 +545,15 @@ class Domain(_Hash):
     # -----------------------------------------------------
 
     def __eq__(self, other):
+        """Compare the domain name with the other object's string representation."""
         return self.name == str(other)
 
     def __lt__(self, other: Self) -> bool:
-        """Less than comparison based on the number of indices"""
+        """Less than comparison based on the number of indices."""
         if len(self) < len(other):
             return True
         return False
 
     def __gt__(self, other: Self) -> bool:
-        """Greater than comparison based on the number of indices"""
+        """Greater than comparison based on the number of indices."""
         return other < self

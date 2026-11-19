@@ -223,3 +223,28 @@ nb_execution_mode = "off"
 # -----# Bibtex configuration-------------------------------------------------------
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
+
+
+# Display the operators that form Energia's modeling language, including
+# inherited Energia operators on concrete components such as Resource.
+_model_operators = {
+    "__add__", "__call__", "__contains__", "__eq__", "__ge__", "__getitem__",
+    "__gt__", "__iter__", "__le__", "__len__", "__lt__", "__mul__", "__neg__",
+    "__radd__", "__rmul__", "__rsub__", "__rtruediv__", "__setitem__",
+    "__sub__", "__truediv__",
+}
+
+
+def include_model_operator(app, what, name, obj, skip, options):
+    if (
+        what == "class"
+        and name in _model_operators
+        and getattr(obj, "__module__", "").startswith("energia.")
+        and getattr(obj, "__doc__", None)
+    ):
+        return False
+    return None
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", include_model_operator)

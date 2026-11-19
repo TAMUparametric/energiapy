@@ -1,4 +1,4 @@
-"""Utilities for modeling"""
+"""Utilities for modeling."""
 
 
 def retry(func, attempts: int = 2, exceptions=(Exception,)):

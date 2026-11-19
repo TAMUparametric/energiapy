@@ -1,4 +1,4 @@
-"""Storage - Stashes Resource to Withdraw Later"""
+"""Storage - Stashes Resource to Withdraw Later."""
 
 from __future__ import annotations
 
@@ -30,9 +30,10 @@ if TYPE_CHECKING:
 
 # Resource in Storage
 class Stored(Resource):
-    """Resource in Storage"""
+    """Resource in Storage."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize the resource representing inventory held in storage."""
         Resource.__init__(self, *args, **kwargs)
 
         # self.inv_of: Resource | None = None
@@ -40,27 +41,28 @@ class Stored(Resource):
 
 # A charging process to convert Resource into Stored
 class Charge(Process):
-    """Process that Charges Storage"""
+    """Process that Charges Storage."""
 
     def __init__(self, storage: Storage, *args, **kwargs):
-
+        """Associate the charging process with its parent storage."""
         self.storage = storage
         super().__init__(*args, **kwargs)
 
 
 # A discharging process to convert Stored back into Resource
 class Discharge(Process):
-    """Process that Discharges Storage"""
+    """Process that Discharges Storage."""
 
     def __init__(self, storage: Storage, *args, **kwargs):
-
+        """Associate the discharging process with its parent storage."""
         self.storage = storage
         super().__init__(*args, **kwargs)
 
 
 class Storage(_Component):
     """
-    Storage is a container for three main elements:
+    Storage has three constituent components.
+
     1. A Stored resource
     2. A charge Process that puts the resource into storage
     3. A discharge Process that withdraws the resource from storage
@@ -96,6 +98,18 @@ class Storage(_Component):
     :vartype discharge: Process
     :ivar locations: List of locations where the storage is located. Defaults to [].
     :vartype locations: list[Location]
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, Resource, Storage
+
+            m = Model()
+            m.power = Resource()
+            m.battery = Storage(m.power == 0.9)
+            assert m.battery.charge.storage is m.battery
+            assert m.battery.discharge.storage is m.battery
     """
 
     def __init__(
@@ -105,7 +119,7 @@ class Storage(_Component):
         citations: str = "",
         **kwargs,
     ):
-
+        """Collect storage conversions and initialize the inventory-capacity construction balance."""
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         # Charging, Discharging, and Stored Resource (Inventory)
@@ -127,32 +141,32 @@ class Storage(_Component):
 
     @cached_property
     def space_times(self) -> list[tuple[Location, Periods]]:
-        """List of location, time tuples where storage is located"""
+        """List of location, time tuples where storage is located."""
         return self.charge.space_times
 
     @cached_property
     def capacity_aspect(self) -> Aspect:
-        """Reports invcapacity as aspect"""
+        """Reports invcapacity as aspect."""
         return self.model.invcapacity
 
     @cached_property
     def inventory_aspect(self) -> Aspect:
-        """Reports inventory as aspect"""
+        """Reports inventory as aspect."""
         return self.model.inventory
 
     @property
     def basis(self) -> Resource:
-        """Base resource"""
+        """Base resource."""
         return self.discharge.primary_conversion.resource
 
     @property
     def storage_cost(self) -> Sample:
-        """Cost of storing the resource"""
+        """Cost of storing the resource."""
         return self.inventory[self.model._cash().spend]
 
     @property
     def cons(self) -> list[C]:
-        """Constraints"""
+        """Constraints."""
         # This overwrites the Component cons property
         # this gets the actual constraint objects from the program
         # based on the pname (attribute name) in the program
@@ -189,12 +203,12 @@ class Storage(_Component):
         return self, space, self.horizon
 
     def _init_inventory_aspect(self):
-        """Initializes the inventory aspect bound spaces for the stored resource"""
+        """Initializes the inventory aspect bound spaces for the stored resource."""
         if self.stored not in self.inventory_aspect.bound_spaces:
             _ = self.inventory_aspect(self.stored) >= 0
 
     def _get_times(self, space: Location) -> list[Periods]:
-        """Gets times where inventory is defined"""
+        """Gets times where inventory is defined."""
         try:
             times = [
                 t
@@ -207,7 +221,7 @@ class Storage(_Component):
         return times
 
     def _filter_time(self, times: list[Periods]) -> Periods:
-        """This the final returner of time"""
+        """Return the shortest candidate period, or the horizon for an empty selection."""
         if times:
             return min(times)
         return self.horizon
@@ -236,8 +250,7 @@ class Storage(_Component):
         space_times: list[tuple[Location, Periods]],
         # fabrication: dict[Resource, int | float | list[int | float]],
     ):
-        """write fabrication constraints for the operation"""
-
+        """Write fabrication constraints for the operation."""
         self.construction.balancer()
 
         for location, time in space_times:
@@ -247,7 +260,7 @@ class Storage(_Component):
 
     @timer(logger, kind="locate")
     def locate(self, *spaces: Location):
-        """Locate the storage"""
+        """Locate the storage."""
         # update the locations at which the storage exists
 
         # get location, time tuples where operation is defined
@@ -276,7 +289,8 @@ class Storage(_Component):
         storage_args: dict | None = None,
     ):
         """
-        Births the constituents of the storage component
+        Births the constituents of the storage component.
+
         Sets them on the Model
         """
         if not self._birthed:
@@ -296,8 +310,7 @@ class Storage(_Component):
         self._birthed = True
 
     def _split_attr(self):
-        """Splits the parameters dictionary into charging, discharging and storage parameters"""
-
+        """Splits the parameters dictionary into charging, discharging and storage parameters."""
         _charging_args = {}
         _discharging_args = {}
         _storage_args = {}
@@ -323,7 +336,7 @@ class Storage(_Component):
         return _charging_args, _discharging_args, _storage_args
 
     def _set_conversions(self, resource: Stored | Conversion):
-        """Sets the conversions on the storage component"""
+        """Sets the conversions on the storage component."""
         _ = self.charge(self.stored) == -resource
 
         self.discharge.primary_conversion.expect = self.stored
@@ -332,7 +345,8 @@ class Storage(_Component):
 
     def _handle_nonnumeric_conversion(self):
         """
-        Handles non-numeric conversions by setting a default conversion
+        Handles non-numeric conversions by setting a default conversion.
+
         This comes into play when storage has dependent conversions
         Take the example of hydrogen storage requiring power
         In which case, besides the efficiency, the power conversion will be passed
@@ -343,7 +357,8 @@ class Storage(_Component):
 
     def _handle_held_conversion(self):
         """
-        Handles non-piecewise linear conversions by setting a default conversion
+        Handles non-piecewise linear conversions by setting a default conversion.
+
         This comes into play when storage has dependent conversions
         Take the example of hydrogen storage requiring power
         In which case, besides the efficiency, the power conversion will be passed
@@ -353,7 +368,7 @@ class Storage(_Component):
             _ = self(conversion.resource) == conversion.hold
 
     def __setattr__(self, name, value):
-
+        """Create the charging, discharging, and inventory components when a model is assigned."""
         object.__setattr__(self, name, value)
 
         if name == "model" and value is not None:
@@ -368,7 +383,7 @@ class Storage(_Component):
         super().__setattr__(name, value)
 
     def __getattr__(self, name):
-
+        """Resolve inventory and capacity aliases on the stored resource."""
         # for Storage to make a distinction
         # these are called inv + aspect name
         # for e.g.: capacity -> invcapacity
@@ -387,8 +402,7 @@ class Storage(_Component):
         return super().__getattr__(name)
 
     def __call__(self, resource: Stored | Conversion):
-        """Conversion is called with a Resource to be converted"""
-
+        """Conversion is called with a Resource to be converted."""
         self._birth_constituents()
 
         self._set_conversions(resource)

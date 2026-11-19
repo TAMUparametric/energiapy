@@ -1,4 +1,4 @@
-"""Process conversion models (external libraries)"""
+"""Process conversion models (external libraries)."""
 
 import logging
 
@@ -39,7 +39,8 @@ def pvlib(
     spectral_model: str = "no_loss",
 ) -> list[float] | None:
     """
-    Calculates solar power output using weather data
+    Calculates solar power output using weather data.
+
     Relevant factors include DHI (W/m2), DNI (W/m2), GHI (W/m2),
     Temperature (C), Dewpoint (C), Relative humidity (%)
 
@@ -113,7 +114,8 @@ def windpowerlib(
     observation_height: float = 10,
 ) -> list[float] | None:
     """
-    Calculates wind power output using weather data
+    Calculates wind power output using weather data.
+
     Relevant factors include wind speeds (m/s), temperature (K), and pressure(Pa)
 
     :param data: weather data input with wind_speed, air_temperature, surface_pressure
@@ -142,7 +144,6 @@ def windpowerlib(
     :returns: a dataframe with hourly wind power outputs
     :rtype: list[float] | None
     """
-
     # df_ = df_.dropna()
     if import_all:
         logger.warning(

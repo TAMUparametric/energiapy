@@ -1,4 +1,4 @@
-"""Land"""
+"""Land."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Land(Commodity):
     """
-    Land used by Operations
+    Land used by Operations.
 
     :param label: Label of the commodity, used for plotting. Defaults to None.
     :type label: str, optional
@@ -46,6 +46,7 @@ class Land(Commodity):
         citations: str = "",
         **kwargs,
     ):
+        """Create a land commodity measured in the optional basis unit."""
         Commodity.__init__(
             self, basis=basis, label=label, citations=citations, **kwargs
         )

@@ -1,4 +1,4 @@
-"""Variable"""
+"""Variable."""
 
 from __future__ import annotations
 
@@ -41,8 +41,8 @@ if TYPE_CHECKING:
 @dataclass
 class Aspect:
     r"""
-    A particular facet of the system under consideration. A sample of an aspect at a
-    specific disposition is represented by a variable (:math:`\overset{\*}{v} \in \overset{\*}{\mathcal{V}}`).
+    A particular facet of the system under consideration. A sample of an aspect at a specific disposition is represented by a variable (:math:`\overset{\*}{v} \in \overset{\*}{\mathcal{V}}`).
+
     The range of values which the :math:`\overset{\*}{v}` is bounded such that:
 
     .. math::
@@ -97,6 +97,7 @@ class Aspect:
     use_multiplier: bool = False
 
     def __post_init__(self):
+        """Initialize domain, bound, reporting, and constraint records for a modeling aspect."""
         # will be set when added to model
         self.name: str = ""
 
@@ -124,7 +125,7 @@ class Aspect:
 
     @cached_property
     def maps(self) -> dict[str, dict[Domain, list[Domain]]]:
-        """Maps of the decision"""
+        """Maps of the decision."""
         self.model.maps[self] = {
             "time": {},
             "space": {},
@@ -135,7 +136,7 @@ class Aspect:
 
     @cached_property
     def maps_report(self) -> dict[str, dict[Domain, list[Domain]]]:
-        """Maps of the decision"""
+        """Maps of the decision."""
         self.model.maps_report[self] = {
             "time": {},
             "space": {},
@@ -151,7 +152,7 @@ class Aspect:
 
     @cached_property
     def sign(self) -> float:
-        """Gives the multiplier in balances"""
+        """Gives the multiplier in balances."""
         if self.ispos:
             return 1.0
         else:
@@ -159,47 +160,47 @@ class Aspect:
 
     @cached_property
     def space(self) -> Space:
-        """Space"""
+        """Space."""
         return self.model.space
 
     @cached_property
     def program(self) -> Prg:
-        """Mathematical Program"""
+        """Mathematical Program."""
         return self.model.program
 
     @cached_property
     def problem(self) -> Problem:
-        """Tree"""
+        """Tree."""
         return self.model.problem
 
     @cached_property
     def time(self) -> Time:
-        """Time"""
+        """Time."""
         return self.model.time
 
     @property
     def I(self) -> Idx:
-        """gana index set (I)"""
+        """Return the Gana index set for this component."""
         return getattr(self.program, self.name)
 
     @property
     def V(self) -> Var:
-        """Variable"""
+        """Variable."""
         return getattr(self.program, self.name)
 
     @property
     def cons(self) -> list[C]:
-        """Constraints"""
+        """Constraints."""
         return [getattr(self.program, c) for c in self.constraints]
 
     @property
     def network(self) -> Location:
-        """Circumscribing Location (Spatial Scale)"""
+        """Circumscribing Location (Spatial Scale)."""
         return self.model.network
 
     @property
     def horizon(self) -> Periods:
-        """Circumscribing Periods (Temporal Scale)"""
+        """Circumscribing Periods (Temporal Scale)."""
         return self.model.horizon
 
     @property
@@ -213,12 +214,12 @@ class Aspect:
             ],
         ],
     ]:
-        """Dispositions dict"""
+        """Dispositions dict."""
         return self.model.dispositions[self]
 
     @property
     def sizes(self):
-        """dict of domain sizes"""
+        """Dict of domain sizes."""
         _sizes = {}
         for d in self.domains:
             if d.size in _sizes:
@@ -229,7 +230,7 @@ class Aspect:
 
     @property
     def box(self):
-        """Box of domain indices"""
+        """Box of domain indices."""
         return [b.index_short for b in self.domains]
 
     def crumple_domains(self):
@@ -237,7 +238,7 @@ class Aspect:
 
     def alias(self, *names: str):
         """
-        Create aliases for the decision
+        Create aliases for the decision.
 
         :param names: Names of the aliases
         :type names: str
@@ -245,10 +246,10 @@ class Aspect:
         self.model.alias(*names, of=self.name)
 
     def update(self, domain: Domain, reporting: bool = False):
-        """Each inherited object has their own"""
+        """Each inherited object has their own."""
 
     def show(self, descriptive=False):
-        """Pretty print the component"""
+        """Pretty print the component."""
         for c in self.cons:
             c.show(descriptive)
 
@@ -260,7 +261,7 @@ class Aspect:
         compare: bool = False,
     ) -> list[float] | dict[tuple[Idx, ...], float] | None:
         """
-        Solution
+        Solution.
 
         :param n_sol: Solution number. Defaults to 0.
         :type n_sol: int, optional
@@ -278,24 +279,21 @@ class Aspect:
         return var.output(n_sol, aslist=aslist, asdict=asdict, compare=compare)
 
     def gettime(self, *index) -> list[Periods]:
-        """Finds the sparsest time scale in the domains"""
+        """Finds the sparsest time scale in the domains."""
         ds = [i for i in self.indices if all([x in i for x in index])]
         t = [t for t in ds if isinstance(t, Periods)]
         return t
 
     def Map(self, domain: Domain, reporting: bool = False):
-        """Map the aspect to the domain"""
-
+        """Map the aspect to the domain."""
         MapCons(aspect=self, domain=domain, reporting=reporting)
 
     def Balance(self, domain: Domain):
-        """Add a general resource balance for the aspect over the domain"""
-
+        """Add a general resource balance for the aspect over the domain."""
         BalCons(aspect=self, domain=domain)
 
     def __neg__(self):
-        """Negative Consequence"""
-
+        """Negative Consequence."""
         dscn = type(self)(
             nn=False,
             primary_type=self.primary_type,
@@ -305,18 +303,35 @@ class Aspect:
         return dscn
 
     def __len__(self):
+        """Return the number of registered domains."""
         return len(self.domains)
 
     def __eq__(self, other: Self) -> bool:
+        """Compare the assigned aspect names."""
         return str(self) == str(other)
 
     def __getitem__(self, item: _X) -> Sample:
+        """Look up the dispositions registered for a component."""
         return self.dispositions[item]
 
     def __call__(
         self, *index: _X, domain: Domain | None = None, report=False
     ) -> Sample:
+        """
+        Select a sample by its component, space, time, and optional operating mode.
 
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Location, Model, Periods, Process
+
+                m = Model()
+                m.site, m.hour, m.boiler = Location(), Periods(), Process()
+                output = m.operate(m.boiler, m.site, m.hour)
+                assert output.domain.process is m.boiler
+                assert output.domain.periods is m.hour
+        """
         if not domain:
 
             args = {
@@ -399,20 +414,24 @@ class Aspect:
         )
 
     def __str__(self):
+        """Return the name used to identify the modeling aspect."""
         return self.name
 
     def __repr__(self):
+        """Return the name used to identify the modeling aspect."""
         return self.name
 
     def __hash__(self):
+        """Hash the assigned aspect name."""
         return hash(self.name)
 
     def __iter__(self):
-        """Iterate over domains"""
+        """Iterate over domains."""
         for d in self.domains:
             yield self(domain=d)
 
     def __init_subclass__(cls):
+        """Preserve name-based comparison, hashing, and representation on subclasses."""
         cls.__repr__ = Aspect.__repr__
         cls.__hash__ = Aspect.__hash__
         cls.__eq__ = Aspect.__eq__

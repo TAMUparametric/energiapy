@@ -1,4 +1,4 @@
-"""Utilities to perform mathematical operations"""
+"""Utilities to perform mathematical operations."""
 
 from itertools import batched
 from math import erf, exp, pi, sqrt
@@ -8,7 +8,7 @@ import numpy
 
 def norm_constant(p, mu, sigma) -> float:
     """
-    Calculates the normal constant
+    Calculates the normal constant.
 
     :param p: level of compliance
     :type p: float
@@ -25,7 +25,7 @@ def norm_constant(p, mu, sigma) -> float:
 
 def find_euclidean_distance(a: list, b: list) -> float:
     """
-    finds euclidean distances between two cluster nodes
+    Finds euclidean distances between two cluster nodes.
 
     :param a: coordinates of cluster node a
     :type a: list
@@ -42,13 +42,22 @@ def find_euclidean_distance(a: list, b: list) -> float:
 
 def generate_connectivity_matrix(scale_len) -> numpy.array:
     """
-    Generates a connectivity matrix to maintain chronology [..1,0,1..]
+    Generates a connectivity matrix to maintain chronology [..1,0,1..].
 
     :param scale_len: length of the scale
     :type scale_len: int
 
     :returns: connectivity matrix
     :rtype: numpy.array
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia.utils.math import generate_connectivity_matrix
+
+            neighbors = generate_connectivity_matrix(3)
+            assert neighbors.tolist() == [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
     """
     connect_ = numpy.zeros((scale_len, scale_len), dtype=int)
     for i_ in range(len(connect_)):
@@ -78,6 +87,15 @@ def normalize(data: list, how: str = "max") -> list:
     :param how: Normalization method, either ``max`` or ``min_max``.
     :return: Normalized values in the same grouping as the input.
     :raises ValueError: If the method is unknown or interval bounds are reversed.
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia.utils.math import normalize
+
+            prices = [(2, 4), (6, 8)]
+            assert normalize(prices, how="max") == [(0.25, 0.5), (0.75, 1.0)]
     """
     if how not in ("max", "min_max"):
         message = f"Unknown normalization method {how!r}"

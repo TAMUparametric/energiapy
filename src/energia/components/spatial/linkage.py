@@ -1,4 +1,4 @@
-"""Linkage links Locations through Transits"""
+"""Linkage links Locations through Transits."""
 
 from __future__ import annotations
 
@@ -78,17 +78,19 @@ class Linkage(_X):
 
     @cached_property
     def space(self) -> Space:
-        """Space to which the Location belongs"""
+        """Space to which the Location belongs."""
         return self.model.space
 
     @property
     def network(self) -> Location:
-        """Network to which the Location belongs"""
+        """Network to which the Location belongs."""
         return self.model.network
 
     @property
     def isnetwork(self) -> bool:
-        """Is this the network of the model?
+        """
+        Is this the network of the model?
+
         Linkage can never be the network
         """
         return False
@@ -115,7 +117,20 @@ class Linkage(_X):
         return iter(())
 
     def rev(self):
-        """Reversed Link"""
+        """
+        Reversed Link.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Linkage, Location, Model
+
+                m = Model()
+                m.mine, m.port = Location(), Location()
+                m.rail = Linkage(source=m.mine, sink=m.port)
+                assert m.rail.rev() is None
+        """
         # locations are all uni directional
         # if bi is True, create another link for the other direction
         # and set self.bi to False
@@ -125,6 +140,22 @@ class Linkage(_X):
         return None
 
     def __neg__(self):
+        """
+        Return the reverse route, creating and pairing it on first use.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Linkage, Location
+
+                mine, port = Location(), Location()
+                outbound = Linkage(mine, port, dist=18)
+                inbound = -outbound
+                assert inbound.source is port and inbound.sink is mine
+                assert inbound.dist == 18
+                assert -inbound is outbound
+        """
         # creates a new Link in the opposite direction
         if self.sib is not None:
             return self.sib
@@ -149,7 +180,7 @@ class Linkage(_X):
         return _link
 
     def __eq__(self, other: int | float | Self) -> Self | bool:
-        """Sets the distance of a linkage"""
+        """Sets the distance of a linkage."""
         # sets the distance of a linkage
         # each linkage has a unique distance
         if isinstance(other, (int, float)):
@@ -170,12 +201,11 @@ class Linkage(_X):
 
     @cached_property
     def I(self) -> I:  # noqa: E743, RUF100 -- public Gana index name; Codacy omits E743
-        """gana index set (I)"""
+        """Return the Gana index set for this component."""
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
 
     def update_hierarchy(self, hierarchy: int = 0):
-        """Updates the hierarchy of the locations"""
-
+        """Updates the hierarchy of the locations."""
         self.hierarchy = hierarchy

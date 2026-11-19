@@ -1,4 +1,4 @@
-"""Inherited _Index class"""
+"""Inherited _Index class."""
 
 from __future__ import annotations
 
@@ -65,14 +65,14 @@ class _X(ABC, _Hash):
 
     @cached_property
     def program(self) -> Prg:
-        """Mathematical program"""
+        """Mathematical program."""
         if self.model is None:
             raise AttributeError(f"{type(self)} needs to be assign as Model attribute")
         return self.model.program
 
     @property
     def cons(self) -> list[C]:
-        """Constraints"""
+        """Constraints."""
         # this gets the actual constraint objects from the program
         # based on the pname (attribute name) in the program
         return [getattr(self.program, c) for c in self.constraints]
@@ -80,10 +80,10 @@ class _X(ABC, _Hash):
     @property
     @abstractmethod
     def I(self) -> Idx:
-        """gana index set"""
+        """Gana index set."""
 
     def show(self, descriptive=False, category: str = ""):
-        """Pretty print the component"""
+        """Pretty print the component."""
         if category:
             for c in self.cons:
                 if c.category and c.category == category:

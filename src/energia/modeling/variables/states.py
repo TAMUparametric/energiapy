@@ -1,4 +1,4 @@
-"""State Variable"""
+"""State Variable."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 @dataclass
 class State(Aspect):
     """
-    State Variable
+    State Variable.
+
     Operational capacity or set point (utilization)
     """
 
@@ -24,17 +25,20 @@ class State(Aspect):
     bound: State | None = None
 
     def __post_init__(self):
+        """Initialize aspect records and the domains mapped to this state."""
         Aspect.__post_init__(self)
         self.mapped_from: list[Domain] = []
 
     def update(self, domain: Domain, reporting: bool = False):
-        """Add a domain to the decision variable"""
+        """Add a domain to the decision variable."""
         self.Map(domain=domain, reporting=reporting)
 
 
 @dataclass
 class Inventory(Aspect):
-    """Inventory State Variable
+    """
+    Inventory State Variable.
+
     Can only have Stored as primary
     """
 
@@ -42,52 +46,60 @@ class Inventory(Aspect):
     sub: EndoStream | None = None
 
     def __post_init__(self):
+        """Initialize the inherited state records for inventory."""
         State.__post_init__(self)
 
 
 @dataclass
 class Size(State):
     """
-    Capacity State Variable
+    Capacity State Variable.
+
     Operational capacity
     """
 
     def __post_init__(self):
+        """Initialize the inherited state records for installed size."""
         State.__post_init__(self)
 
 
 @dataclass
 class SetPoint(State):
     """
-    Set Point State Variable
+    Set Point State Variable.
+
     Operational set point (utilization)
     """
 
     def __post_init__(self):
+        """Initialize the inherited state records for operating set points."""
         State.__post_init__(self)
 
 
 @dataclass
 class Consequence(State):
-    """Consequence of an action"""
+    """Consequence of an action."""
 
     def __post_init__(self):
+        """Initialize the inherited state records for consequences."""
         State.__post_init__(self)
 
 
 @dataclass
 class Stream(State):
-    """Stream of Resource, also a state variable"""
+    """Stream of Resource, also a state variable."""
 
     def __post_init__(self):
+        """Initialize the inherited state records for a commodity stream."""
         State.__post_init__(self)
 
 
 @dataclass
 class EndoStream(Stream):
-    """Endogenous Stream of Resource, also a state variable"""
+    """Endogenous Stream of Resource, also a state variable."""
 
     def __post_init__(self):
+        """Initialize the state records for an endogenous stream."""
         Stream.__post_init__(self)
 
     def update(self, domain: Domain, reporting: bool = False):
@@ -99,9 +111,10 @@ class EndoStream(Stream):
 
 @dataclass
 class ExoStream(Stream):
-    """Exogenous Stream of Resource, also a state variable"""
+    """Exogenous Stream of Resource, also a state variable."""
 
     def __post_init__(self):
+        """Initialize the state records for an exogenous stream."""
         Stream.__post_init__(self)
 
     def update(self, domain: Domain, reporting: bool = False):
@@ -113,9 +126,10 @@ class ExoStream(Stream):
 
 @dataclass
 class IndStream(Stream):
-    """Indicator Stream of Resource, also a state variable"""
+    """Indicator Stream of Resource, also a state variable."""
 
     def __post_init__(self):
+        """Initialize the state records for an indicator stream."""
         Stream.__post_init__(self)
 
     def update(self, domain: Domain, reporting: bool = False):

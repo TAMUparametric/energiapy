@@ -1,4 +1,4 @@
-"""Utilities for plots, manages axes and such"""
+"""Utilities for plots, manages axes and such."""
 
 from matplotlib import ticker
 

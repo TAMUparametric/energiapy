@@ -1,4 +1,4 @@
-"""dictionary utils"""
+"""dictionary utils."""
 
 from collections import defaultdict
 from operator import is_
@@ -59,7 +59,6 @@ def tupler(d: dict, path: tuple = ()) -> list[tuple[str]]:
     :return: List of tuples of keys representing the paths to each value.
     :rtype: list[tuple[str]]
     """
-
     result = []
 
     for k, v in d.items():
@@ -117,7 +116,7 @@ class NotFoundError(Exception):
 
 
 def compare(tree: dict, of):
-    """How many periods make this period"""
+    """Return the number of periods at the supplied scale per period at this scale."""
     n = 1
     for i, j in tree.items():
         if is_(i, of):
@@ -139,10 +138,7 @@ def dict_signature(d):
 
 
 def merge_tree_levels(d):
-    """
-    Convert nested dict to level-wise compact structure,
-    merging repeated keys at all levels.
-    """
+    """Convert nested dict to level-wise compact structure, merging repeated keys at all levels."""
     if not isinstance(d, dict) or not d:
         return []
 

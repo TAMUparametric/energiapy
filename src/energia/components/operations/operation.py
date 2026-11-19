@@ -1,4 +1,4 @@
-"""A General Operation"""
+"""A General Operation."""
 
 from __future__ import annotations
 
@@ -30,7 +30,8 @@ if TYPE_CHECKING:
 
 
 class Operation(_Component):
-    """A General Operation
+    """
+    A General Operation.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -54,7 +55,6 @@ class Operation(_Component):
     :vartype fab: Conversion, optional
     :ivar _fab_balanced: True if the material conversion has been balanced. Defaults to False.
     :vartype _fab_balanced: bool
-
     """
 
     def __init__(
@@ -65,6 +65,7 @@ class Operation(_Component):
         citations: str = "",
         **kwargs,
     ):
+        """Collect the supplied conversions and initialize the operation's construction balance."""
         _Component.__init__(self, label=label, citations=citations, **kwargs)
 
         self.primary_conversion: Conversion | None = None
@@ -80,45 +81,45 @@ class Operation(_Component):
     @property
     @abstractmethod
     def spaces(self) -> list[Location | Linkage]:
-        """Locations at which the process is balanced"""
+        """Locations at which the process is balanced."""
 
     @cached_property
     def capacity_aspect(self) -> Aspect:
-        """Capacity Aspect"""
+        """Capacity Aspect."""
         return self.model.capacity
 
     @cached_property
     def operate_aspect(self) -> Aspect:
-        """Operate Aspect"""
+        """Operate Aspect."""
         return self.model.operate
 
     @property
     def operate_sample(self) -> Sample:
-        """Operate Sample"""
+        """Operate Sample."""
         return self.operate
 
     @property
     def capacity_sample(self) -> Sample:
-        """Capacity Sample"""
+        """Capacity Sample."""
         return self.capacity
 
     @property
     def basis(self) -> Resource | None:
-        """Base resource"""
+        """Base resource."""
         if self.primary_conversion is not None:
             return self.primary_conversion.resource
         return None
 
     @property
     def balance(self) -> dict[Resource, int | float] | None:
-        """Conversion of commodities"""
+        """Conversion of commodities."""
         if self.primary_conversion is not None:
             return self.primary_conversion.balance
         return None
 
     @property
     def lag(self) -> Lag | None:
-        """Lag of the process"""
+        """Lag of the process."""
         if self.primary_conversion is not None:
             return self.primary_conversion.lag
         return None
@@ -127,7 +128,7 @@ class Operation(_Component):
         self,
         space_times: list[tuple[Location | Linkage, Periods]],
     ):
-        """write conversion constraints for the operation"""
+        """Write conversion constraints for the operation."""
 
     @timer(logger, kind="construction")
     def write_construction(
@@ -135,8 +136,7 @@ class Operation(_Component):
         space_times: list[tuple[Location | Linkage, Periods]],
         # fabrication: dict[Resource, int | float | list[int | float]],
     ):
-        """write fabrication constraints for the operation"""
-
+        """Write fabrication constraints for the operation."""
         self.construction.balancer()
 
         for location, time in space_times:
@@ -146,8 +146,7 @@ class Operation(_Component):
 
     @timer(logger, kind="assume-capacity")
     def _check_capacity_bound(self, space: Location | Linkage):
-        """Check if capacity is bounded in space"""
-
+        """Check if capacity is bounded in space."""
         if self not in self.capacity_aspect.bound_spaces:
             # ensure that the bound_spaces dict is initialized
             self.capacity_aspect.bound_spaces[self] = {"ub": [], "lb": []}
@@ -225,8 +224,7 @@ class Operation(_Component):
         space: Location | Linkage,
         space_times: list[tuple[Location | Linkage, Periods]],
     ):
-        """Update space times for the operation"""
-
+        """Update space times for the operation."""
         for domain in self.operate_aspect.domains:
             if domain.space == space:
                 space_time = (space, domain.time)
@@ -237,8 +235,7 @@ class Operation(_Component):
 
     @timer(logger, kind="locate")
     def locate(self, *spaces: Location | Linkage):
-        """Locate the process"""
-
+        """Locate the process."""
         if not spaces:
             spaces = (self.model.network,)
 
@@ -270,14 +267,29 @@ class Operation(_Component):
         resource: Resource | Conversion,
         lag: Lag | None = None,
     ) -> Conversion:
-        """Conversion is called with a Resource to be converted"""
+        """
+        Conversion is called with a Resource to be converted.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Periods, Process, Resource
+
+                m = Model()
+                m.hour = Periods()
+                m.fuel, m.heat = Resource(), Resource()
+                m.boiler = Process()
+                m.boiler(m.heat, lag=-m.hour) == -m.fuel
+                assert m.boiler.lag.of is m.hour
+        """
         self.primary_conversion.resource = resource
         if lag:
             return self.primary_conversion(resource, lag)
         return self.primary_conversion(resource)
 
     def __setattr__(self, name, value):
-
+        """Attach pending conversions to the operation when it joins a model."""
         if name == "model" and value is not None:
             for conv in self.conversions:
                 conv.operation = self

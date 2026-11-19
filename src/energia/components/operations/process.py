@@ -1,4 +1,4 @@
-"""Process"""
+"""Process."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class Process(Operation):
     """
-    Process converts one Resource to another Resource at some Location
+    Process converts one Resource to another Resource at some Location.
 
     :param label: An optional label for the component. Defaults to None.
     :type label: str, optional
@@ -50,10 +50,22 @@ class Process(Operation):
     :vartype charges: Storage, optional
     :ivar discharges: If the Process is Storage discharging. Defaults to None.
     :vartype discharges: Storage, optional
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, Process, Resource
+
+            m = Model()
+            m.fuel, m.power = Resource(), Resource()
+            m.generator = Process(m.power == -2 * m.fuel)
+            assert m.generator.basis is m.power
+            assert m.generator.balance[m.fuel] == -2
     """
 
     def __init__(self, *args, label: str = "", citations: str = "", **kwargs):
-
+        """Initialize the production conversion and the list of operating locations."""
         Operation.__init__(self, *args, label=label, citations=citations, **kwargs)
 
         self.primary_conversion = Production(
@@ -68,23 +80,22 @@ class Process(Operation):
 
     @property
     def spaces(self) -> list[Location]:
-        """Locations at which the process is balanced"""
+        """Locations at which the process is balanced."""
         return self.locations
 
     @property
     def production(self):
-        """Alias for primary_conversion"""
+        """Alias for primary_conversion."""
         return self.primary_conversion
 
     @production.setter
     def production(self, value):
-        """Set primary_conversion"""
+        """Set primary_conversion."""
         self.primary_conversion = value
 
     @timer(logger, kind="production")
     def write_primary_conversion(self, space_times: list[tuple[Location, Periods]]):
-        """Write the production constraints for the process"""
-
+        """Write the production constraints for the process."""
         # This makes the production consistent
         # check conv_test.py in tests for examples
         self.production.balancer()

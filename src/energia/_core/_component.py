@@ -1,4 +1,4 @@
-"""Inherited _Component class"""
+"""Inherited _Component class."""
 
 from __future__ import annotations
 
@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 
 class _Component(_X):
     """
-    A component with a mathematical program (hence index in it) and
-    input parameters (modeling aspects).
+    A component with a mathematical program (hence index in it) and input parameters (modeling aspects).
 
     :param label: Label for the component. Defaults to None.
     :type label: str, optional
@@ -61,33 +60,33 @@ class _Component(_X):
 
     @property
     def network(self) -> Location:
-        """Circumscribing Loc (Spatial Scale)"""
+        """Circumscribing Loc (Spatial Scale)."""
         return self.model.network
 
     @property
     def horizon(self) -> Periods:
-        """Circumscribing Periods (Temporal Scale)"""
+        """Circumscribing Periods (Temporal Scale)."""
         return self.model.horizon
 
     @cached_property
     def time(self) -> Time:
-        """Time"""
+        """Time."""
         return self.model.time
 
     @cached_property
     def space(self) -> Space:
-        """Space"""
+        """Space."""
         return self.model.space
 
     @cached_property
     def problem(self) -> Problem:
-        """Feasible Region"""
+        """Feasible Region."""
         # the decision tree gives the component access to
         # the aspects of all other components
         return self.model.problem
 
     def _handle_norm(self, aspect: str, sample: Sample) -> Sample:
-        """Check if a nominal parameter is set for the aspect"""
+        """Check if a nominal parameter is set for the aspect."""
         # check if a request to normalize has been made
         nominal = aspect + "_nominal"
         nom = aspect + "_nom"
@@ -112,8 +111,7 @@ class _Component(_X):
         return sample
 
     def _handle_x(self, aspect: str, sample: Sample) -> Sample:
-        """Check if aspect is optional"""
-
+        """Check if aspect is optional."""
         if (
             aspect + '_optional' in self.parameters
             and self.parameters[aspect + '_optional']
@@ -196,12 +194,12 @@ class _Component(_X):
 
     @cached_property
     def I(self):
-        """gana index set (I)"""
+        """Return the Gana index set for this component."""
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
         return _index
 
     def __len__(self):
-        """Length of the component's index set"""
+        """Length of the component's index set."""
         # always one
         return 1

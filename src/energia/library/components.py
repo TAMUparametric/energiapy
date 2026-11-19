@@ -1,4 +1,4 @@
-"""Library of elements"""
+"""Library of elements."""
 
 from __future__ import annotations
 
@@ -15,12 +15,24 @@ if TYPE_CHECKING:
 
 
 def time_units(model: Model):
-    """Time units"""
+    """
+    Time units.
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, time_units
+
+            m = Model()
+            time_units(m)
+            assert m.h.howmany(m.min) == 60
+    """
     model.TemporalScales([1, 365, 24, 60, 60], ["y", "d", "h", "min", "s"])
 
 
 def si_units(model: Model):
-    """SI units"""
+    """SI units."""
     # Base units
     model.m = Unit(label="m")  # meter
     model.kg = Unit(label="kg")  # kilogram
@@ -40,8 +52,7 @@ def si_units(model: Model):
 
 
 def misc_units(model: Model):
-    """Miscellaneous units"""
-
+    """Miscellaneous units."""
     if not model.siunits_set:
         si_units(model)
 
@@ -56,7 +67,19 @@ def misc_units(model: Model):
 
 
 def env_indicators(model):
-    """Load default indicators"""
+    """
+    Load default indicators.
+
+    .. admonition:: Example
+
+        .. code-block:: python
+
+            from energia import Model, env_indicators
+
+            m = Model()
+            env_indicators(m)
+            assert m.GWP in m.impact.environment
+    """
     model.GWP = Environ(label="Global Warming Potential (kg CO2)")
     model.ODP = Environ(label="Ozone Depletion Potential (CFC-11 eq")
     model.AP = Environ(label="Acidification Potential (kg SO2)")
@@ -69,7 +92,8 @@ def env_indicators(model):
 
 
 def currencies(model: Model):
-    """Load default currencies
+    """
+    Load default currencies.
 
     citation
     --------
@@ -77,7 +101,6 @@ def currencies(model: Model):
     Bank for International Settlements,
     27 Oct. 2022, p. 12. Bank for International Settlements,
     https://www.bis.org/statistics/rpfx22_fx.pdf
-
     """
     model.USD = Currency(label="U.S. Dollar")
     model.EUR = Currency(label="Euro")
