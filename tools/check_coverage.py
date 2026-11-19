@@ -9,4 +9,5 @@ for label, covered, total, floor in (
     ("branch", totals["covered_branches"], totals["num_branches"], 70.55),
 ):
     if not total or 100 * covered < floor * total:
-        raise SystemExit(f"{label} coverage {covered}/{total} falls below {floor}%")
+        message = f"{label} coverage {covered}/{total} falls below {floor}%"
+        raise SystemExit(message)
