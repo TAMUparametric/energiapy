@@ -18,6 +18,9 @@ if TYPE_CHECKING:
     from .time import Time
 
 
+_ASPECT_COLLECTIONS = ("aspects", "states", "controls", "streams", "consequences")
+
+
 @dataclass
 class Problem(_Dimension):
     """
@@ -90,9 +93,14 @@ class Problem(_Dimension):
             "consequences",
             "domains",
         ] = "domains",
-    ) -> dict[Aspect | Domain, list[Aspect | Domain]]:
+    ) -> dict[Aspect | Domain, list[Aspect | Domain | tuple]]:
         """
-        Get a dictionary of the tree with a particular structure.
+        Query the relationships between aspects and their registered domains.
+
+        With an aspect collection as keys and ``values="domains"``, each aspect
+        maps to a list of index tuples. With ``keys="domains"``, use a sample's
+        ``domain`` to look up the aspects registered for that selection. If both
+        arguments are ``"domains"``, each registered domain maps to itself in a list.
 
         :param keys: Keys to use for the dictionary. Defaults to 'aspects'.
         :type keys: Literal[ 'aspects', 'states', 'controls', 'streams', 'consequences', 'domains' ], optional
@@ -100,14 +108,14 @@ class Problem(_Dimension):
         :type values: Literal[ 'aspects', 'states', 'controls', 'streams', 'consequences', 'domains' ], optional
 
         :returns: dictionary with particular structure
-        :rtype: dict[Aspect | Domain, list[Aspect | Domain]]
+        :rtype: dict[Aspect | Domain, list[Aspect | Domain | tuple]]
 
         :raises ValueError: If keys is not one of the allowed values
         """
         # This function will essentially return a dictionary
         # with any choice of keys and values
         # can come very handy
-        if keys in ["aspects", "states", "controls", "streams", "consequences"]:
+        if keys in _ASPECT_COLLECTIONS:
             keysset: list[Aspect] = getattr(self, keys)
 
             if values == "domains":
@@ -122,11 +130,14 @@ class Problem(_Dimension):
 
     def _values_by_domain(self, values):
         """Group the selected problem values by domain."""
-        dict_ = {d: [] for d in self.domains}
+        if values == "domains":
+            return {domain: [domain] for domain in self.domains}
+        if values not in _ASPECT_COLLECTIONS:
+            message = "values must be one of aspects, states, controls, streams, consequences, domains"
+            raise ValueError(message)
 
-        by_value = self.get(keys=values, values="domains") if dict_ else {}
-        for dom in self.domains:
-            for val, domains in by_value.items():
-                if dom in domains:
-                    dict_[dom].append(val)
-        return {k.tup: v for k, v in dict_.items() if v}
+        by_domain: dict[Domain, list[Aspect]] = {}
+        for aspect in getattr(self, values):
+            for domain in dict.fromkeys(aspect.domains):
+                by_domain.setdefault(domain, []).append(aspect)
+        return by_domain
