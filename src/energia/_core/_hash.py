@@ -14,4 +14,5 @@ class _Hash:
 
     def __init_subclass__(cls):
         cls.__repr__ = _Hash.__repr__
-        cls.__hash__ = _Hash.__hash__
+        if cls.__hash__ is None:
+            cls.__hash__ = _Hash.__hash__

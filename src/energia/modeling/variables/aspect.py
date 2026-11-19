@@ -358,7 +358,7 @@ class Aspect:
                     for b in samples:
                         if b.domain.samples:
                             samples.extend(b.domain.samples)
-                    samples = list(set(samples))
+                    samples = list(dict.fromkeys(samples))
                     continue
 
                 for typ, (attr, flag, require_primary) in type_map.items():

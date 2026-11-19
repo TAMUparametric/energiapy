@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import fields
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Self
@@ -84,6 +85,8 @@ class Sample(_Hash):
         self.report = report
 
         self._handshake()
+        # Binding can fill in time and space. Keep the original selection as the key.
+        _ = self._selection
 
         # if incidental calculation is generated
         self.hasinc: bool = False
@@ -103,6 +106,21 @@ class Sample(_Hash):
     def of(self) -> Self | None:
         """Sample being calculated"""
         return self.domain.samples[0] if self.domain.samples else None
+
+    @cached_property
+    def _selection(self) -> tuple:
+        """Aspect and explicitly selected domain indices, including nested samples."""
+        domain = self.domain
+        indices = tuple(
+            (field.name, str(index))
+            for field in fields(domain)
+            if field.name != "samples"
+            and (index := getattr(domain, field.name)) is not None
+        )
+        # Period slice names omit the stride.
+        period_slice = domain.periods.slice if domain.periods is not None else None
+        nested = tuple(sample._selection for sample in domain.samples)
+        return self.aspect.name, indices, period_slice, nested
 
     @cached_property
     def name(self) -> str:
@@ -669,6 +687,9 @@ class Sample(_Hash):
         else:
             Bind(sample=self, parameter=other, geq=True, forall=self._forall)
 
+    def __hash__(self):
+        return hash((id(self.model), self._selection))
+
     def __eq__(self, other):
 
         if other is True:
@@ -679,10 +700,7 @@ class Sample(_Hash):
             self.V()
 
         elif isinstance(other, Sample):
-            if self.aspect.name == other.aspect.name:
-                # if self.domain == other.domain:
-                return True
-            return False
+            return self.model is other.model and self._selection == other._selection
 
         else:
             if callable(self.of):
@@ -702,7 +720,7 @@ class Sample(_Hash):
         _ = self <= other
 
     def __call__(self, *index) -> Sample:
-        return self.aspect(*{*self.domain.index_short, *index}, report=self.report)
+        return self.aspect(*self.domain.index_short, *index, report=self.report)
 
     def __getitem__(self, calculate: Sample):
         if isinstance(calculate, int):

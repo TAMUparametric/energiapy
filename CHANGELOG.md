@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- `Sample` equality and hashing use the aspect and its selected domain. Samples
+  at different times or locations keep separate dictionary entries, and selecting
+  the same sample again retrieves its entry after binding.
 - Normalization uses a common scale for interval endpoints and preserves a
   shared resource price interval passed to `prep()`. Constant series normalize
   to zero with min–max scaling. Max scaling keeps an all-zero series at zero.
