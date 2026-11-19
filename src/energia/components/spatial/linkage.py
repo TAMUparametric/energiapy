@@ -4,13 +4,15 @@ from __future__ import annotations
 
 from functools import cached_property
 from operator import is_
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 
 from gana import I
 
 from ..._core._x import _X
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from ...dimensions.space import Space
     from .location import Location
 
@@ -42,6 +44,7 @@ class Linkage(_X):
     :vartype network: Loc
     """
 
+    @override
     def __init__(
         self,
         source: Location,
@@ -52,9 +55,11 @@ class Linkage(_X):
         label: str = "",
         citations: str = "",
     ):
+        """Connect the source and sink locations."""
         if is_(source, sink):
             # if the source and sink are the same, throw error
-            raise ValueError(f"source and sink can't both be {source}")
+            message = f"source and sink can't both be {source}"
+            raise ValueError(message)
 
         self.source = source
         self.sink = sink
@@ -100,6 +105,15 @@ class Linkage(_X):
             parent.has += (self,)
         return parent
 
+    @property
+    def tree(self) -> dict:
+        """Represent the linkage as a leaf in the spatial hierarchy."""
+        return {}
+
+    def all(self) -> Iterator[Location | Linkage]:
+        """Return an empty iterator since a linkage has no descendants."""
+        return iter(())
+
     def rev(self):
         """Reversed Link"""
         # locations are all uni directional
@@ -108,6 +122,7 @@ class Linkage(_X):
         if self.bi:
             self.bi = False
             return -self
+        return None
 
     def __neg__(self):
         # creates a new Link in the opposite direction
@@ -138,7 +153,6 @@ class Linkage(_X):
         # sets the distance of a linkage
         # each linkage has a unique distance
         if isinstance(other, (int, float)):
-
             self.dist = other
 
             self.model = self.source.model
@@ -155,7 +169,7 @@ class Linkage(_X):
         return False
 
     @cached_property
-    def I(self) -> I:
+    def I(self) -> I:  # noqa: E743, RUF100 -- public Gana index name; Codacy omits E743
         """gana index set (I)"""
         _index = I(self.name, tag=self.label or "")
         setattr(self.program, self.name, _index)
