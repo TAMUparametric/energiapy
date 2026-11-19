@@ -67,11 +67,6 @@ class Map:
     @timer(logger, kind='map')
     def write(self, from_domain: Domain, to_domain: Domain, tsum=False, msum=False):
         """Scales up variable to a lower dimension"""
-        # if the variable is being defined for the first time, do not bother with the rest
-        # Also note that if a variable already exists then a new is not created
-        # thus map_domain is not called in Bind.V()
-        # Essentially, the domain being added is always new!
-
         # 1. a new domain is being added to a new disposition
         # e.g.:
         #   (water, dam, goa, year) with disposition ['resource', 'operation', 'space', 'time'] exists
@@ -100,13 +95,15 @@ class Map:
         if self._check_validity():
             return
 
-        exists = self._check_existing(to_domain, from_domain)
+        v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
+        dimension = (to_domain - from_domain)[0]
+        sources_by_target = self.maps[dimension]
+        sources = sources_by_target.get(to_domain, ())
+        if from_domain in sources:
+            return False
 
         self.cons_name = self._give_cname(self.var, from_domain, to_domain, tsum, msum)
-
-        v_lower = self(*to_domain).X() if self.reporting else self(*to_domain).V()
-
-        if not tsum and not msum and exists:
+        if sources and not tsum and not msum:
             cons_existing: C = getattr(self.program, self.cons_name)
             setattr(
                 self.program,
@@ -119,6 +116,7 @@ class Map:
             setattr(self.program, self.cons_name, cons)
             cons.categorize("Mapping")
 
+        sources_by_target.setdefault(to_domain, []).append(from_domain)
         self._inform(from_domain)
 
         return (self.aspect, from_domain, to_domain)
@@ -132,10 +130,8 @@ class Map:
         return f"{self.aspect.name}_map"
 
     @cached_property
-    def maps(self) -> dict[Domain, list[Domain]]:
-        return (
-            self.aspect.maps_report if self.reporting is not None else self.aspect.maps
-        )
+    def maps(self) -> dict[str, dict[Domain, list[Domain]]]:
+        return self.aspect.maps_report if self.reporting else self.aspect.maps
 
     def _map_to_sparser_time(self, sparser_periods: list[Periods]):
         """
@@ -269,23 +265,6 @@ class Map:
             self.write(self.domain, self.domain.edit({"modes": None}))
         else:
             self.write(self.domain, self.domain.edit({"modes": None}), msum=True)
-
-    def _check_existing(self, to_domain: Domain, from_domain: Domain) -> bool:
-        """Checks if the map constraint already exists"""
-        what = (to_domain - from_domain)[0]
-        if to_domain not in self.maps[what]:
-            self.maps[what][to_domain] = [from_domain]
-            # make new constraint
-            return False
-
-        if from_domain in self.maps[what][to_domain]:
-            # There is an existing map
-            return True
-        else:
-            self.maps[what][to_domain].append(from_domain)
-            return True
-        if what in ["samples", "modes"]:
-            return True
 
     def _special_modes_check(self, from_domain: Domain, to_domain: Domain) -> None:
         """
