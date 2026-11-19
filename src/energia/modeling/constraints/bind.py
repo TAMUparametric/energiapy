@@ -6,7 +6,7 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from gana import V
+from gana import T, V
 from gana.sets.function import F
 
 from ...utils.decorators import timer
@@ -117,6 +117,14 @@ class Bind:
         if self._check_existing():
             return False
 
+        if self._is_unit_price():
+            self._bind_unit_price()
+            return self.sample, self.rel
+
+        if self.iscalc and f"price_{self.cons_name}" in self.program.names_theta_sets:
+            message = "This calculation already has a resource price interval"
+            raise ValueError(message)
+
         if self.leq:
             self.cons: C = self.lhs <= self.rhs
 
@@ -140,6 +148,46 @@ class Bind:
         )
         # returned for @timer
         return self.sample, self.rel
+
+    def _is_unit_price(self):
+        """Identify an interval-valued price for a consumed resource."""
+        if not (
+            self.of and self.aspect.name == "spend" and self.of.aspect.name == "consume"
+        ):
+            return False
+        values = self.parameter
+        return isinstance(values, tuple) or (
+            isinstance(values, list) and any(isinstance(value, tuple) for value in values)
+        )
+
+    def _bind_unit_price(self):
+        """Bind spend to a shared price or to one interval per time coordinate."""
+        if not self.eq:
+            message = "Use == to define a resource price interval"
+            raise ValueError(message)
+        bounds = self.parameter
+        if self.cons_name in self.program.names_constraint_sets:
+            message = "This calculation already has a fixed resource price"
+            raise ValueError(message)
+        quantity = self.of(*self.domain.index_spatiotemporal).V(bounds)
+        intervals = bounds if isinstance(bounds, list) else [bounds]
+        if len(intervals) not in (1, len(quantity)) or len(quantity) != len(self.lhs):
+            message = "Price intervals must match consumption coordinates"
+            raise ValueError(message)
+        name = f"price_{self.cons_name}"
+        existing = name in self.program.names_theta_sets
+        if existing:
+            price = getattr(self.program, name)
+            if intervals != [(member.lb, member.ub) for member in price]:
+                message = "This calculation already has different resource price bounds"
+                raise ValueError(message)
+        else:
+            price = T(_=bounds)
+            setattr(self.program, name, price)
+        multiplier = self.domain.space.multiplier if self.aspect.use_multiplier else 1
+        self.program.add_price(self.lhs, quantity, price, multiplier=multiplier)
+        if not existing:
+            self.model.scenario.update(self.sample, self.rel, price)
 
     def _listed(self):
         """Gets the parameter as a list if needed"""

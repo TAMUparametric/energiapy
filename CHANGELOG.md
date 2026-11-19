@@ -25,7 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   days. Legacy-mode indices, weights, and profiles match the historical function
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
-### Fixed 
+### Fixed
+- The `price` instruction now handles a resource price interval through Gana 1.2.0. It calculates `spend` as resource price times `consume`. The tiny example evaluates `spend` across that interval and initializes the paper-sorting model independently.
+- Process conversion balances use the appropriate time scale for each resource, including lagged outputs ([#330](https://github.com/TAMUparametric/energiapy/pull/330)).
+- `Model.output()` displays solutions with Gana 1.1.0's output API ([#331](https://github.com/TAMUparametric/energiapy/pull/331)).
+- Conversion arithmetic accumulates repeated commodities, preserves saved operands, and combines time-varying coefficients elementwise ([#332](https://github.com/TAMUparametric/energiapy/pull/332)).
 - Repeated linkage-parent lookups no longer duplicate routes in spatial sums.
   This restores the Seattle-Topeka example's total cost to 153,675 instead of
   counting each route five times.

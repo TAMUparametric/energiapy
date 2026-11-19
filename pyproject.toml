@@ -24,7 +24,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["gana", "ppopt", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy", "scikit-learn", "vaelchi>=0.1.0,<0.2"]
+dependencies = ["gana>=1.2.0", "ppopt", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy", "scikit-learn", "vaelchi>=0.1.0,<0.2"]
 
 [project.optional-dependencies]
 all = ["pvlib", "windpowerlib", "h5pyd"]
@@ -48,4 +48,4 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/TAMUparametric/energiapy"
 Issues = "https://github.com/TAMUparametric/energiapy/issues"
-Changelog = "https://github.com/yourusername/yourrepo/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/TAMUparametric/energiapy/blob/main/CHANGELOG.md"
