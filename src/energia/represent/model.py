@@ -984,7 +984,8 @@ class Model:
         path: str | os.PathLike[str] | None = None,
         n_sol: int | None = None,
     ) -> None:
-        """Save a solver result atomically in the existing ``.energia`` format.
+        """
+        Save a solver result atomically in the existing ``.energia`` format.
 
         :param as_type: Serialization format. Defaults to ``"dill"``.
         :param path: Destination file in an existing directory.
