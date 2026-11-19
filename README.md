@@ -8,16 +8,17 @@
 
 <!-- documentation-content -->
 
-[![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
+<!-- Release and documentation -->
 [![PyPI](https://img.shields.io/pypi/v/energiapy.svg)](https://pypi.org/project/energiapy)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/energiapy.svg)](https://pypi.org/project/energiapy/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/energiapy.svg)](https://pypi.org/project/energiapy/)
 [![Downloads](https://static.pepy.tech/personalized-badge/energiapy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/energiapy)
+[![Documentation Status](https://readthedocs.org/projects/energiapy/badge/)](https://energiapy.readthedocs.io/en/latest/)
+
+<!-- Quality and citation -->
 [![CI](https://github.com/TAMUparametric/energiapy/actions/workflows/energia.yml/badge.svg)](https://github.com/TAMUparametric/energiapy/actions/workflows/energia.yml)
+[![Coverage](https://codecov.io/gh/TAMUparametric/energiapy/branch/main/graph/badge.svg)](https://codecov.io/gh/TAMUparametric/energiapy)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/994d46ab40ac4f0ead5ed9d1ea1b0fab)](https://app.codacy.com/gh/TAMUparametric/energiapy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![codecov](https://codecov.io/gh/TAMUparametric/energiapy/branch/main/graph/badge.svg)](https://codecov.io/gh/TAMUparamteric/energiapy)
 [![DOI](https://zenodo.org/badge/600269309.svg)](https://doi.org/10.5281/zenodo.17478608)
-
-
 
 Energia is a decision-making tool. Models can be constructed by providing data regarding bounds on commodity streams and operations. Spatial specificity and time-series input of varying sizes renders multiscale models. Their analysis yields insight into the interactions between different decisions. The term 'streams' is applied broadly. pre-categorized streams are broadly classified into commodities (resource, currency, emission, land, material, land, etc.) and impact (economic, environmental, social).
 
