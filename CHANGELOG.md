@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- A process, transport, or storage can now be located before any operating activity
+  is declared. The first operating bound uses the model horizon when no local
+  operating time scale has been declared.
 - Locating storage now recognizes upper and equality bounds on inventory capacity
   in the scenario at the selected location and horizon, including a bound of zero.
 - `Sample` equality and hashing use the aspect and its selected domain. Samples

@@ -80,40 +80,43 @@ class Operation(_Component):
     @cached_property
     def capacity_aspect(self) -> Aspect:
         """Capacity Aspect"""
-        return getattr(self.model, 'capacity')
+        return self.model.capacity
 
     @cached_property
     def operate_aspect(self) -> Aspect:
         """Operate Aspect"""
-        return getattr(self.model, 'operate')
+        return self.model.operate
 
     @property
     def operate_sample(self) -> Sample:
         """Operate Sample"""
-        return getattr(self, 'operate')
+        return self.operate
 
     @property
     def capacity_sample(self) -> Sample:
         """Capacity Sample"""
-        return getattr(self, 'capacity')
+        return self.capacity
 
     @property
-    def basis(self) -> Resource:
+    def basis(self) -> Resource | None:
         """Base resource"""
         if self.primary_conversion is not None:
             return self.primary_conversion.resource
+        return None
 
     @property
-    def balance(self) -> dict[Resource, int | float]:
+    def balance(self) -> dict[Resource, int | float] | None:
         """Conversion of commodities"""
         if self.primary_conversion is not None:
             return self.primary_conversion.balance
+        return None
 
     @property
-    def lag(self) -> Lag:
+    def lag(self) -> Lag | None:
         """Lag of the process"""
         if self.primary_conversion is not None:
             return self.primary_conversion.lag
+        return None
 
     def write_primary_conversion(
         self,
@@ -136,7 +139,7 @@ class Operation(_Component):
 
         return self, (spc for spc, _ in space_times)
 
-    @timer(logger, kind='assume-capacity')
+    @timer(logger, kind="assume-capacity")
     def _check_capacity_bound(self, space: Location | Linkage):
         """Check if capacity is bounded in space"""
 
@@ -153,7 +156,7 @@ class Operation(_Component):
 
         return False
 
-    @timer(logger, kind='assume-operate')
+    @timer(logger, kind="assume-operate")
     def _check_operate_bound(self, space: Location | Linkage):
         """Check if operate is bounded in space"""
         if self not in self.operate_aspect.bound_spaces:
@@ -161,16 +164,9 @@ class Operation(_Component):
             self.operate_aspect.bound_spaces[self] = {"ub": [], "lb": []}
 
         if space not in self.operate_aspect.bound_spaces[self]["ub"]:
-            # check if operate has been bound
-            # if not just write opr_{pro, space, horizon} <= capacity_{pro, space, horizon}
-
-            if (
-                self in self.operate_aspect.dispositions
-                and space in self.operate_aspect.dispositions[self]
-            ):
-                time = min(self.operate_aspect.dispositions[self][space])
-            else:
-                time = self.horizon
+            operations = self.model.dispositions.get(self.operate_aspect, {})
+            periods = operations.get(self, {}).get(space, ())
+            time = min(periods, default=self.horizon)
             _ = self.operate_sample(space, time) <= 1
 
             return self, space, time
@@ -192,7 +188,7 @@ class Operation(_Component):
 
         return space_times
 
-    @timer(logger, kind='locate')
+    @timer(logger, kind="locate")
     def locate(self, *spaces: Location | Linkage):
         """Locate the process"""
 
@@ -203,7 +199,6 @@ class Operation(_Component):
 
         # get location, time tuples where operation is defined
         for space in spaces:
-
             self._check_capacity_bound(space)
 
             self._check_operate_bound(space)
@@ -218,7 +213,9 @@ class Operation(_Component):
         return self, spaces
 
     def __call__(
-        self, resource: Resource | Conversion, lag: Lag | None = None
+        self,
+        resource: Resource | Conversion,
+        lag: Lag | None = None,
     ) -> Conversion:
         """Conversion is called with a Resource to be converted"""
         self.primary_conversion.resource = resource
