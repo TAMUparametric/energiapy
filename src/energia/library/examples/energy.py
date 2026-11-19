@@ -60,15 +60,11 @@ def scheduling_w_attrs():
 
 
 def scheduling_wo_time():
-    """A small scheduling example with attributes"""
+    """Schedule a wind farm using the time scale inferred from four demand values."""
     m = Model("scheduling")
-    # m.q = Periods()
-    # m.y = 4 * m.q
     m.usd = Currency()
-    # TODO: does not work if order changed
     m.wind = Resource(consume_max=_WIND_LIMIT)
     m.power = Resource(demand_nominal=100, demand_min=[0.6, 0.7, 1, 0.3])
-    # TODO:
     m.wf = Process(
         m.power == -1 * m.wind,
         operate_nominal=200,
@@ -77,7 +73,6 @@ def scheduling_wo_time():
         opex=[4000, 4200, 4300, 3900],
     )
     m.network.locate(m.wf)
-    # TODO: solution error
     return m
 
 

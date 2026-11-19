@@ -167,7 +167,7 @@ class Operation(_Component):
     def _mapped_totals(self, domain: Domain) -> Iterator[Domain]:
         """Yield coarser domains connected by existing time-sum constraints."""
         time_maps = self.operate_aspect.maps["time"]
-        for period in domain.periods.isof:
+        for period in domain.periods.coarser_periods:
             total = domain.edit({"periods": period})
             if domain in time_maps.get(total, ()):
                 yield total
