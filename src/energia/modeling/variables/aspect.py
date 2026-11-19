@@ -41,7 +41,10 @@ if TYPE_CHECKING:
 @dataclass
 class Aspect:
     r"""
-    A particular facet of the system under consideration. A sample of an aspect at a specific disposition is represented by a variable (:math:`\overset{\*}{v} \in \overset{\*}{\mathcal{V}}`).
+    Represent a facet of the modeled system.
+
+    Each sample at a specific disposition is represented by a variable
+    (:math:`\overset{\*}{v} \in \overset{\*}{\mathcal{V}}`).
 
     The range of values which the :math:`\overset{\*}{v}` is bounded such that:
 

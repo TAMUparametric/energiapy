@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 @dataclass
 class Control(Aspect):
     """
-    Some action to be performed by a component that adjusts a state variable can have a consequence (Impact) or elicit a motion (Stream) that has a consequence (Impact).
+    Represent a component action that adjusts a state variable.
+
+    The action can create an impact directly or induce a stream with its own impact.
 
     :param primary_types: associated components type(s). Defaults to None.
     :type primary_types: Type[_Component] | tuple[Type[_Component], ...]

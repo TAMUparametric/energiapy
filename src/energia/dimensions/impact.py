@@ -9,7 +9,9 @@ from ..components.impact.categories import Economic, Environ, Social
 @dataclass
 class Impact(_Dimension):
     """
-    A representation of the Consequence of the system dimensions based on the impact determined as the product of activity and indicators.
+    Represent the impacts associated with model activities.
+
+    An activity multiplied by its indicator gives its contribution to the impact.
 
     All impact indicators are attached to this object.
 

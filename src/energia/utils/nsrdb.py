@@ -27,7 +27,9 @@ def fetch_nsrdb_data(
     save: str | None = None,
 ) -> DataFrame | tuple:
     """
-    Fetches nsrdb data from nearest coordinates (latitude, longitude) or from county in a state matching a particular 'get' metric.
+    Fetch NSRDB data for a set of coordinates or a county within a state.
+
+    For a county, the selection metric determines which observation site to use.
 
     :param attrs: attributes to fetch
     :type attrs: list[str]
