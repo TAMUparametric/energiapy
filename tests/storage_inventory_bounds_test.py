@@ -1,3 +1,5 @@
+"""Verify the inventory limits that apply when storage is placed."""
+
 import operator
 
 import pytest

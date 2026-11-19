@@ -169,6 +169,7 @@ class Storage(_Component):
         space: Location,
         time: Periods,
     ) -> bool:
+        """Check the stored resource's scenario for this aspect, location and period."""
         try:
             bounds = self.model.scenario[aspect][self.stored][space][time]
         except KeyError:
