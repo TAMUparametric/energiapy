@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- Ordinary variable mappings use `Aspect.maps` and reporting variable mappings use
+  `Aspect.maps_report`. Repeating a mapping preserves the constraint coefficients.
 - The `price` instruction now handles a resource price interval through Gana 1.2.0. It calculates `spend` as resource price times `consume`. The tiny example evaluates `spend` across that interval and initializes the paper-sorting model independently.
 - Process conversion balances use the appropriate time scale for each resource, including lagged outputs ([#330](https://github.com/TAMUparametric/energiapy/pull/330)).
 - `Model.output()` displays solutions with Gana 1.1.0's output API ([#331](https://github.com/TAMUparametric/energiapy/pull/331)).
