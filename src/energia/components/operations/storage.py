@@ -122,7 +122,7 @@ class Storage(_Component):
 
         self.construction = Construction(
             operation=self,
-            aspect='invcapacity',
+            aspect="invcapacity",
         )
 
     @cached_property
@@ -133,12 +133,12 @@ class Storage(_Component):
     @cached_property
     def capacity_aspect(self) -> Aspect:
         """Reports invcapacity as aspect"""
-        return getattr(self.model, 'invcapacity')
+        return self.model.invcapacity
 
     @cached_property
     def inventory_aspect(self) -> Aspect:
         """Reports inventory as aspect"""
-        return getattr(self.model, 'inventory')
+        return self.model.inventory
 
     @property
     def basis(self) -> Resource:
@@ -163,39 +163,38 @@ class Storage(_Component):
             + self.stored.cons
         )
 
-    @timer(logger, kind='assume-capacity', level=logging.INFO)
-    def _check_capacity_bound(self, space: Location) -> bool:
-        """Check if the storage capacity has been bound at that location"""
+    @timer(logger, kind="assume-capacity", level=logging.INFO)
+    def _check_capacity_bound(
+        self,
+        space: Location,
+    ) -> tuple[Self, Location, Periods] | bool:
+        """Declare horizon capacity when the scenario has no upper or fixed bound."""
+        try:
+            bounds = self.model.scenario[self.capacity_aspect][self.stored][space][
+                self.horizon
+            ]
+        except KeyError:
+            bounds = {}
 
-        if self not in self.capacity_aspect.bound_spaces:
-            # ensure that the bound spaces dict exists
-            self.capacity_aspect.bound_spaces[self.stored] = {"ub": [], "lb": []}
+        if "ub" in bounds or "eq" in bounds:
+            return False
 
-        if space not in self.capacity_aspect.bound_spaces[self.stored]["ub"]:
-            # check if the storage capacity has been bound at that location
-            # Note: this is not a check, this generates a constraint
-            _ = self.capacity(space, self.horizon) >= 0
-
-            return self, space, self.horizon
-
-        return False
+        _ = self.capacity(space, self.horizon) >= 0
+        return self, space, self.horizon
 
     def _init_inventory_aspect(self):
         """Initializes the inventory aspect bound spaces for the stored resource"""
         if self.stored not in self.inventory_aspect.bound_spaces:
-
             _ = self.inventory_aspect(self.stored) >= 0
 
     def _get_times(self, space: Location) -> list[Periods]:
         """Gets times where inventory is defined"""
         try:
-            times = list(
-                [
-                    t
-                    for t in self.model.balances[self.stored.inv_of][space]
-                    if self.model.balances[self.stored.inv_of][space][t]
-                ],
-            )
+            times = [
+                t
+                for t in self.model.balances[self.stored.inv_of][space]
+                if self.model.balances[self.stored.inv_of][space][t]
+            ]
         except KeyError:
             times = []
 
@@ -207,16 +206,16 @@ class Storage(_Component):
             return min(times)
         return self.horizon
 
-    @timer(logger, kind='assume-inventory', level=logging.INFO)
+    @timer(logger, kind="assume-inventory", level=logging.INFO)
     def _check_inventory_bound(
-        self, space: Location
+        self,
+        space: Location,
     ) -> tuple[Self, Location, Periods] | bool:
         """Check if the storage inventory is capacity bound at that location"""
 
         self._init_inventory_aspect()
 
         if space not in self.inventory_aspect.bound_spaces[self.stored]["ub"]:
-
             time = self._filter_time(self._get_times(space))
 
             #! FIXME: not entirely sure why retry is needed here
@@ -248,7 +247,7 @@ class Storage(_Component):
 
         return self, (spc for spc, _ in space_times)
 
-    @timer(logger, kind='locate')
+    @timer(logger, kind="locate")
     def locate(self, *spaces: Location):
         """Locate the storage"""
         # update the locations at which the storage exists
@@ -259,7 +258,6 @@ class Storage(_Component):
             spaces = (self.network,)
 
         for space in spaces:
-
             self._check_capacity_bound(space)
 
             self._check_inventory_bound(space)
@@ -289,7 +287,8 @@ class Storage(_Component):
             self.charge = Charge(storage=self, **charging_args if charging_args else {})
 
             self.discharge = Discharge(
-                storage=self, **discharging_args if discharging_args else {}
+                storage=self,
+                **discharging_args if discharging_args else {},
             )
 
             setattr(self.model, f"{self.name}.charge", self.charge)
@@ -314,12 +313,11 @@ class Storage(_Component):
                 _charging_args["_".join(split_attr[1:])] = param
             elif _attr == "discharge":
                 _discharging_args["_".join(split_attr[1:])] = param
+            elif attr[:3] == "inv":
+                _storage_args[attr] = param
             else:
-                if attr[:3] == "inv":
-                    _storage_args[attr] = param
-                else:
-                    # if there is no inv prefix.
-                    _storage_args["inv" + attr] = param
+                # if there is no inv prefix.
+                _storage_args["inv" + attr] = param
         # reset parameters to empty
         # none of these go on Storage itself
         self.parameters = {}
@@ -361,11 +359,9 @@ class Storage(_Component):
         object.__setattr__(self, name, value)
 
         if name == "model" and value is not None:
-
             self._birth_constituents(*self._split_attr())
 
             if self.conversions:
-
                 self._handle_nonnumeric_conversion()
 
                 if len(self.conversions) == 1:
