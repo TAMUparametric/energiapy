@@ -163,20 +163,25 @@ class Storage(_Component):
             + self.stored.cons
         )
 
+    def _has_upper_or_fixed_bound(
+        self,
+        aspect: Aspect,
+        space: Location,
+        time: Periods,
+    ) -> bool:
+        try:
+            bounds = self.model.scenario[aspect][self.stored][space][time]
+        except KeyError:
+            return False
+        return "ub" in bounds or "eq" in bounds
+
     @timer(logger, kind="assume-capacity", level=logging.INFO)
     def _check_capacity_bound(
         self,
         space: Location,
     ) -> tuple[Self, Location, Periods] | bool:
         """Declare horizon capacity when the scenario has no upper or fixed bound."""
-        try:
-            bounds = self.model.scenario[self.capacity_aspect][self.stored][space][
-                self.horizon
-            ]
-        except KeyError:
-            bounds = {}
-
-        if "ub" in bounds or "eq" in bounds:
+        if self._has_upper_or_fixed_bound(self.capacity_aspect, space, self.horizon):
             return False
 
         _ = self.capacity(space, self.horizon) >= 0
@@ -211,26 +216,19 @@ class Storage(_Component):
         self,
         space: Location,
     ) -> tuple[Self, Location, Periods] | bool:
-        """Check if the storage inventory is capacity bound at that location"""
+        """Apply the default inventory limit at the selected location and period."""
 
         self._init_inventory_aspect()
+        time = self._filter_time(self._get_times(space))
+        if self._has_upper_or_fixed_bound(self.inventory_aspect, space, time):
+            return False
 
-        if space not in self.inventory_aspect.bound_spaces[self.stored]["ub"]:
-            time = self._filter_time(self._get_times(space))
-
-            #! FIXME: not entirely sure why retry is needed here
-            # if not just write opr_{pro, loc, horizon} <= capacity_{pro, loc, horizon}
-            # _ = self.inventory(space, time) <= 1
-
-            _ = retry(
-                lambda: self.inventory(space, time) <= 1,
-                attempts=2,
-                exceptions=KeyError,
-            )
-
-            return self, space, time
-
-        return False
+        _ = retry(
+            lambda: self.inventory(space, time) <= 1,
+            attempts=2,
+            exceptions=KeyError,
+        )
+        return self, space, time
 
     @timer(logger, kind="construction")
     def write_construction(

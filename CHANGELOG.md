@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   operating time scale has been declared.
 - Locating storage now recognizes upper and equality bounds on inventory capacity
   in the scenario at the selected location and horizon, including a bound of zero.
+- Locating storage preserves an explicit upper bound or equality on inventory at
+  the selected location and period. A lower bound alone still allows placement
+  to apply the default inventory limit.
 - `Sample` equality and hashing use the aspect and its selected domain. Samples
   at different times or locations keep separate dictionary entries, and selecting
   the same sample again retrieves its entry after binding.
