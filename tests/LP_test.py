@@ -48,38 +48,12 @@ def test_small_1L_1T_1O_LP(m):
 
 @pytest.mark.parametrize("m", ["attrs", "plain"], indirect=True)
 def test_attrs(m):
-    _cons = m.program.constraint_sets
-    m.wind.cons == [_cons[-1], _cons[1], _cons[0]]
+    assert sorted(con.pname for con in m.wind.cons) == [
+        "consume_wind_l0_y_ub",
+        "expend_wind_l0_y_operate_wf_calc",
+        "wind_l0_y_grb",
+    ]
     assert not m.wind == m.wf
 
-    c = m.wind - m.power
-    c.__dict__ == {
-        'resource': None,
-        'operation': None,
-        'symbol': 'η',
-        'aspect': '',
-        'add': '',
-        'sub': '',
-        'balance': {m.wind: 1, m.power: -1},
-        'hold': None,
-        'expect': None,
-        'lag': None,
-        'attr_name': '',
-        'use_max_time': False,
-    }
-
-    d = -m.power
-    d.__dict__ == {
-        'resource': None,
-        'operation': None,
-        'symbol': 'η',
-        'aspect': '',
-        'add': '',
-        'sub': '',
-        'balance': {m.power: -1},
-        'hold': None,
-        'expect': None,
-        'lag': None,
-        'attr_name': '',
-        'use_max_time': False,
-    }
+    assert (m.wind - m.power).balance == {m.wind: 1, m.power: -1}
+    assert (-m.power).balance == {m.power: -1}
