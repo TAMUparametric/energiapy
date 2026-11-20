@@ -6,10 +6,12 @@ import logging
 from dataclasses import fields
 from functools import cached_property
 from itertools import chain
+from math import isfinite, prod
+from numbers import Real
 from typing import TYPE_CHECKING, Self
 
 from gana import I as Idx
-from gana import V, inf, sigma, sup
+from gana import P, V, inf, sigma, sup
 
 from ..._core._hash import _Hash
 from ...utils.dictionary import merge_trees
@@ -19,7 +21,9 @@ logger = logging.getLogger("energia")
 
 
 if TYPE_CHECKING:
-    from gana import P, Prg
+    from collections.abc import Iterable
+
+    from gana import Prg
     from gana.sets.constraint import C
     from gana.sets.function import F
 
@@ -533,6 +537,69 @@ class Sample(_Hash):
     # ---------------------------------------------------------------------------
     #               Optimization and Evaluation
     # ---------------------------------------------------------------------------
+
+    def weighted_sum(self, weights: Iterable[float] | None = None) -> F:
+        """
+        Build a scalar Gana expression for a representative-period total.
+
+        :param weights: Finite, nonnegative occurrence counts in model time
+            index order, one per selected time coordinate. By default each
+            uses the selected scale's ``Periods.weight``. The counts apply
+            across the other indices in the selection.
+        :returns: The weighted sum of the selected variable values.
+        :raises ValueError: If the selection is lagged or the counts are invalid.
+
+        .. admonition:: Example
+
+            .. code-block:: python
+
+                from energia import Model, Periods, Process
+                from gana import inf
+
+                model = Model()
+                model.horizon_period = Periods()
+                model.day = model.horizon_period / 2
+                model.plant = Process()
+                dispatch = model.plant.operate(model.day)
+                dispatch == [10, 20]
+                model.program.total = inf(dispatch.weighted_sum([3, 1]))
+                model.program.opt()
+                assert model.program.active_objective.X == 50
+        """
+        if self.domain.lag is not None:
+            message = "Occurrence weights apply to a period selection without a lag"
+            raise ValueError(message)
+
+        periods = self.domain.periods
+        if periods is None:
+            periods = self.model.horizon
+        index = periods.I
+        time_indices = index if isinstance(index, tuple) else (index,)
+        size = prod(map(len, time_indices))
+        counts = [periods.weight] * size if weights is None else list(weights)
+        if len(counts) != size:
+            message = f"Expected {size} occurrence weights for {periods}"
+            raise ValueError(message)
+        if not all(isinstance(n, Real) and isfinite(n) and n >= 0 for n in counts):
+            message = "Occurrence weights must be finite, nonnegative numbers"
+            raise ValueError(message)
+
+        return self._sum_with_time_weights(time_indices, counts)
+
+    def _sum_with_time_weights(
+        self,
+        time_indices: tuple[Idx, ...],
+        counts: list[float],
+    ) -> F:
+        """Align counts to time before reducing all selected values."""
+        variable = self.F
+        indices = tuple(variable.index)
+        start = indices.index(time_indices[0])
+        stop = start + len(time_indices)
+        outer = prod(map(len, indices[:start]))
+        inner = prod(map(len, indices[stop:]))
+        coefficients = [count for count in counts for _ in range(inner)] * outer
+        return sigma(P(*indices, _=coefficients) * variable)
 
     def obj(self, maximize: bool = False):
         """
