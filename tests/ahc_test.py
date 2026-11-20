@@ -65,10 +65,7 @@ def test_legacy_selection_and_corrected_errors(parents):
     # day 2 for BOTH clusters, including its out-of-cluster lookup behavior.
     block = np.array([10, 11, 12, 11, 20, 21, 22, 21])
     values = np.concatenate([block + 100 * p for p in range(parents)])
-    legacy = ahc(values, periods=2, parent_length=8)
-    explicit_legacy = ahc(values, periods=2, parent_length=8, selection="legacy")
-    np.testing.assert_array_equal(legacy.representative_indices,
-                                  explicit_legacy.representative_indices)
+    legacy = ahc(values, periods=2, parent_length=8, selection="legacy")
     current = ahc(values, periods=2, parent_length=8, selection="nearest_centroid")
     np.testing.assert_array_equal(
         legacy.representative_indices,

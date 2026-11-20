@@ -45,7 +45,7 @@ def run(name,frame,k):
    old,_,info=ns['agg_hierarchial'](ns['TemporalScale']([1,365,24]),1,k,[ns['IncludeAHC'].CAPACITY],capacity_factor={'site':{str(i):frame.iloc[:,i].to_numpy() for i in range(frame.shape[1])}})
  finally: sys.setprofile(None)
  new=mod.ahc(*(frame.iloc[:,i].to_numpy() for i in range(frame.shape[1])),periods=k,period_length=24,selection="nearest_centroid")
- legacy=mod.ahc(*(frame.iloc[:,i].to_numpy() for i in range(frame.shape[1])),periods=k,period_length=24)
+ legacy=mod.ahc(*(frame.iloc[:,i].to_numpy() for i in range(frame.shape[1])),periods=k,period_length=24,selection="legacy")
  assert legacy.selection == "legacy"
  loc=captures[0]; labels=loc['cluster_labels']; groups=[np.flatnonzero(labels==c) for c in np.unique(labels)];groups.sort(key=lambda x:x[0])
  canonical=np.empty(365,dtype=int)
@@ -82,5 +82,6 @@ for name,frame in sets.items():
  for k in [20,35]:
   r=run(name,frame,k);results.append(r)
   print(name,k,'partition',r['partition_equal'],'reps',r['representative_positions_equal'],'/',k,'corrected',r['corrected_legacy_representatives_equal'],'SSE',r['legacy_reported_wcss'],r['nearest_centroid_inertia'],flush=True)
-report=dict(default_selection='legacy',current_source_sha256=hashlib.sha256(current_source.read_bytes()).hexdigest(),baseline='0604a26ee45a564bcd83c736077944cb1c59a50d',environment=dict(vaelchi=mod.__version__,python=sys.version,numpy=np.__version__,pandas=pd.__version__,sklearn=sklearn.__version__,scipy=scipy.__version__),input_sha256={f:hashlib.sha256((DATA/f).read_bytes()).hexdigest() for f in ['ho_solar.csv','ho_wind.csv','ho_solar19.csv','sd_solar19.csv','ny_solar19.csv','NYC_load.csv']},results=results)
+default_selection = inspect.signature(mod.ahc).parameters["selection"].default
+report=dict(default_selection=default_selection,current_source_sha256=hashlib.sha256(current_source.read_bytes()).hexdigest(),baseline='0604a26ee45a564bcd83c736077944cb1c59a50d',environment=dict(vaelchi=mod.__version__,python=sys.version,numpy=np.__version__,pandas=pd.__version__,sklearn=sklearn.__version__,scipy=scipy.__version__),input_sha256={f:hashlib.sha256((DATA/f).read_bytes()).hexdigest() for f in ['ho_solar.csv','ho_wind.csv','ho_solar19.csv','sd_solar19.csv','ny_solar19.csv','NYC_load.csv']},results=results)
 args.output.write_text(json.dumps(report,indent=2)+'\n')
