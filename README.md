@@ -64,8 +64,10 @@ agglomerative hierarchical clustering (AHC). The existing
 `energia.surrogate.aggregation` imports remain available for compatibility.
 
 Vaelchi returns representative profiles, original-period mappings, occurrence
-weights, and reconstruction errors. Energia's `Periods.weight` stores occurrence
-counts; it does not automatically weight optimization constraints or objectives.
+weights, and reconstruction errors. Use `sample.weighted_sum(result.weights)`
+to build an expression for a total when the sample's time index follows the
+representative order. `sample.weighted_sum()` uses the selected scale's
+`Periods.weight` for every entry. Automatic time sums use unit weights.
 See the [temporal clustering example](https://energiapy.readthedocs.io/en/latest/examples/temporal_clustering.html)
 for mapping these results into Energia's temporal hierarchy.
 

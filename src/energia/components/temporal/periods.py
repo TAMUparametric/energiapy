@@ -38,7 +38,8 @@ class Periods(_X):
     :param label: Label of the periods. Defaults to None.
     :type label: str, optional
     :param weight: Number of original periods represented. Defaults to 1.
-        This is separate from duration and does not automatically weight model sums.
+        This count is independent of period duration. Use ``Sample.weighted_sum()``
+        to apply it explicitly to a total.
     :type weight: int | float, optional
 
     :ivar model: Model to which the Periods belongs.

@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   earliest-period tie breaking. The chosen policy is recorded in `AHCResult`.
 
 ### Added
+- `Sample.weighted_sum()` builds an explicit representative-period total for an
+  objective or constraint using occurrence counts from Vaelchi or `Periods.weight`.
 - `Model.save(as_type="json")` exports deterministic results in Gana's
   versioned JSON format. A rebuilt model can import a result after Gana
   verifies that its formulation matches the saved fingerprint.
