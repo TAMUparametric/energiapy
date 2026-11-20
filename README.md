@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/_static/energia-logo-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="docs/_static/energia-logo-light.png">
-    <img src="docs/_static/energia-logo-light.png" alt="Energia" width="75%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/TAMUparametric/energiapy/main/docs/_static/energia-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/TAMUparametric/energiapy/main/docs/_static/energia-logo-light.png">
+    <img src="https://raw.githubusercontent.com/TAMUparametric/energiapy/main/docs/_static/energia-logo-light.png" alt="Energia" width="75%">
   </picture>
 </p>
 

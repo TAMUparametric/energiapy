@@ -6,17 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [2.1.7] - Unreleased
+## [2.2.0] - Unreleased
 
 ### Changed
-- Clustering is maintained in Vaelchi. Energia depends on `vaelchi>=0.1.0,<0.2`
+- Clustering is maintained in Vaelchi. Energia depends on `vaelchi>=0.1.1,<0.2`
   and preserves `energia.surrogate.aggregation` and its `ahc` module as
   compatibility imports. New examples import from `vaelchi` directly.
 - Documentation uses the new cubist logos and a light/dark theme switcher.
 - getattr dunder to pull attrs from constituents in Storage
-- AHC defaults to `selection="legacy"` to preserve historical representative
-  selection. `selection="nearest_centroid"` is an explicit alternative, with
-  earliest-period tie breaking. The chosen policy is recorded in `AHCResult`.
+- AHC defaults to `selection="nearest_centroid"`, selecting one observed period
+  per cluster and breaking ties with the earliest period. Pass `selection="legacy"`
+  to reproduce historical representative selection. `AHCResult` records the
+  chosen policy.
 
 ### Added
 - `Sample.weighted_sum()` builds an explicit representative-period total for an
