@@ -1,7 +1,6 @@
 """One-period process conversion coefficients."""
 
 import pytest
-from gurobipy import GRB
 
 from energia import Currency, Model, Process, Resource
 
@@ -11,7 +10,9 @@ from energia import Currency, Model, Process, Resource
     [(-5, 1), ([-5], [1])],
     ids=["scalar", "one-period"],
 )
-def test_one_period_fuel_conversion(fuel_coefficient, power_coefficient):
+def test_one_period_fuel_conversion(
+    fuel_coefficient, power_coefficient, solution_record
+):
     model = Model()
     model.fuel, model.power = Resource(), Resource()
     model.usd = Currency()
@@ -23,9 +24,9 @@ def test_one_period_fuel_conversion(fuel_coefficient, power_coefficient):
     assert model.plant.balance[model.power] == power_coefficient
     model.usd.spend.opt()
 
-    assert model.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(model.program)["status"] == "optimal"
     assert model.fuel.consume.output(aslist=True) == pytest.approx([5])
-    assert model.program.formulation.ObjVal == pytest.approx(15)
+    assert model.program.active_objective.X == pytest.approx(15)
 
 
 def test_singleton_with_a_longer_series():

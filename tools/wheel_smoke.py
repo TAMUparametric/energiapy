@@ -1,8 +1,9 @@
 """Solve a one-period supply model using the installed Energia distribution."""
 
+import json
 from math import isclose
-
-from gurobipy import GRB
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from energia import Currency, Model, Periods, Process, Resource
 
@@ -23,8 +24,11 @@ def main() -> None:
     model.network.locate(model.supply)
     model.usd.spend.opt()
 
-    status = model.program.formulation.Status
-    if status != GRB.OPTIMAL:
+    with TemporaryDirectory() as directory:
+        path = Path(directory) / "solution.json"
+        model.save(as_type="json", path=path)
+        status = json.loads(path.read_text())["status"]
+    if status != "optimal":
         raise AssertionError(status)
     (supplied,) = model.produce.output(aslist=True)
     if not isclose(supplied, demand):

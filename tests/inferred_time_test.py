@@ -1,13 +1,12 @@
 """Solver indices and time sums for periods defined by subdivision."""
 
 import pytest
-from gurobipy import GRB
 
 from energia import Model, Periods, Process
 
 
 @pytest.mark.parametrize("coarse_bound_first", [False, True])
-def test_nested_time_sums(coarse_bound_first):
+def test_nested_time_sums(coarse_bound_first, solution_record):
     model = Model()
     model.day = Periods()
     model.shift = model.day / 2
@@ -23,7 +22,7 @@ def test_nested_time_sums(coarse_bound_first):
         operate(model.day) <= 100
     operate(model.day).opt()
 
-    assert model.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(model.program)["status"] == "optimal"
     assert operate(model.shift).output(aslist=True) == pytest.approx([6, 15])
     assert operate(model.day).output(aslist=True) == pytest.approx([21])
 

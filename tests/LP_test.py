@@ -1,5 +1,4 @@
 import pytest
-from gurobipy import GRB
 
 # from energia import Currency, Model, Periods, Process, Resource
 
@@ -25,9 +24,9 @@ def m(request):
 
 
 @pytest.mark.parametrize("m", ["attrs", "plain", "wo_time"], indirect=True)
-def test_small_1L_1T_1O_LP(m):
-    assert m.program.formulation.Status == GRB.OPTIMAL
-    assert m.program.formulation.ObjVal == pytest.approx(1_081_000)
+def test_small_1L_1T_1O_LP(m, solution_record):
+    assert solution_record(m.program)["status"] == "optimal"
+    assert m.program.active_objective.X == pytest.approx(1_081_000)
     assert len(m.periods) == 2
     assert m.locations == [m.network]
     assert m.resources == [m.wind, m.power]

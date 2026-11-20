@@ -22,7 +22,9 @@ def model():
 @pytest.mark.parametrize(
     ("bind", "limit"), [(operator.le, 100), (operator.le, 0), (operator.eq, 60)]
 )
-def test_locate_recognizes_existing_storage_capacity(model, caplog, bind, limit):
+def test_locate_recognizes_existing_storage_capacity(
+    model, caplog, bind, limit, solution_record
+):
     m = model
     capacity = m.battery.capacity(m.site, m.day)
     bind(capacity, limit)
@@ -33,7 +35,7 @@ def test_locate_recognizes_existing_storage_capacity(model, caplog, bind, limit)
     for _ in range(2):
         m.site.locate(m.battery)
         capacity.opt(maximize=True)
-        fingerprints.append(m.program.formulation.Fingerprint)
+        fingerprints.append(solution_record(m.program)["formulation_fingerprint"])
         assert capacity.output(aslist=True) == [limit]
         assert m.invcapacity.bound_spaces[m.battery.stored] == bound_spaces
     assert fingerprints[0] == fingerprints[1]

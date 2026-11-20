@@ -5,9 +5,10 @@ from energia.library.examples.energy import design_scheduling_material_modes
 
 @pytest.fixture
 def m():
+    # Preserve the reference dispatch selected by Gurobi.
     _m = design_scheduling_material_modes()
-    _m.usd.spend.opt()
-    _m.gwp.emit.opt()
+    _m.usd.spend.opt(using="gurobi")
+    _m.gwp.emit.opt(using="gurobi")
     return _m
 
 

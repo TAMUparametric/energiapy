@@ -7,9 +7,10 @@ from energia.library.examples.energy import supermarket
 
 @pytest.fixture
 def m():
+    # Preserve the reference dispatch selected by Gurobi.
     _m = supermarket()
-    _m.usd.spend.opt()
-    _m.co2_vent.release.opt()
+    _m.usd.spend.opt(using="gurobi")
+    _m.co2_vent.release.opt(using="gurobi")
     _m._.lb(sum(_m._.consume))
     return _m
 
