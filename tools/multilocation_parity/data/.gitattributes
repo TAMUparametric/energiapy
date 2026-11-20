@@ -1,0 +1,2 @@
+# Preserve the original downloaded bytes used by the provenance checks.
+*.csv -text

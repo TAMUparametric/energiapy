@@ -1,0 +1,8 @@
+# Install the Energia checkout first: python -m pip install -e .
+# These are the released solver/modeling dependencies used for the recorded run.
+gana==1.4.0
+vaelchi==0.1.1
+highspy==1.16.0
+numpy==2.5.5
+scipy==1.18.1
+pandas==3.1.1

@@ -1,0 +1,9 @@
+# Separate environment for the pinned 2023 implementation (see README).
+-r requirements.txt
+pyomo==6.11.0
+matplotlib==3.11.2
+pint==0.26.2
+multiprocess==0.70.19
+ppopt==1.6.12
+seaborn==0.13.2
+pyutilib==6.0.0
