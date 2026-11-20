@@ -985,17 +985,22 @@ class Model:
         n_sol: int | None = None,
     ) -> None:
         """
-        Save a solver result atomically in the existing ``.energia`` format.
+        Save a solver result atomically as ``.energia`` or deterministic JSON.
 
-        :param as_type: Serialization format. Defaults to ``"dill"``.
+        Use ``model.program.import_solution(path)`` to attach a JSON result
+        to a rebuilt model with the same formulation.
+
+        :param as_type: ``"dill"`` (default) or ``"json"`` for deterministic results.
         :param path: Destination file in an existing directory.
-            Defaults to ``<model name>.energia`` in the current directory.
+            Defaults to ``<model name>.energia`` or ``<model name>.json``
+            in the current directory. JSON destinations require a ``.json`` suffix.
         :param n_sol: Zero-based solution index. Defaults to the latest result.
-        :raises ValueError: If the serialization format is unsupported.
+        :raises ValueError: If the format is unsupported or Gana cannot export
+            the selected result to the JSON destination.
         :raises RuntimeError: If the program has no solver results.
         :raises KeyError: If the requested index is absent from the solved program.
         """
-        if as_type != "dill":
+        if as_type not in ("dill", "json"):
             message = f"Unknown type {as_type} for saving the model"
             raise ValueError(message)
 
@@ -1005,7 +1010,12 @@ class Model:
             raise RuntimeError(message)
         solution = program.solution if n_sol is None else program.solutions[n_sol]
 
-        destination = Path(f"{self.name}.energia" if path is None else path).absolute()
+        suffix = ".json" if as_type == "json" else ".energia"
+        destination = Path(f"{self.name}{suffix}" if path is None else path).absolute()
+        if as_type == "json":
+            program.export_solution(destination, n_sol=n_sol)
+            return
+
         with NamedTemporaryFile(
             mode="wb",
             dir=destination.parent,

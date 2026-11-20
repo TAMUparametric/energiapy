@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   earliest-period tie breaking. The chosen policy is recorded in `AHCResult`.
 
 ### Added
+- `Model.save(as_type="json")` exports deterministic results in Gana's
+  versioned JSON format. A rebuilt model can import a result after Gana
+  verifies that its formulation matches the saved fingerprint.
 - Standalone chronology-constrained AHC aggregation with representative profiles,
   labels, occurrence weights, reconstruction, and behavioral tests.
 - Historical-data comparisons for five datasets at 20 and 35 representative
