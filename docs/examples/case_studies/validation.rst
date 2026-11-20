@@ -114,7 +114,7 @@ that full-year verification requires the original hourly inputs, implementation
 revision, and reconstruction scripts.
 
 Demand mappings and solution differences
----------------------------------------
+----------------------------------------
 
 The solver change preserves every notebook's existing demand relation. Coffee,
 lignin, and chance-constrained scheduling use lower bounds. Houston, the
