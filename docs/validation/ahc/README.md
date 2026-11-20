@@ -6,9 +6,10 @@ records of Energia's implementation before extraction. The reproduction script
 now calls Vaelchi and records its installed version and algorithm source hash;
 its default output is `vaelchi-results.json`, preserving the original results.
 
-The default is `selection="legacy"`. Select `selection="nearest_centroid"`
-explicitly to use the nearest member of each cluster, breaking numerical ties
-with the earliest period. Both modes retain corrected error reporting.
+The reproduction script requests both policies explicitly. Use
+`selection="legacy"` for historical results, or `selection="nearest_centroid"`
+to use the nearest member of each cluster, breaking numerical ties with the
+earliest period. Vaelchi 0.1.1 defaults to `nearest_centroid`.
 
 ## Results and scope
 
@@ -17,7 +18,7 @@ input-file SHA-256 hashes, the current implementation hash, dependency versions,
 and per-day cluster labels. All day indices are zero-based.
 
 Five historical datasets, each with 8,760 hourly observations, were reduced to
-20 and 35 representative days. In all ten comparisons, default legacy mode
+20 and 35 representative days. In all ten comparisons, legacy mode
 matches the historical representative indices, weights, and selected profiles
 exactly. Nearest-centroid mode matches the historical cluster membership but
 selects different representative days. This is not whole-model or solver parity.
@@ -50,8 +51,8 @@ recorded for provenance, not treated as the same metric as current SSE.
 Legacy representative behavior can select outside the associated cluster or
 repeat a representative. It is retained by choice. With one cluster, where the
 historical NearestCentroid call cannot run, legacy mode uses nearest-member
-selection. The small regression tests cover repeated representatives, default
-selection, and error accumulation across parents.
+selection. The small regression tests cover repeated representatives and error
+accumulation across parents.
 
 ## Reproduction
 
