@@ -63,13 +63,6 @@ from .ations.program import Program
 from .ations.scenario import Scenario
 
 logger = logging.getLogger("energia")
-logger.setLevel(logging.INFO)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter("%(message)s")
-ch.setFormatter(formatter)
-logger.addHandler(ch)
 
 
 if TYPE_CHECKING:
