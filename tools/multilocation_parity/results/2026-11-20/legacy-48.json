@@ -1,0 +1,18 @@
+{
+  "COST": {
+    "objective": 356620165.41643274,
+    "max_row_violation": 1.9052005913599203e-07,
+    "max_scaled_row_violation": 1.9052005913599203e-07,
+    "implementation_sha256": "cc56da8fda53cf08cb0d6e8b73c62bdcdc9308b4c38280d7d626db804fdad1ac",
+    "binary_completion": "all one",
+    "binaries": 1183
+  },
+  "MAX_DISCHARGE": {
+    "objective": 17807848.51549455,
+    "max_row_violation": 0.001953125,
+    "max_scaled_row_violation": 1.7152921936566156e-11,
+    "implementation_sha256": "cc56da8fda53cf08cb0d6e8b73c62bdcdc9308b4c38280d7d626db804fdad1ac",
+    "binary_completion": "all one",
+    "binaries": 1183
+  }
+}

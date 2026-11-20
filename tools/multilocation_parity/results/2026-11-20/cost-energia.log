@@ -1,0 +1,21 @@
+LP has 1550548 rows; 1296508 cols; 3145059 nonzeros
+Coefficient ranges:
+  Matrix  [5e-04, 2e+01]
+  Cost    [1e-03, 4e+06]
+  Bound   [3e+03, 2e+09]
+  RHS     [3e+01, 1e+06]
+WARNING: Problem has some excessively large costs
+WARNING: Problem has some excessively large bounds on variables
+WARNING:    Consider scaling the objective by 1e-1, or setting the user_objective_scale option to -2
+WARNING:    Consider scaling the    bounds by 1e-4, or setting the user_bound_scale option to -11
+WARNING: Problem has excessively large ratio (2e+16) between max variable or constraint bound (2e+09) and primal feasibility tolerance (1e-07)
+WARNING:    Improve scaling and/or increase tolerance
+WARNING: Problem is badly scaled, particularly relative to tolerances, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Solving LP with useful basis so presolve not used
+Model status        : Optimal
+Objective value     :  1.8478432682e+09
+P-D objective error :  4.9674750294e-15
+HiGHS run time      :          7.80
+WARNING: Column names are not present, or contain duplicates: using names with prefix "c", beginning with suffix 0
+WARNING: Row    names are not present, or contain duplicates: using names with prefix "r", beginning with suffix 0
+Writing the basis to ../parity-final/cost-energia.basis

@@ -135,7 +135,9 @@ within 0.001. It also checks every matrix row and variable bound, dual signs,
 stationarity, the primal-dual gap, and the Energia hourly solution against the
 independent equations. The script records package/source hashes and writes
 solver logs, hourly schedules and capacity tables to the requested output
-directory. Saved evidence is kept under ``tools/multilocation_parity/results``.
+directory. The
+`recorded 2026-11-20 run <https://github.com/TAMUparametric/energiapy/tree/main/tools/multilocation_parity/results/2026-11-20>`_
+includes both full-year objective comparisons, residuals, logs and schedules.
 The Legacy multi-location parity workflow runs the 48-hour checks on PRs; a
 manual full-year dispatch performs the annual check and retains its artifacts.
 

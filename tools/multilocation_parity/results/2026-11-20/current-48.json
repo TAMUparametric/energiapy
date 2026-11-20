@@ -1,0 +1,145 @@
+{
+  "hours": 48,
+  "environment": {
+    "date_utc": "2026-11-20T22:57:09.019375+00:00",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "packages": {
+      "energiapy": "2.2.0",
+      "gana": "1.4.0",
+      "vaelchi": "0.1.1",
+      "highspy": "1.16.0",
+      "numpy": "2.5.5",
+      "scipy": "1.18.1",
+      "pandas": "3.1.1"
+    },
+    "script_sha256": {
+      "__main__.py": "eb5cf590c54befef7871a791465cbbf5f87e0b6c2128469dbb4584d4b22b06e3",
+      "assembly.py": "44754f36084f1384676d97467c99c77bbfa3ca0eb69ad3dba6c2fda6ea48b43e",
+      "energia_model.py": "2daa840d2bd3391e6241236f0a9bae0a28318c086cd8da17d3e316686fb2f812",
+      "inputs.py": "946dc3c28c89f4740939162368d3862f348082ba4c5f0262db9a040bed52c9c1",
+      "legacy.py": "a2ee4f5734b063ee8815c69a5aea74cae22f906a2f73cc23f5ca06005f14aa3a",
+      "legacy_definitions.py": "1789b1a1dbe6a83d1c31975f7d4e5d335f9df05ea7c8bbb131e9ca839a702dc8",
+      "linear.py": "0f21c76c56d11a23acc182cd11c6a11fa5edf9b24c55606813a0ecd7920b712a",
+      "solver_start.py": "12ba72b907421efc07be40358fd016c0b739ba1475ed7a349394f94e81012614"
+    },
+    "energia_source_sha256": "6f37654c8802354faa3024719f07b53267cc20629eca9ce981f24f73b533ddb7",
+    "solver_options": {
+      "delivery_solver": "simplex",
+      "cost_solver": "ipm with crossover and verified capacity reductions",
+      "threads": 1,
+      "warm_basis_strategy": "primal",
+      "ipm_crossover_threshold": 0.001
+    }
+  },
+  "provenance": {
+    "case": {
+      "repository": "cacodcar/kuru",
+      "commit": "db35908bd9056ef8f484c425bf2d2cb428677a83",
+      "path": "studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+      "blob_sha": "e40d5c1ae7bcdb74d20de905134e6bc3f51da122",
+      "url": "https://github.com/cacodcar/kuru/blob/db35908bd9056ef8f484c425bf2d2cb428677a83/studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+      "archived_cost": 1847843268.177,
+      "archived_delivery": 3202802043.034,
+      "archive_tolerance": 0.001
+    },
+    "legacy_implementation": {
+      "repository": "TAMUparametric/energiapy",
+      "commit": "c78c8902a7b45be4ed6d56a47341286271e855bf",
+      "tarball_url": "https://codeload.github.com/TAMUparametric/energiapy/tar.gz/c78c8902a7b45be4ed6d56a47341286271e855bf",
+      "tarball_sha256": "7eccb26670817b09eb9c88d8672c950a04bf447c29dbc78f4bbb1d47957636e4",
+      "note": "Pinned compatible historical implementation, not an asserted recovery of the original unrecorded runtime. COST adds demand automatically. The later v1.0.7 branch changes that behavior.",
+      "source_sha256": "cc56da8fda53cf08cb0d6e8b73c62bdcdc9308b4c38280d7d626db804fdad1ac"
+    },
+    "inputs": {
+      "ho_solar19.csv": {
+        "drive_id": "1HuKKcfbP-iqSuPvTLoT2RJFHRDTI8DTQ",
+        "sha256": "d7b19b3fd9ea375bbc9d6804795a25588e706bfd641426dbf1bddff69004dfcc",
+        "use": "2019 Houston hourly DNI and wind speed"
+      },
+      "sd_solar19.csv": {
+        "drive_id": "1otN2jrOzFPh76KO28F8EXV5Y1uvmGxml",
+        "sha256": "9897c8597e6d030b2df658a9bd56049ab153be1f26364317d2bbf07b468ff0f9",
+        "use": "2019 San Diego hourly DNI and wind speed"
+      },
+      "NYC_load.csv": {
+        "drive_id": "1XG454_OPyGsyX1akt7FDAEqLoPsFXdLK",
+        "sha256": "7952fb859afb01fabeabc9e0b30cc803f0608c93dbf0518c1f56050eff36a8a7",
+        "use": "2018 New York hourly load, normalized to peak 80 MW"
+      },
+      "Henry_Hub_Natural_Gas_Spot_Price_Daily.csv": {
+        "drive_id": "1zVsynRKIvTkFmSTdDdwpuO0o4m5NLJwt",
+        "sha256": "5621f529a17f947e880a36d28182852132cc27bf67d3c4dc0be0a2e218999ffd",
+        "use": "2020 days 1 through 365; forward fill, three-standard-deviation neighbour replacement, maximum normalization"
+      }
+    }
+  },
+  "cases": {
+    "delivery": {
+      "energia": {
+        "matrix_sha256": "58a1cb76eef7bd926584b41f72cf74d9fd372337d517147481b3bb57b1eb346e",
+        "objective": -17807848.51549455,
+        "dual_bound": -17807848.51549455,
+        "absolute_gap": 0.0,
+        "row_violation": 3.637978807091713e-12,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 0.0,
+        "dual_residual": 8.881784197001252e-16,
+        "columns": 7132,
+        "rows": 8524,
+        "nonzeros": 17303
+      },
+      "independent": {
+        "matrix_sha256": "8a1083fcf0c4948cde334a17404927775fe360cf9fefd5609abbddd598dda9de",
+        "objective": -17807848.51549455,
+        "dual_bound": -17807848.51549455,
+        "absolute_gap": 0.0,
+        "row_violation": 3.637978807091713e-12,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 0.0,
+        "dual_residual": 0.0,
+        "columns": 1608,
+        "rows": 2160,
+        "nonzeros": 5455
+      },
+      "physical_projection": {
+        "row_violation": 3.637978807091713e-12,
+        "bound_violation": 0.0
+      },
+      "feasible_cost_bound": null
+    },
+    "cost": {
+      "energia": {
+        "matrix_sha256": "094c039b59c29b833d7785fa4416d531631a01dc9c92270e712b1baea79a29ae",
+        "objective": 356620165.41643256,
+        "dual_bound": 356620165.4164325,
+        "absolute_gap": 5.960464477539063e-08,
+        "row_violation": 1.3500311979441904e-13,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 9.313225746154785e-10,
+        "dual_residual": 1.4901161193847656e-08,
+        "columns": 7132,
+        "rows": 8524,
+        "nonzeros": 17303
+      },
+      "independent": {
+        "matrix_sha256": "153195cdc16ec7d410ff4cfe2cc554026a9ba9a77691fe0be1f0e0ef5bafd709",
+        "objective": 356620165.41643256,
+        "dual_bound": 356620165.41643256,
+        "absolute_gap": 0.0,
+        "row_violation": 1.2079226507921703e-13,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 3.637978807091713e-12,
+        "dual_residual": 7.450580596923828e-09,
+        "columns": 1608,
+        "rows": 2160,
+        "nonzeros": 5455
+      },
+      "physical_projection": {
+        "row_violation": 1.3500311979441904e-13,
+        "bound_violation": 0.0
+      },
+      "feasible_cost_bound": 2611906150.572433
+    }
+  }
+}

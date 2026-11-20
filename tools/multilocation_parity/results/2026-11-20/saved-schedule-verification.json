@@ -1,0 +1,18 @@
+{
+  "cost": {
+    "hours": 8760,
+    "row_violation": 1.9309664978095498e-11,
+    "bound_violation": 6.366462912410498e-11,
+    "objective": 1847843268.1766949,
+    "hourly_sha256": "8353812a21a93406e364f3bda7519abc74f1491815df1f2c4c96b5eb80991513",
+    "capacities_sha256": "3e41ed5801dd76d8072740967f3a98a63b6940a53ad5b5ecce4f797396f425d1"
+  },
+  "delivery": {
+    "hours": 8760,
+    "row_violation": 1.1641532182693481e-10,
+    "bound_violation": 0.0,
+    "objective": -3202802043.033573,
+    "hourly_sha256": "ca80d1f8bc95957dcd0131e4d7d4b28ee1bacc102c7056b6c9e99a48dc015c37",
+    "capacities_sha256": "1e07d11dcfbc663f00e363610a3b9462f38e743f530c4ccd9adbf1d3de6dd736"
+  }
+}

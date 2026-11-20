@@ -127,4 +127,6 @@ physical feasibility check.
 
 CI runs the short check, the pinned historical comparison and the regression tests. A manual workflow dispatch
 can run all 8,760 hours and retain the solver logs and schedules as an artifact.
-Recorded annual evidence is in `results/`; it is not overwritten by the CLI.
+The [recorded 2026-11-20 annual run](results/2026-11-20/README.md) includes both
+objective comparisons, residuals, solver logs and full hourly schedules. The CLI
+does not overwrite that evidence.
