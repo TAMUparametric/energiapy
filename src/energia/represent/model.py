@@ -908,6 +908,14 @@ class Model:
         self.network.locate(*operations)
 
     # * Optimization
+    def opt(self, using: Literal["gurobi", "highs"] = "gurobi") -> None:
+        """Optimize the active deterministic objective with the selected solver.
+
+        Install ``energiapy[highs]`` to use HiGHS. Results are available
+        through the usual sample output and model save methods.
+        """
+        self.program.opt(using=using)
+
     def solve(
         self,
         using: Literal[
