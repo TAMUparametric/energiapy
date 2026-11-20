@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in all ten cases; see `docs/validation/ahc/README.md` for scope and reproduction.
 
 ### Fixed
+- The notebook exporter reports missing example notebooks before creating an
+  output directory. Its dependencies are declared in the `docs` extra.
 - Importing or reloading Energia respects the application's log level and
   handlers. Applications can enable progress messages through Python logging.
 - `Model.save()` writes the latest or selected solver result atomically. It

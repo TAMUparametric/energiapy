@@ -117,5 +117,13 @@ Energia is optimized for use in jupyter notebooks. Note that some of these funct
 are available in [Energia<2.0.0](https://github.com/TAMUparametric/energiapy/tree/v1.0.7) 
 and are being ported to the 2.0 interface. 
 
+## Exporting example notebooks
 
+From the root of an Energia source checkout, install the documentation extra and run the exporter.
 
+```sh
+python -m pip install -e '.[docs]'
+python -m energia.export
+```
+
+This converts the notebooks in `docs/examples` to Python scripts in `src/energia/library/examples`.

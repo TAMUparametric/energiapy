@@ -33,6 +33,8 @@ docs = [
     "sphinx>=8.2,<9",
     "sphinx-book-theme>=1.4,<1.5",
     "nbsphinx",          
+    "nbconvert",
+    "nbformat",
     "sphinx_mdinclude",     
     "myst-nb", 
     "sphinxcontrib-bibtex",
