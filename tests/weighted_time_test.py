@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 from gana import inf
-from gurobipy import GRB
 
 from energia import Model, Periods, Process
 
@@ -18,7 +17,9 @@ def dispatch_model(name, amounts):
     return model, dispatch
 
 
-def test_weighted_dispatch_matches_full_timeline(tmp_path, monkeypatch):
+def test_weighted_dispatch_matches_full_timeline(
+    tmp_path, monkeypatch, solution_record
+):
     monkeypatch.chdir(tmp_path)
     full, full_dispatch = dispatch_model("full", [10, 10, 10, 20])
     reduced, reduced_dispatch = dispatch_model("reduced", [10, 20])
@@ -27,10 +28,10 @@ def test_weighted_dispatch_matches_full_timeline(tmp_path, monkeypatch):
     unweighted = reduced.plant.operate(reduced.study)
     unweighted <= 100
     reduced.program.total = inf(reduced_dispatch.weighted_sum(np.array([3, 1])))
-    reduced.program.opt()
+    reduced.opt()
 
-    assert full.program.formulation.Status == GRB.OPTIMAL
-    assert reduced.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(full.program)["status"] == "optimal"
+    assert solution_record(reduced.program)["status"] == "optimal"
     assert full.program.active_objective.X == pytest.approx(50)
     assert reduced.program.active_objective.X == pytest.approx(50)
     assert reduced_dispatch.output(aslist=True) == pytest.approx([10, 20])
