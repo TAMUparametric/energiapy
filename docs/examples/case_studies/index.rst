@@ -2,7 +2,13 @@ Case Studies
 ============
 
 These standalone notebooks use the Energia 2.x API. Each includes its inputs
-and can be run with Energia and a working Gurobi installation.
+and uses Energia's solver entry points. Deterministic solves use ``Model.opt()``
+with HiGHS by default. The multiparametric notebook uses ``Model.solve()`` and
+PPOPT, whose solver dependencies are separate.
+
+These are compact adaptations. Representative periods and illustrative costs
+are identified in each notebook; their results are not full-data legacy parity
+claims. See :doc:`validation` for the checked scope and corrections.
 
 Supply chains and energy system design
 --------------------------------------
@@ -29,3 +35,8 @@ Uncertainty and profile reduction
    chance_constrained_demand
    hydrogen_flexibility
    warped_profiles
+
+.. toctree::
+   :maxdepth: 1
+
+   validation
