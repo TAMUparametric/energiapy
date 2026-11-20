@@ -1,0 +1,362 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_______________________________ test_supermarket _______________________________
+
+m = supermarket
+
+    def test_supermarket(m):
+        # obj 0
+        assert m.solutions[0]._['consume']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                32.142600002116524,
+                0.0,
+                0.0,
+            ]
+        )
+        assert m.solutions[0]._['spend']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                285.74771401881594,
+                0.0,
+                0.0,
+                20000.0,
+                482.13900003174786,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1333.333333333314,
+                28333.33333333292,
+                1797.6190476226798,
+                107857.14285736078,
+                125.00000000023097,
+                7500.000000013858,
+                167714.31528571434,
+            ]
+        )
+        assert m.solutions[0]._['release']['values'] == pytest.approx(
+            [
+                1799.9856001185253,
+                2516.6666666717515,
+                999.9999999999854,
+                100.00000000018477,
+            ]
+        )
+        assert m.solutions[0]._['capacity']['values'] == pytest.approx(
+            [
+                0.0,
+                800.0,
+                0.0,
+                0.0,
+                100000.0,
+                333.3333333333285,
+                3595.2380952453595,
+                2500.0000000046193,
+            ]
+        )
+        assert m.solutions[0]._['x_capacity']['values'] == pytest.approx(
+            [0.0, 1.0, 0.0, 0.0]
+        )
+        assert m.solutions[0]._['operate']['values'] == pytest.approx(
+            [
+                0.0,
+                32.142600002116524,
+                0.0,
+                0.0,
+                333.3333333333285,
+                3595.2380952453595,
+                2500.0000000046193,
+                0.0,
+            ]
+        )
+        assert m.solutions[0]._['expend']['values'] == pytest.approx(
+            [
+                0.0,
+                32.142600002116524,
+                0.0,
+                0.0,
+                0.0,
+                333.3333333333285,
+                3595.2380952453595,
+                2500.0000000046193,
+            ]
+        )
+        assert m.solutions[0]._['produce']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                3928.571428578688,
+                2500.0000000046193,
+                1799.9856001185253,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                999.9999999999854,
+                2516.6666666717515,
+                100.00000000018477,
+            ]
+        )
+        # obj 1
+        assert m.solutions[1]._['consume']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                32.14260000205713,
+                0.0,
+                0.0,
+            ]
+        )
+        assert m.solutions[1]._['spend']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                285.7477140182879,
+                0.0,
+                0.0,
+                25000000.0,
+                482.13900003085695,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                400000.0,
+                28333.333333333332,
+                1797.6190476190477,
+                107857.14285714286,
+                125.0,
+                7500.0,
+                25546380.981952146,
+            ]
+        )
+        assert m.solutions[1]._['release']['values'] == pytest.approx(
+            [
+                1799.9856001151993,
+                2516.6666666666665,
+                1000.0,
+                100.0,
+            ]
+        )
+        assert m.solutions[1]._['capacity']['values'] == pytest.approx(
+            [
+                0.0,
+                1000000.0,
+                0.0,
+                0.0,
+                100000.0,
+                100000.0,
+                3595.2380952380954,
+                2500.0,
+            ]
+        )
+        assert m.solutions[1]._['x_capacity']['values'] == pytest.approx(
+            [0.0, 1.0, 0.0, 0.0]
+        )
+        assert m.solutions[1]._['operate']['values'] == pytest.approx(
+            [
+                0.0,
+                32.14260000205713,
+                0.0,
+                0.0,
+                333.3333333333333,
+                3595.2380952380954,
+                2500.0,
+                0.0,
+            ]
+        )
+        assert m.solutions[1]._['expend']['values'] == pytest.approx(
+            [
+                0.0,
+                32.14260000205713,
+                0.0,
+                0.0,
+                0.0,
+                333.3333333333333,
+                3595.2380952380954,
+                2500.0,
+            ]
+        )
+        assert m.solutions[1]._['produce']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                3928.5714285714284,
+                2500.0,
+                1799.9856001151993,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1000.0,
+                2516.6666666666665,
+                100.0,
+            ]
+        )
+        # obj 2
+        assert m.solutions[2]._['consume']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                32.14260000205713,
+                0.0,
+                0.0,
+            ]
+        )
+>       assert m.solutions[2]._['spend']['values'] == pytest.approx(
+            [
+                0.0,
+                0.0,
+                285.7477140182879,
+                0.0,
+                0.0,
+                25000000.0,
+                482.13900003085695,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                400000.0,
+                28333.333333333332,
+                1797.6190476190477,
+                107857.14285714286,
+                125.0,
+                7500.0,
+                25546380.981952146,
+            ]
+        )
+E       assert [0.0, 0.0, 28... 20000.0, ...] == approx([0.0 ±...46 ± 25.5464])
+E         
+E         comparison failed. Mismatched elements: 2 / 18:
+E         Max absolute difference: 24980000.0
+E         Max relative difference: 1249.0
+E         Index | Obtained          | Expected                    
+E         5     | 20000.0           | 25000000.0 ± 25             
+E         17    | 566380.9819521444 | 25546380.981952146 ± 25.5464
+
+tests/MOO_test.py:226: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+Read MPS format model from file Program(supermarket).mps
+Reading time = 0.00 seconds
+PROGRAM(SUPERMARKET): 70 rows, 67 columns, 158 nonzeros
+Gurobi Optimizer version 14.0.0 build v14.0.0rc1 (linux64 - "Debian GNU/Linux 13 (trixie)")
+
+CPU model: INTEL(R) XEON(R) PLATINUM 8573C, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 9 physical cores, 9 logical processors, using up to 9 threads
+
+Optimize a model with 70 rows, 67 columns and 158 nonzeros (Min)
+Model fingerprint: 0x85ac3d63
+Model has 1 linear objective coefficients
+Variable types: 63 continuous, 4 integer (4 binary)
+Coefficient statistics:
+  Matrix range     [4e-02, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+05]
+
+Presolve removed 70 rows and 67 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 9 available processors)
+
+Solution count 1: 167714 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 1.677143152857e+05, best bound 1.677143152857e+05, gap 0.0000%
+Read MPS format model from file Program(supermarket).mps
+Reading time = 0.00 seconds
+PROGRAM(SUPERMARKET): 70 rows, 67 columns, 158 nonzeros
+Gurobi Optimizer version 14.0.0 build v14.0.0rc1 (linux64 - "Debian GNU/Linux 13 (trixie)")
+
+CPU model: INTEL(R) XEON(R) PLATINUM 8573C, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 9 physical cores, 9 logical processors, using up to 9 threads
+
+Optimize a model with 70 rows, 67 columns and 158 nonzeros (Min)
+Model fingerprint: 0x53a9b4f3
+Model has 1 linear objective coefficients
+Variable types: 63 continuous, 4 integer (4 binary)
+Coefficient statistics:
+  Matrix range     [4e-02, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+05]
+
+Presolve removed 70 rows and 67 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 9 available processors)
+
+Solution count 2: 1799.99 1799.99 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 1.799985600115e+03, best bound 1.799985600115e+03, gap 0.0000%
+Number of BV entries in BOUNDS section is 4
+MIP program has 70 rows; 67 cols; 158 nonzeros; 4 integer variables (4 binary)
+Coefficient ranges:
+  Matrix  [4e-02, 1e+06]
+  Cost    [1e+00, 1e+00]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+02, 1e+05]
+Presolving model
+70 rows, 67 cols, 158 nonzeros 0s
+17 rows, 18 cols, 38 nonzeros 0s
+Presolve reductions: rows 0(-70); columns 0(-67); nonzeros 0(-158) - Reduced to empty
+Presolve: Optimal
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   32.1426         32.1426            0.00%        0      0      0         0     0.0s
+
+Solving report
+  Model             program
+  Status            Optimal
+  Primal bound      32.1426000021
+  Dual bound        32.1426000021
+  Gap               0% (tolerance: 0.01%)
+  P-D integral      0.00
+  Solution status   feasible
+                    32.1426000021 (objective)
+  Timing            0.00
+                    0.00 (Presolve)
+                    0.00 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     0
+---------------------------- Captured stderr setup -----------------------------
+📝  Generated Program(supermarket).mps                                       ⏱ 0.0102 s
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0011 s
+✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.1159 s
+📝  Generated Program(supermarket).mps                                       ⏱ 0.0023 s
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0010 s
+✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.0086 s
+📝  Generated /tmp/tmpmifxr6y6/program.mps                                   ⏱ 0.0022 s
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0035 s
+✅  Program(supermarket) optimized using highs. Display using .output()      ⏱ 0.0126 s
+------------------------------ Captured log setup ------------------------------
+INFO     gana:decorators.py:75 📝  Generated Program(supermarket).mps                                       ⏱ 0.0102 s
+INFO     gana:decorators.py:75 📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0011 s
+INFO     gana:decorators.py:75 ✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.1159 s
+INFO     gana:decorators.py:75 📝  Generated Program(supermarket).mps                                       ⏱ 0.0023 s
+INFO     gana:decorators.py:75 📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0010 s
+INFO     gana:decorators.py:75 ✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.0086 s
+INFO     gana:decorators.py:75 📝  Generated /tmp/tmpmifxr6y6/program.mps                                   ⏱ 0.0022 s
+INFO     gana:decorators.py:75 📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0035 s
+INFO     gana:decorators.py:75 ✅  Program(supermarket) optimized using highs. Display using .output()      ⏱ 0.0126 s
+=========================== short test summary info ============================
+FAILED tests/MOO_test.py::test_supermarket - assert [0.0, 0.0, 28... 20000.0,...
+1 failed, 1 passed in 7.59s

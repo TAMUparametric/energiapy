@@ -1,0 +1,17 @@
+LP has 394200 rows; 289104 cols; 998831 nonzeros
+Coefficient ranges:
+  Matrix  [5e-04, 2e+01]
+  Cost    [1e-03, 4e+06]
+  Bound   [3e+01, 1e+06]
+  RHS     [0e+00, 0e+00]
+WARNING: Problem has some excessively large costs
+WARNING:    Consider scaling the objective by 1e-1, or setting the user_objective_scale option to -2
+WARNING: Problem is badly scaled, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Solving LP with useful basis so presolve not used
+Model status        : Optimal
+Objective value     :  1.8478432682e+09
+P-D objective error :  4.1288104141e-15
+HiGHS run time      :          2.59
+WARNING: Column names are not present, or contain duplicates: using names with prefix "c", beginning with suffix 0
+WARNING: Row    names are not present, or contain duplicates: using names with prefix "r", beginning with suffix 0
+Writing the basis to ../parity-quality-final/cost-independent.basis

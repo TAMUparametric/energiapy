@@ -1,0 +1,133 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+rootdir: /workspace/scratch/655138b97660/energia-parity
+configfile: pyproject.toml
+plugins: cov-7.1.0, hypothesis-6.170.17, platformdirs-4.14.8
+collected 210 items
+
+tests/LP_test.py .....                                                   [  2%]
+tests/MILP_test.py ...                                                   [  3%]
+tests/MOO_test.py ..                                                     [  4%]
+tests/ahc_test.py .......................                                [ 15%]
+tests/attr_test.py ....                                                  [ 17%]
+tests/basis_test.py .                                                    [ 18%]
+tests/cash_test.py .                                                     [ 18%]
+tests/conv_test.py ..............                                        [ 25%]
+tests/conversion_modes_test.py ....                                      [ 27%]
+tests/default_solver_test.py ....                                        [ 29%]
+tests/dictionary_flatten_test.py .                                       [ 29%]
+tests/domain_selection_test.py ....                                      [ 31%]
+tests/export_test.py ...                                                 [ 32%]
+tests/highs_test.py ..                                                   [ 33%]
+tests/inferred_time_test.py ....                                         [ 35%]
+tests/init_test.py ..                                                    [ 36%]
+tests/link_test.py ...                                                   [ 38%]
+tests/linkage_direction_test.py .                                        [ 38%]
+tests/linkage_hierarchy_test.py ...                                      [ 40%]
+tests/loc_test.py .                                                      [ 40%]
+tests/logging_test.py .                                                  [ 40%]
+tests/model_initializers_test.py ..                                      [ 41%]
+tests/model_save_json_test.py ..                                         [ 42%]
+tests/model_save_test.py .......                                         [ 46%]
+tests/modes_test.py .                                                    [ 46%]
+tests/month_axis_test.py .....                                           [ 49%]
+tests/multiloc_test.py ...                                               [ 50%]
+tests/multilocation_parity_test.py ......                                [ 53%]
+tests/operating_bounds_test.py ...............                           [ 60%]
+tests/operation_test.py .....                                            [ 62%]
+tests/price_test.py ...........                                          [ 68%]
+tests/problem_reverse_lookup_test.py ...                                 [ 69%]
+tests/prop_test.py .                                                     [ 70%]
+tests/sample_test.py ......                                              [ 72%]
+tests/scaling_test.py .................                                  [ 80%]
+tests/single_period_conversion_test.py ....                              [ 82%]
+tests/storage_inventory_bounds_test.py ...........                       [ 88%]
+tests/storage_test.py ........                                           [ 91%]
+tests/streams_test.py .                                                  [ 92%]
+tests/time_test.py .....                                                 [ 94%]
+tests/tree_levels_test.py ..                                             [ 95%]
+tests/weighted_time_test.py .........                                    [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.14-final-0 _______________
+
+Name                                              Stmts   Miss Branch BrPart  Cover
+-----------------------------------------------------------------------------------
+src/energia/_core/_component.py                      80      0     30      0   100%
+src/energia/_core/_dimension.py                       9      0      0      0   100%
+src/energia/_core/_hash.py                           11      0      2      0   100%
+src/energia/_core/_name.py                            5      0      0      0   100%
+src/energia/_core/_x.py                              38      8     10      0    67%
+src/energia/components/commodities/commodity.py      43      1      6      1    96%
+src/energia/components/commodities/currency.py       48      3     24      4    90%
+src/energia/components/commodities/emission.py        6      0      0      0   100%
+src/energia/components/commodities/land.py            6      0      0      0   100%
+src/energia/components/commodities/material.py        6      0      0      0   100%
+src/energia/components/commodities/misc.py           15      0      0      0   100%
+src/energia/components/commodities/resource.py       10      0      0      0   100%
+src/energia/components/game/couple.py                 5      0      0      0   100%
+src/energia/components/game/player.py                 4      0      0      0   100%
+src/energia/components/graph/edge.py                  7      2      0      0    71%
+src/energia/components/graph/node.py                  7      2      0      0    71%
+src/energia/components/impact/categories.py          10      0      0      0   100%
+src/energia/components/impact/indicator.py            9      0      0      0   100%
+src/energia/components/measure/unit.py               40      1     16      1    96%
+src/energia/components/operations/free.py             0      0      0      0   100%
+src/energia/components/operations/operation.py      149      2     62      2    98%
+src/energia/components/operations/process.py         31      0      4      0   100%
+src/energia/components/operations/storage.py        158      9     42      7    92%
+src/energia/components/operations/trade.py            0      0      0      0   100%
+src/energia/components/operations/transport.py       44      1      8      1    96%
+src/energia/components/spatial/linkage.py            79     10     20      3    85%
+src/energia/components/spatial/location.py          122     13     44      4    89%
+src/energia/components/temporal/_calendar.py          0      0      0      0   100%
+src/energia/components/temporal/lag.py               28      5      2      0    77%
+src/energia/components/temporal/modes.py             44      3     10      0    91%
+src/energia/components/temporal/periods.py          143      6     42      4    95%
+src/energia/components/temporal/scales.py             4      0      0      0   100%
+src/energia/dimensions/game.py                       10      0      0      0   100%
+src/energia/dimensions/impact.py                     13      0      0      0   100%
+src/energia/dimensions/problem.py                    50      3     14      1    94%
+src/energia/dimensions/space.py                      57      1     14      1    97%
+src/energia/dimensions/system.py                     19      0      0      0   100%
+src/energia/dimensions/time.py                       43      0      8      0   100%
+src/energia/export.py                                22      1      6      1    93%
+src/energia/library/aliases.py                       15      0      8      0   100%
+src/energia/library/components.py                    76      0      2      0   100%
+src/energia/library/examples/energy.py              291      0      8      0   100%
+src/energia/library/examples/supply_chain.py         32      0     10      0   100%
+src/energia/library/external.py                      46     46      4      0     0%
+src/energia/library/instructions.py                  12      0      0      0   100%
+src/energia/library/recipes.py                       33      0      0      0   100%
+src/energia/modeling/constraints/balance.py          91      4     20      3    94%
+src/energia/modeling/constraints/bind.py            191     26     76      8    84%
+src/energia/modeling/constraints/vmap.py            137      9     66      7    90%
+src/energia/modeling/indices/domain.py              202     22     52      3    86%
+src/energia/modeling/indices/sample.py              329     93     80      7    70%
+src/energia/modeling/parameters/conversion.py       254     34     86      3    84%
+src/energia/modeling/parameters/conversions.py       31      5      4      2    80%
+src/energia/modeling/parameters/instruction.py       22      0      2      0   100%
+src/energia/modeling/parameters/value.py             11      6      2      0    38%
+src/energia/modeling/variables/aspect.py            174     28     32      2    82%
+src/energia/modeling/variables/control.py            16      1      0      0    94%
+src/energia/modeling/variables/loss.py                8      8      0      0     0%
+src/energia/modeling/variables/recipe.py             26      3      0      0    88%
+src/energia/modeling/variables/states.py             58      2      4      1    95%
+src/energia/represent/ations/graph.py                13      0      0      0   100%
+src/energia/represent/ations/program.py              17      2      2      1    84%
+src/energia/represent/ations/scenario.py             13      0      0      0   100%
+src/energia/represent/classifiers.py                 17     17      0      0     0%
+src/energia/represent/model.py                      311     10     72      2    96%
+src/energia/surrogate/aggregation/ahc.py              2      0      0      0   100%
+src/energia/utils/data.py                            35     35     12      0     0%
+src/energia/utils/decorators.py                      42      7     16      1    83%
+src/energia/utils/dictionary.py                      78      8     46      1    90%
+src/energia/utils/math.py                            40     13     18      0    67%
+src/energia/utils/modeling.py                         8      3      2      1    60%
+src/energia/utils/nsrdb.py                           49     49     14      0     0%
+src/energia/utils/plot.py                            13      0      4      0   100%
+src/energia/utils/scaling.py                         19      2      8      1    89%
+-----------------------------------------------------------------------------------
+TOTAL                                              4087    504   1014     73    86%
+Coverage JSON written to file ../parity-checks/quality-coverage.json
+============================= 210 passed in 54.44s =============================

@@ -130,3 +130,7 @@ can run all 8,760 hours and retain the solver logs and schedules as an artifact.
 The [recorded 2026-11-20 annual run](results/2026-11-20/README.md) includes both
 objective comparisons, residuals, solver logs and full hourly schedules. The CLI
 does not overwrite that evidence.
+
+[Post-review verification](results/2026-11-20-quality/README.md) records the
+final code-quality refactor, unchanged annual results, and the separate existing
+Gurobi-specific test failure exposed by Gana 1.5.0 in unrestricted CI.

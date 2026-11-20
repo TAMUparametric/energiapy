@@ -1,0 +1,244 @@
+📝  Generated Program(supermarket).mps                                       ⏱ 0.0048 s
+Restricted license - for non-production use only - expires 2028-11-29
+Read MPS format model from file Program(supermarket).mps
+Reading time = 0.00 seconds
+PROGRAM(SUPERMARKET): 70 rows, 67 columns, 158 nonzeros
+Gurobi Optimizer version 14.0.0 build v14.0.0rc1 (linux64 - "Debian GNU/Linux 13 (trixie)")
+
+CPU model: INTEL(R) XEON(R) PLATINUM 8573C, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 9 physical cores, 9 logical processors, using up to 9 threads
+
+Optimize a model with 70 rows, 67 columns and 158 nonzeros (Min)
+Model fingerprint: 0x85ac3d63
+Model has 1 linear objective coefficients
+Variable types: 63 continuous, 4 integer (4 binary)
+Coefficient statistics:
+  Matrix range     [4e-02, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+05]
+
+Presolve removed 70 rows and 67 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 9 available processors)
+
+Solution count 1: 167714 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 1.677143152857e+05, best bound 1.677143152857e+05, gap 0.0000%
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0011 s
+✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.0180 s
+📝  Generated Program(supermarket).mps                                       ⏱ 0.0019 s
+Read MPS format model from file Program(supermarket).mps
+Reading time = 0.00 seconds
+PROGRAM(SUPERMARKET): 70 rows, 67 columns, 158 nonzeros
+Gurobi Optimizer version 14.0.0 build v14.0.0rc1 (linux64 - "Debian GNU/Linux 13 (trixie)")
+
+CPU model: INTEL(R) XEON(R) PLATINUM 8573C, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 9 physical cores, 9 logical processors, using up to 9 threads
+
+Optimize a model with 70 rows, 67 columns and 158 nonzeros (Min)
+Model fingerprint: 0x53a9b4f3
+Model has 1 linear objective coefficients
+Variable types: 63 continuous, 4 integer (4 binary)
+Coefficient statistics:
+  Matrix range     [4e-02, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+05]
+
+Presolve removed 70 rows and 67 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 9 available processors)
+
+Solution count 2: 1799.99 1799.99 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 1.799985600115e+03, best bound 1.799985600115e+03, gap 0.0000%
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0011 s
+✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.0073 s
+📝  Generated Program(supermarket).mps                                       ⏱ 0.0014 s
+Read MPS format model from file Program(supermarket).mps
+Reading time = 0.00 seconds
+PROGRAM(SUPERMARKET): 70 rows, 67 columns, 158 nonzeros
+Gurobi Optimizer version 14.0.0 build v14.0.0rc1 (linux64 - "Debian GNU/Linux 13 (trixie)")
+
+CPU model: INTEL(R) XEON(R) PLATINUM 8573C, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 9 physical cores, 9 logical processors, using up to 9 threads
+
+Optimize a model with 70 rows, 67 columns and 158 nonzeros (Min)
+Model fingerprint: 0x6515c8c2
+Model has 5 linear objective coefficients
+Variable types: 63 continuous, 4 integer (4 binary)
+Coefficient statistics:
+  Matrix range     [4e-02, 1e+06]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+02, 1e+05]
+
+Presolve removed 70 rows and 67 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 9 available processors)
+
+Solution count 2: 32.1426 32.1426 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.214260000206e+01, best bound 3.214260000206e+01, gap 0.0000%
+📝  Generated Solution object for Program(supermarket). See .solution        ⏱ 0.0009 s
+✅  Program(supermarket) optimized using gurobi. Display using .output()     ⏱ 0.0058 s
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Math object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Math object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Markdown object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+<IPython.core.display.Math object>
+Both unmodified existing test functions pass with the third solve explicitly on Gurobi.
