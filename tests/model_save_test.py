@@ -82,8 +82,8 @@ def test_unsupported_format_preserves_existing_file(model, tmp_path):
     path = tmp_path / "save_test.energia"
     path.write_bytes(b"previous save")
 
-    with pytest.raises(ValueError, match="Unknown type json"):
-        model.save("json")
+    with pytest.raises(ValueError, match="Unknown type csv"):
+        model.save("csv")
     assert path.read_bytes() == b"previous save"
 
 
