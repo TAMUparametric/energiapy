@@ -1,0 +1,24 @@
+name: Case studies
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+
+jobs:
+  notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[docs]' ipykernel
+      - name: Execute all case studies and their assertions
+        run: python tools/run_case_studies.py "$RUNNER_TEMP/case-studies"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: executed-case-studies
+          path: ${{ runner.temp }}/case-studies/*.ipynb
+          if-no-files-found: error
