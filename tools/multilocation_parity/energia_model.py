@@ -1,5 +1,7 @@
 """Energia formulation of the original lossless chronological study."""
 
+from dataclasses import dataclass
+
 from gana import inf
 
 from energia import Location, Model, Periods, Process, Resource, Storage, Transport
@@ -7,8 +9,19 @@ from energia import Location, Model, Periods, Process, Resource, Storage, Transp
 from .inputs import DISTANCE, INSTALLED, LIMIT, PLANTS, SITES, SOURCES, STORE
 
 
-def resource_flows(m, data, *, demand, refs, site, resource):
+@dataclass
+class ResourceContext:
+    """Resource declarations, profiles and collected calls for one model."""
+
+    model: Model
+    data: dict
+    demand: bool
+    refs: dict
+
+
+def resource_flows(context, site, resource):
     """Bound one resource's purchase and release, retaining its physical calls."""
+    m, data, demand, refs = context.model, context.data, context.demand, context.refs
     loc = getattr(m, site)
     obj = getattr(m, resource)
     purchase = obj.consume(loc, m.hour)
@@ -25,23 +38,37 @@ def resource_flows(m, data, *, demand, refs, site, resource):
     return purchase
 
 
-def add_resources(m, data, *, demand, refs, site, resources):
+def add_resources(context, site, resources):
     """Declare permitted purchases, exports and the NY demand lower bounds."""
     cost = 0
     for resource in resources:
-        purchase = resource_flows(
-            m,
-            data,
-            demand=demand,
-            refs=refs,
-            site=site,
-            resource=resource,
-        )
+        purchase = resource_flows(context, site, resource)
         if resource == "H2O":
             cost += 0.001 * sum(purchase.V())
         if resource == "CH4":
-            cost += sum(float(rate) * v for rate, v in zip(data["gas"], purchase.V()))
+            cost += sum(
+                float(rate) * v for rate, v in zip(context.data["gas"], purchase.V())
+            )
     return cost
+
+
+def create_plant(m, battery, site, name):
+    """Use the store's charge/discharge plants or declare a conversion process."""
+    if name == "LiI":
+        plant = battery.charge
+    elif name == "LiI_discharge":
+        plant = battery.discharge
+    else:
+        terms = [
+            coefficient * getattr(m, resource)
+            for resource, coefficient in PLANTS[name][2].items()
+        ]
+        balance = terms[0]
+        for term in terms[1:]:
+            balance = balance + term
+        plant = Process(balance)
+        setattr(m, f"{site}_{name}", plant)
+    return plant
 
 
 def add_site(m, data, refs, site):
@@ -55,21 +82,8 @@ def add_site(m, data, refs, site):
     refs[("store_capacity", site, "battery")] = list(battery.capacity(loc, m.year).V())
     refs[("inventory", site, "battery")] = list(battery.inventory(loc, m.hour).V())
     for name in INSTALLED[site]:
-        fixed, variable, conversion = PLANTS[name]
-        if name == "LiI":
-            plant = battery.charge
-        elif name == "LiI_discharge":
-            plant = battery.discharge
-        else:
-            terms = [
-                coefficient * getattr(m, resource)
-                for resource, coefficient in conversion.items()
-            ]
-            balance = terms[0]
-            for term in terms[1:]:
-                balance = balance + term
-            plant = Process(balance)
-            setattr(m, f"{site}_{name}", plant)
+        fixed, variable, _ = PLANTS[name]
+        plant = create_plant(m, battery, site, name)
         capacity = plant.capacity(loc, m.year)
         _ = capacity <= LIMIT
         activity = plant.operate(loc, m.hour)
@@ -116,14 +130,7 @@ def build(data, demand=True):
     refs = {}
     cost = 0
     for site in SITES:
-        cost += add_resources(
-            m,
-            data,
-            demand=demand,
-            refs=refs,
-            site=site,
-            resources=resources,
-        )
+        cost += add_resources(ResourceContext(m, data, demand, refs), site, resources)
         cost += add_site(m, data, refs, site)
     m.rail = Transport()
     _ = m.rail(m.H2) == 1

@@ -83,7 +83,10 @@ class Linear:
     def metrics(self, x, y, z):
         """Recompute primal feasibility, dual stationarity and the objective gap."""
         rows = self.matrix @ x
-        finite_sum = lambda a, b: float(a[np.isfinite(b)] @ b[np.isfinite(b)])
+
+        def finite_sum(a, b):
+            return float(a[np.isfinite(b)] @ b[np.isfinite(b)])
+
         dual = (
             finite_sum(np.maximum(y, 0), self.lower)
             + finite_sum(np.minimum(y, 0), self.upper)
@@ -132,7 +135,9 @@ class Linear:
 class Balances:
     """Independent physical equations with sparse triplet storage."""
 
-    def __init__(self, data, demand, indices, *, cost, lower, upper):
+    def __init__(self, data, demand, indices, vectors):
+        """Collect sparse equations using mutable cost and bound vectors."""
+        cost, lower, upper = vectors
         self.data, self.demand, self.indices = data, demand, indices
         self.cost, self.lower, self.upper = cost, lower, upper
         self.rr, self.cc, self.vv, self.lo, self.up = [], [], [], [], []
@@ -277,7 +282,7 @@ def independent(data, demand=True):
         upper[j] = STORE if key[0] == "store_capacity" else LIMIT
         if key[0] == "capacity" and demand:
             cost[j] = PLANTS[key[2]][0]
-    rows = Balances(data, demand, indices, cost=cost, lower=lower, upper=upper)
+    rows = Balances(data, demand, indices, (cost, lower, upper))
     for t in range(n):
         rows.hour(t)
     a = coo_matrix(

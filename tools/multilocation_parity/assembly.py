@@ -1,8 +1,11 @@
-"""Expand an exported two-hour Energia model into a chronological annual LP.
+"""
+Expand an exported two-hour Energia model into a chronological annual LP.
 
 Only known hourly input coefficients change. Investment columns are shared,
 charged once, and all five inventories link across adjacent blocks.
 """
+
+from dataclasses import dataclass
 
 import numpy as np
 from gana.backends.highs import build as export
@@ -50,7 +53,7 @@ def physical_keys(cols, refs):
 
 def template(data):
     model, refs = build(data)
-    highs = export(model.program, model.program._native_export())
+    highs = export(model.program, None)
     lp = highs.getLp()
     a = csc_matrix(
         (lp.a_matrix_.value_, lp.a_matrix_.index_, lp.a_matrix_.start_),
@@ -128,40 +131,54 @@ def inventory_links(base, a, by_key, row_map):
     return carry
 
 
-def vectors(
-    base,
-    *,
-    hourly_rows,
-    data,
-    demand,
-    globals_,
-    local,
-    mapping,
-    by_key,
-    demand_rows,
-):
+@dataclass
+class BlockLayout:
+    """Shared and hourly indices for one exported chronological block."""
+
+    base: Linear
+    globals: list
+    local: list
+    mapping: np.ndarray
+    global_rows: list
+    hourly_rows: np.ndarray
+    by_key: dict
+    row_map: dict
+
+
+def vectors(layout, data, demand):
     """Repeat hourly bounds and costs, but charge the shared investment once."""
+    demand_rows = load_rows(
+        layout.base,
+        layout.base.matrix.tocsr(),
+        layout.by_key,
+        layout.row_map,
+    )
     blocks = len(data["demand"]) // 2
-    nl = len(local)
-    lower = np.tile(base.lower[hourly_rows], (blocks, 1))
-    upper = np.tile(base.upper[hourly_rows], (blocks, 1))
+    nl = len(layout.local)
+    lower = np.tile(layout.base.lower[layout.hourly_rows], (blocks, 1))
+    upper = np.tile(layout.base.upper[layout.hourly_rows], (blocks, 1))
     for t, row in enumerate(demand_rows):
         upper[:, row] = -data["demand"][t::2] if demand else 0
-    cost = np.concatenate([base.cost[globals_], np.tile(base.cost[local], blocks)])
+    cost = np.concatenate(
+        [
+            layout.base.cost[layout.globals],
+            np.tile(layout.base.cost[layout.local], blocks),
+        ],
+    )
     for site in (*SOURCES, "NY"):
         for t in range(2):
-            j = by_key["purchase", site, "CH4", t]
-            cost[mapping[j] + np.arange(blocks) * nl] = data["gas"][t::2]
+            j = layout.by_key["purchase", site, "CH4", t]
+            cost[layout.mapping[j] + np.arange(blocks) * nl] = data["gas"][t::2]
     if not demand:
         cost[:] = 0
         for t in range(2):
-            j = by_key["release", "NY", "Power", t]
-            cost[mapping[j] + np.arange(blocks) * nl] = -1
-    keys = [base.keys[j] for j in globals_]
+            j = layout.by_key["release", "NY", "Power", t]
+            cost[layout.mapping[j] + np.arange(blocks) * nl] = -1
+    keys = [layout.base.keys[j] for j in layout.globals]
     keys += [
-        (*base.keys[j][:3], base.keys[j][3] + 2 * b)
+        (*layout.base.keys[j][:3], layout.base.keys[j][3] + 2 * b)
         for b in range(blocks)
-        for j in local
+        for j in layout.local
     ]
     return lower, upper, cost, keys
 
@@ -183,80 +200,93 @@ def partition(a, globals_):
     return local, mapping, global_rows, hourly_rows
 
 
-def expand_matrix(a, data, *, local, mapping, global_rows, hourly_rows, patches, carry):
-    """Replicate hourly equations and add chronological inventory links."""
-    blocks, nl = len(data["demand"]) // 2, len(local)
-    ng = a.shape[1] - nl
-    ar = a[hourly_rows].tocoo()
-    nr = len(hourly_rows)
+def hourly_triplets(layout, data):
+    """Expand each hourly coefficient, varying only the renewable profiles."""
+    blocks, nl = len(data["demand"]) // 2, len(layout.local)
+    a = layout.base.matrix.tocsr()
+    ar = a[layout.hourly_rows].tocoo()
+    patches = weather_coefficients(a, ar, layout.by_key, layout.row_map)
     values = np.tile(ar.data, (blocks, 1))
     for pos, key, t in patches:
         values[:, pos] = -data[key][t::2]
-    row_indices = np.arange(blocks)[:, None] * nr + ar.row
-    col_indices = np.tile(mapping[ar.col], (blocks, 1))
-    col_indices[:, np.isin(ar.col, local)] += np.arange(blocks)[:, None] * nl
-    rr, cc, vv = [row_indices.ravel()], [col_indices.ravel()], [values.ravel()]
+    row_indices = np.arange(blocks)[:, None] * len(layout.hourly_rows) + ar.row
+    col_indices = np.tile(layout.mapping[ar.col], (blocks, 1))
+    col_indices[:, np.isin(ar.col, layout.local)] += np.arange(blocks)[:, None] * nl
+    return [row_indices.ravel()], [col_indices.ravel()], [values.ravel()]
+
+
+def expand_matrix(layout, data):
+    """Add chronological carry-over and shared investment rows to hourly rows."""
+    blocks, nl, nr = (
+        len(data["demand"]) // 2,
+        len(layout.local),
+        len(layout.hourly_rows),
+    )
+    rr, cc, vv = hourly_triplets(layout, data)
+    a = layout.base.matrix.tocsr()
+    carry = inventory_links(layout.base, a, layout.by_key, layout.row_map)
     for row, col in carry:
         rr.append(np.arange(1, blocks) * nr + row)
-        cc.append(mapping[col] + np.arange(blocks - 1) * nl)
+        cc.append(layout.mapping[col] + np.arange(blocks - 1) * nl)
         vv.append(np.ones(blocks - 1))
-    ag = a[global_rows].tocoo()
+    ag = a[layout.global_rows].tocoo()
     rr.append(ag.row + blocks * nr)
-    cc.append(mapping[ag.col])
+    cc.append(layout.mapping[ag.col])
     vv.append(ag.data)
     return coo_matrix(
         (np.concatenate(vv), (np.concatenate(rr), np.concatenate(cc))),
-        shape=(blocks * nr + len(global_rows), ng + blocks * nl),
+        shape=(
+            blocks * nr + len(layout.global_rows),
+            len(layout.globals) + blocks * nl,
+        ),
     ).tocsc()
 
 
-def assemble(data, demand=True):
-    n = len(data["demand"])
-    if n % 2:
-        message = "The block exporter requires an even number of hours"
-        raise ValueError(message)
+def block_layout(data):
+    """Prepare the reusable mapping from the two-hour exported template."""
     base_data = {
         key: np.full(2, TEMPLATE_DEMAND if key == "demand" else 0.5) for key in data
     }
     base, globals_, semantic = template(base_data)
-    a = base.matrix.tocsr()
     by_key = {key: j for j, key in semantic.items()}
-    local, mapping, global_rows, hourly_rows = partition(a, globals_)
+    local, mapping, global_rows, hourly_rows = partition(base.matrix.tocsr(), globals_)
     row_map = {int(r): i for i, r in enumerate(hourly_rows)}
-    patches = weather_coefficients(a, a[hourly_rows].tocoo(), by_key, row_map)
-    demand_rows = load_rows(base, a, by_key, row_map)
-    carry = inventory_links(base, a, by_key, row_map)
-    matrix = expand_matrix(
-        a,
-        data,
-        local=local,
-        mapping=mapping,
-        global_rows=global_rows,
-        hourly_rows=hourly_rows,
-        patches=patches,
-        carry=carry,
-    )
-    lower, upper, cost, keys = vectors(
+    return BlockLayout(
         base,
-        hourly_rows=hourly_rows,
-        data=data,
-        demand=demand,
-        globals_=globals_,
-        local=local,
-        mapping=mapping,
-        by_key=by_key,
-        demand_rows=demand_rows,
+        globals_,
+        local,
+        mapping,
+        global_rows,
+        hourly_rows,
+        by_key,
+        row_map,
     )
+
+
+def assemble(data, demand=True):
+    """Build one simultaneous LP with every hour and shared investment decision."""
+    n = len(data["demand"])
+    if n % 2:
+        message = "The block exporter requires an even number of hours"
+        raise ValueError(message)
+    layout = block_layout(data)
+    lower, upper, cost, keys = vectors(layout, data, demand)
     return Linear(
-        matrix,
-        np.concatenate([lower.ravel(), base.lower[global_rows]]),
-        np.concatenate([upper.ravel(), base.upper[global_rows]]),
+        expand_matrix(layout, data),
+        np.concatenate([lower.ravel(), layout.base.lower[layout.global_rows]]),
+        np.concatenate([upper.ravel(), layout.base.upper[layout.global_rows]]),
         cost,
         np.concatenate(
-            [base.col_lower[globals_], np.tile(base.col_lower[local], n // 2)],
+            [
+                layout.base.col_lower[layout.globals],
+                np.tile(layout.base.col_lower[layout.local], n // 2),
+            ],
         ),
         np.concatenate(
-            [base.col_upper[globals_], np.tile(base.col_upper[local], n // 2)],
+            [
+                layout.base.col_upper[layout.globals],
+                np.tile(layout.base.col_upper[layout.local], n // 2),
+            ],
         ),
         keys,
     )

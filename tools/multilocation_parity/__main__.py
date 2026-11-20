@@ -5,7 +5,7 @@ import hashlib
 import importlib.metadata
 import json
 import platform
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -36,7 +36,7 @@ def provenance():
 def environment():
     """Record source and package versions without claiming a historical lock."""
     return {
-        "date_utc": datetime.now(timezone.utc).isoformat(),
+        "date_utc": datetime.now(UTC).isoformat(),
         "python": platform.python_version(),
         "platform": platform.platform(),
         "packages": {
@@ -120,7 +120,7 @@ def write_dispatch(output, name, reference, x):
     capacities = {}
     for key, value in zip(reference.keys, x):
         kind, site, component, t = key
-        label = "/".join((kind, site, component))
+        label = f"{kind}/{site}/{component}"
         if t == -1:
             capacities[label] = float(value)
         else:
@@ -172,10 +172,9 @@ def run_case(data, demand, output, basis_dir=None):
     write_dispatch(output, name, reference, projected)
     if len(data["demand"]) == HOURS:
         case = provenance()["case"]
-        expected = case["archived_cost"] if demand else -case["archived_delivery"]
         require_close(
             energia_metrics["objective"],
-            expected,
+            case["archived_cost"] if demand else -case["archived_delivery"],
             case["archive_tolerance"],
             "Archived " + name,
         )

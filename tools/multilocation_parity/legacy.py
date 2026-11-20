@@ -1,4 +1,5 @@
-"""Run the pinned historical implementation in a separate legacy environment.
+"""
+Run the pinned historical implementation in a separate legacy environment.
 
 Set PYTHONPATH to c78c8902a7b45be4ed6d56a47341286271e855bf/src. No
 legacy library equations are patched; only redundant binary choices are fixed.
@@ -27,8 +28,9 @@ from .inputs import load_inputs
 from .legacy_definitions import definitions
 
 
-def location(site, names, namespace, *, scales, times, data):
+def location(site, names, namespace, *, scales, data):
     """Apply full-year normalized factors to a historical location."""
+    times = scales.scale_iter(scale_level=2)
     loc = Location(
         name=site,
         processes={namespace[name] for name in names},
@@ -66,14 +68,13 @@ def scenario(hours):
     data = {key: value[:hours] for key, value in load_inputs().items()}
     scales = TemporalScale([1, hours // 24, 24] if hours % 24 == 0 else [1, 1, hours])
     namespace = definitions()
-    times = scales.scale_iter(scale_level=2)
     locations = {}
     for site, names in [
         ("HO", ["LiI", "PV", "WF", "SMRH", "AWE", "AQoff_SMR"]),
         ("SD", ["LiI", "PV", "WF", "SMRH", "AWE", "AQoff_SMR"]),
         ("NY", ["LiI", "H2FC"]),
     ]:
-        loc = location(site, names, namespace, scales=scales, times=times, data=data)
+        loc = location(site, names, namespace, scales=scales, data=data)
         locations[site] = loc
     rail = Transport(
         name="Train_H2",
@@ -126,8 +127,8 @@ def verify_source():
 SCALED_TOLERANCE = 1e-6
 
 
-def solve_case(case, locations, power, objective, *, output, digest):
-    """Solve one original formulation and verify its scaled row residuals."""
+def original_model(case, locations, power, objective):
+    """Formulate the legacy case including zero source-site electricity export."""
     m = formulate(
         scenario=case,
         constraints={
@@ -153,6 +154,12 @@ def solve_case(case, locations, power, objective, *, output, digest):
                 location=locations[site],
             ),
         )
+    return m
+
+
+def solve_case(case, locations, power, objective, output):
+    """Solve one original formulation and verify its scaled row residuals."""
+    m = original_model(case, locations, power, objective)
     path = output / f"{objective.name}.lp"
     m.write(str(path), io_options={"symbolic_solver_labels": True})
     h = Highs()
@@ -172,7 +179,16 @@ def solve_case(case, locations, power, objective, *, output, digest):
     h.run()
     if h.getModelStatus() != HighsModelStatus.kOptimal:
         raise RuntimeError(h.modelStatusToString(h.getModelStatus()))
-    x = np.asarray(h.getSolution().col_value)
+    return {
+        "objective": h.getObjectiveValue(),
+        "binary_completion": "all one",
+        "binaries": len(integers),
+        **residuals(lp, np.asarray(h.getSolution().col_value)),
+    }
+
+
+def residuals(lp, x):
+    """Retain both absolute and scaled residuals of the original legacy rows."""
     a = csc_matrix(
         (lp.a_matrix_.value_, lp.a_matrix_.index_, lp.a_matrix_.start_),
         shape=(lp.num_row_, lp.num_col_),
@@ -198,12 +214,8 @@ def solve_case(case, locations, power, objective, *, output, digest):
         message = "Historical model has excessive scaled residual"
         raise AssertionError(message)
     return {
-        "objective": h.getObjectiveValue(),
         "max_row_violation": violation,
         "max_scaled_row_violation": scaled_violation,
-        "implementation_sha256": digest,
-        "binary_completion": "all one",
-        "binaries": len(integers),
     }
 
 
@@ -243,8 +255,8 @@ def main():
             power,
             objective,
             output=args.output,
-            digest=digest,
         )
+        report[objective.name]["implementation_sha256"] = digest
     if args.compare is not None:
         compare_results(report, args.compare, args.hours, manifest)
     (args.output / "legacy.json").write_text(json.dumps(report, indent=2) + "\n")
