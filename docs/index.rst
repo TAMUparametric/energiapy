@@ -46,6 +46,7 @@ Decision-making with Energia
    examples/material_process_modes
    examples/seattle_topeka
    examples/temporal_clustering
+   examples/case_studies/index
    validation/ahc/README
 
 
