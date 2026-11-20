@@ -7,30 +7,36 @@ from energia import Location, Model, Periods, Process, Resource, Storage, Transp
 from .inputs import DISTANCE, INSTALLED, LIMIT, PLANTS, SITES, SOURCES, STORE
 
 
+def resource_flows(m, data, *, demand, refs, site, resource):
+    """Bound one resource's purchase and release, retaining its physical calls."""
+    loc = getattr(m, site)
+    obj = getattr(m, resource)
+    purchase = obj.consume(loc, m.hour)
+    _ = purchase <= (
+        LIMIT if site in SOURCES and resource in ("Solar", "Wind", "H2O", "CH4") else 0
+    )
+    refs[("purchase", site, resource)] = list(purchase.V())
+    release = obj.release(loc, m.hour)
+    is_demand = site == "NY" and resource == "Power"
+    _ = release >= (data["demand"].tolist() if is_demand and demand else 0)
+    if not (is_demand or resource in ("CO2_Vent", "O2")):
+        _ = release <= 0
+    refs[("release", site, resource)] = list(release.V())
+    return purchase
+
+
 def add_resources(m, data, *, demand, refs, site, resources):
     """Declare permitted purchases, exports and the NY demand lower bounds."""
-    loc = getattr(m, site)
     cost = 0
     for resource in resources:
-        obj = getattr(m, resource)
-        purchase = obj.consume(loc, m.hour)
-        _ = purchase <= (
-            LIMIT
-            if site in SOURCES and resource in ("Solar", "Wind", "H2O", "CH4")
-            else 0
+        purchase = resource_flows(
+            m,
+            data,
+            demand=demand,
+            refs=refs,
+            site=site,
+            resource=resource,
         )
-        refs[("purchase", site, resource)] = list(purchase.V())
-        release = obj.release(loc, m.hour)
-        _ = release >= (
-            data["demand"].tolist()
-            if site == "NY" and resource == "Power" and demand
-            else 0
-        )
-        if not (
-            (site == "NY" and resource == "Power") or resource in ("CO2_Vent", "O2")
-        ):
-            _ = release <= 0
-        refs[("release", site, resource)] = list(release.V())
         if resource == "H2O":
             cost += 0.001 * sum(purchase.V())
         if resource == "CH4":

@@ -58,6 +58,21 @@ def feasible_budget(reference, data):
     return float(reference.cost @ x) * 1.01
 
 
+def capacity_bound(model, matrix, column, key):
+    """Find the tightest original one-variable upper-bound row."""
+    candidates = [
+        i
+        for i in model.matrix[:, column].nonzero()[0]
+        if matrix.indptr[i + 1] - matrix.indptr[i] == 1
+        and matrix[i, column] == 1
+        and np.isfinite(model.upper[i])
+    ]
+    if not candidates:
+        message = f"No original bound for free capacity {key}"
+        raise ValueError(message)
+    return min(candidates, key=lambda i: model.upper[i])
+
+
 def reduce_capacities(highs, model, budget):
     """Bound paid capacities by a feasible cost, and maximize free capacities.
 
@@ -82,17 +97,7 @@ def reduce_capacities(highs, model, budget):
             continue
         maximum = model.col_upper[j]
         if not np.isfinite(maximum):
-            candidates = [
-                i
-                for i in model.matrix[:, j].nonzero()[0]
-                if matrix.indptr[i + 1] - matrix.indptr[i] == 1
-                and matrix[i, j] == 1
-                and np.isfinite(model.upper[i])
-            ]
-            if not candidates:
-                message = f"No original bound for free capacity {key}"
-                raise ValueError(message)
-            row = min(candidates, key=lambda i: model.upper[i])
+            row = capacity_bound(model, matrix, j, key)
             maximum = model.upper[row]
             changes[j] = row
         highs.changeColBounds(j, maximum, maximum)

@@ -154,40 +154,50 @@ class Balances:
                 (("activity", s, p, t), PLANTS[p][2].get(resource, 0))
                 for p in INSTALLED[s]
             ]
-            if s in SOURCES and resource in ("Solar", "Wind", "CH4", "H2O"):
-                key = ("purchase", s, resource, t)
-                terms.append((key, 1))
-                self.upper[self.indices[key]] = LIMIT
-                if self.demand:
-                    self.cost[self.indices[key]] = (
-                        self.data["gas"][t]
-                        if resource == "CH4"
-                        else (0.001 if resource == "H2O" else 0)
-                    )
-            if resource == "H2":
-                terms += [
-                    (("rail", src, "H2", t), 1 if s == "NY" else -1)
-                    for src in (SOURCES if s == "NY" else (s,))
-                ]
-            if resource == "Power" and s == "NY":
-                key = ("release", s, resource, t)
-                terms.append((key, -1))
-                self.lower[self.indices[key]] = (
-                    self.data["demand"][t] if self.demand else 0
-                )
-                if not self.demand:
-                    self.cost[self.indices[key]] = -1
-            if resource in ("battery", "CO2_AQoff"):
-                key = ("inventory", s, resource, t)
-                terms.append((key, -1))
-                if t:
-                    terms.append((("inventory", s, resource, t - 1), 1))
-                self.row(
-                    [(key, 1), (("store_capacity", s, resource, -1), -1)],
-                    -np.inf,
-                    0,
-                )
+            self.purchases(s, t, resource, terms)
+            self.exports(s, t, resource, terms)
+            self.inventory(s, t, resource, terms)
             self.row(terms, 0, 0)
+
+    def purchases(self, s, t, resource, terms):
+        """Supply source resources and charge their hourly purchase prices."""
+        if s in SOURCES and resource in ("Solar", "Wind", "CH4", "H2O"):
+            key = ("purchase", s, resource, t)
+            terms.append((key, 1))
+            self.upper[self.indices[key]] = LIMIT
+            if self.demand:
+                self.cost[self.indices[key]] = (
+                    self.data["gas"][t]
+                    if resource == "CH4"
+                    else (0.001 if resource == "H2O" else 0)
+                )
+
+    def exports(self, s, t, resource, terms):
+        """Transfer hydrogen and release electricity at New York."""
+        if resource == "H2":
+            terms += [
+                (("rail", src, "H2", t), 1 if s == "NY" else -1)
+                for src in (SOURCES if s == "NY" else (s,))
+            ]
+        if resource == "Power" and s == "NY":
+            key = ("release", s, resource, t)
+            terms.append((key, -1))
+            self.lower[self.indices[key]] = self.data["demand"][t] if self.demand else 0
+            if not self.demand:
+                self.cost[self.indices[key]] = -1
+
+    def inventory(self, s, t, resource, terms):
+        """Carry the previous hour's inventory, starting with empty stores."""
+        if resource in ("battery", "CO2_AQoff"):
+            key = ("inventory", s, resource, t)
+            terms.append((key, -1))
+            if t:
+                terms.append((("inventory", s, resource, t - 1), 1))
+            self.row(
+                [(key, 1), (("store_capacity", s, resource, -1), -1)],
+                -np.inf,
+                0,
+            )
 
     def hour(self, t):
         """Add activity limits, resource balances and rail limits for one hour."""
@@ -221,27 +231,40 @@ class Balances:
                 self.cost[self.indices[key]] = DISTANCE[s] * 0.001667
 
 
+def storage_keys(kind):
+    """Enumerate the five stores in the same site order as Energia."""
+    return [
+        (kind, s, r)
+        for s in SITES
+        for r in (("battery", "CO2_AQoff") if s in SOURCES else ("battery",))
+    ]
+
+
+def capacity_keys():
+    """Enumerate investments once, shared by every chronological hour."""
+    keys = [("capacity", s, p) for s in SITES for p in INSTALLED[s]]
+    keys += storage_keys("store_capacity")
+    keys += [("rail_capacity", s, "H2") for s in SOURCES]
+    return keys
+
+
+def hourly_keys():
+    """Enumerate physical flows and inventories for a single hour."""
+    keys = [("activity", s, p) for s in SITES for p in INSTALLED[s]]
+    keys += [
+        ("purchase", s, r) for s in SOURCES for r in ("Solar", "Wind", "CH4", "H2O")
+    ]
+    keys += [("release", "NY", "Power")]
+    keys += storage_keys("inventory")
+    keys += [("rail", s, "H2") for s in SOURCES]
+    return keys
+
+
 def independent(data, demand=True):
     """Eliminate zero/unavailable flows and accounting auxiliaries algebraically."""
     n = len(data["demand"])
-    global_keys = [("capacity", s, p) for s in SITES for p in INSTALLED[s]]
-    global_keys += [
-        ("store_capacity", s, r)
-        for s in SITES
-        for r in (("battery", "CO2_AQoff") if s in SOURCES else ("battery",))
-    ]
-    global_keys += [("rail_capacity", s, "H2") for s in SOURCES]
-    hourly = [("activity", s, p) for s in SITES for p in INSTALLED[s]]
-    hourly += [
-        ("purchase", s, r) for s in SOURCES for r in ("Solar", "Wind", "CH4", "H2O")
-    ]
-    hourly += [("release", "NY", "Power")]
-    hourly += [
-        ("inventory", s, r)
-        for s in SITES
-        for r in (("battery", "CO2_AQoff") if s in SOURCES else ("battery",))
-    ]
-    hourly += [("rail", s, "H2") for s in SOURCES]
+    global_keys = capacity_keys()
+    hourly = hourly_keys()
     keys = [(*key, -1) for key in global_keys] + [
         (*key, t) for t in range(n) for key in hourly
     ]

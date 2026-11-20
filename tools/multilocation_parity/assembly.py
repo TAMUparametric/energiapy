@@ -25,6 +25,29 @@ def auxiliary_key(variable):
     return ("aux", identity, "", hour)
 
 
+def variable_keys(lp, program, refs):
+    """Identify physical and shared columns without depending on column order."""
+    cols = {name: j for j, name in enumerate(lp.col_names_)}
+    variables = {cols[v.mps()]: v for v in program.variables if v.mps() in cols}
+    semantic = physical_keys(cols, refs)
+    keys = [semantic.get(j, auxiliary_key(variables[j])) for j in range(lp.num_col_)]
+    global_cols = [
+        j
+        for j, v in variables.items()
+        if not any(str(i).startswith("hour[") for i in v.index)
+    ]
+    return keys, global_cols, semantic
+
+
+def physical_keys(cols, refs):
+    """Map the declared physical aspects to exported columns."""
+    semantic = {}
+    for key, members in refs.items():
+        for t, v in enumerate(members):
+            semantic[cols[v.mps()]] = (*key, -1 if "capacity" in key[0] else t)
+    return semantic
+
+
 def template(data):
     model, refs = build(data)
     highs = export(model.program, model.program._native_export())
@@ -33,12 +56,7 @@ def template(data):
         (lp.a_matrix_.value_, lp.a_matrix_.index_, lp.a_matrix_.start_),
         shape=(lp.num_row_, lp.num_col_),
     )
-    cols = {name: j for j, name in enumerate(lp.col_names_)}
-    variables = {cols[v.mps()]: v for v in model.program.variables if v.mps() in cols}
-    semantic = {}
-    for key, members in refs.items():
-        for t, v in enumerate(members):
-            semantic[cols[v.mps()]] = (*key, -1 if "capacity" in key[0] else t)
+    keys, global_cols, semantic = variable_keys(lp, model.program, refs)
     linear = Linear(
         a,
         np.array(lp.row_lower_),
@@ -46,13 +64,8 @@ def template(data):
         np.array(lp.col_cost_),
         np.array(lp.col_lower_),
         np.array(lp.col_upper_),
-        [semantic.get(j, auxiliary_key(variables[j])) for j in range(lp.num_col_)],
+        keys,
     )
-    global_cols = [
-        j
-        for j, v in variables.items()
-        if not any(str(i).startswith("hour[") for i in v.index)
-    ]
     return linear, global_cols, semantic
 
 
@@ -66,8 +79,8 @@ def one_row(a, first, second):
     return int(candidates[0])
 
 
-def varying_rows(base, a, ar, by_key, row_map):
-    """Locate the weather, load and first-hour inventory rows by their variables."""
+def weather_coefficients(a, ar, by_key, row_map):
+    """Locate the renewable capacity coefficients to change in every block."""
     patches = []
     for site in SOURCES:
         for plant in ("PV", "WF"):
@@ -80,6 +93,11 @@ def varying_rows(base, a, ar, by_key, row_map):
                     message = "Missing capacity-factor coefficient"
                     raise ValueError(message)
                 patches.append((int(pos[0]), f"{site}_{plant}", t))
+    return patches
+
+
+def load_rows(base, a, by_key, row_map):
+    """Locate the NY demand lower bounds in the template."""
     demand_rows = []
     for t in range(2):
         col = by_key["release", "NY", "Power", t]
@@ -90,6 +108,11 @@ def varying_rows(base, a, ar, by_key, row_map):
             message = "Missing demand lower-bound row"
             raise ValueError(message)
         demand_rows.append(row_map[candidates[0]])
+    return demand_rows
+
+
+def inventory_links(base, a, by_key, row_map):
+    """Connect the first inventory balance to the previous block's last hour."""
     carry = []
     for key, j in by_key.items():
         if key[0] == "inventory" and key[3] == 0:
@@ -102,7 +125,7 @@ def varying_rows(base, a, ar, by_key, row_map):
                 message = "Missing first-hour inventory balance"
                 raise ValueError(message)
             carry.append((row_map[candidates[0]], by_key[(*key[:3], 1)]))
-    return patches, demand_rows, carry
+    return carry
 
 
 def vectors(
@@ -143,20 +166,11 @@ def vectors(
     return lower, upper, cost, keys
 
 
-def assemble(data, demand=True):
-    n = len(data["demand"])
-    if n % 2:
-        message = "The block exporter requires an even number of hours"
-        raise ValueError(message)
-    base_data = {
-        key: np.full(2, TEMPLATE_DEMAND if key == "demand" else 0.5) for key in data
-    }
-    base, globals_, semantic = template(base_data)
-    a = base.matrix.tocsr()
-    by_key = {key: j for j, key in semantic.items()}
+def partition(a, globals_):
+    """Separate shared investments and their bounds from hourly variables."""
     global_set = set(globals_)
     local = [j for j in range(a.shape[1]) if j not in global_set]
-    ng, nl, blocks = len(globals_), len(local), n // 2
+    ng, nl = len(globals_), len(local)
     mapping = np.empty(a.shape[1], dtype=int)
     mapping[globals_] = np.arange(ng)
     mapping[local] = ng + np.arange(nl)
@@ -166,10 +180,15 @@ def assemble(data, demand=True):
         if all(j in global_set for j in a.indices[a.indptr[i] : a.indptr[i + 1]])
     ]
     hourly_rows = np.setdiff1d(np.arange(a.shape[0]), global_rows)
+    return local, mapping, global_rows, hourly_rows
+
+
+def expand_matrix(a, data, *, local, mapping, global_rows, hourly_rows, patches, carry):
+    """Replicate hourly equations and add chronological inventory links."""
+    blocks, nl = len(data["demand"]) // 2, len(local)
+    ng = a.shape[1] - nl
     ar = a[hourly_rows].tocoo()
     nr = len(hourly_rows)
-    row_map = {int(r): i for i, r in enumerate(hourly_rows)}
-    patches, demand_rows, carry = varying_rows(base, a, ar, by_key, row_map)
     values = np.tile(ar.data, (blocks, 1))
     for pos, key, t in patches:
         values[:, pos] = -data[key][t::2]
@@ -185,10 +204,38 @@ def assemble(data, demand=True):
     rr.append(ag.row + blocks * nr)
     cc.append(mapping[ag.col])
     vv.append(ag.data)
-    matrix = coo_matrix(
+    return coo_matrix(
         (np.concatenate(vv), (np.concatenate(rr), np.concatenate(cc))),
         shape=(blocks * nr + len(global_rows), ng + blocks * nl),
     ).tocsc()
+
+
+def assemble(data, demand=True):
+    n = len(data["demand"])
+    if n % 2:
+        message = "The block exporter requires an even number of hours"
+        raise ValueError(message)
+    base_data = {
+        key: np.full(2, TEMPLATE_DEMAND if key == "demand" else 0.5) for key in data
+    }
+    base, globals_, semantic = template(base_data)
+    a = base.matrix.tocsr()
+    by_key = {key: j for j, key in semantic.items()}
+    local, mapping, global_rows, hourly_rows = partition(a, globals_)
+    row_map = {int(r): i for i, r in enumerate(hourly_rows)}
+    patches = weather_coefficients(a, a[hourly_rows].tocoo(), by_key, row_map)
+    demand_rows = load_rows(base, a, by_key, row_map)
+    carry = inventory_links(base, a, by_key, row_map)
+    matrix = expand_matrix(
+        a,
+        data,
+        local=local,
+        mapping=mapping,
+        global_rows=global_rows,
+        hourly_rows=hourly_rows,
+        patches=patches,
+        carry=carry,
+    )
     lower, upper, cost, keys = vectors(
         base,
         hourly_rows=hourly_rows,
@@ -206,10 +253,10 @@ def assemble(data, demand=True):
         np.concatenate([upper.ravel(), base.upper[global_rows]]),
         cost,
         np.concatenate(
-            [base.col_lower[globals_], np.tile(base.col_lower[local], blocks)],
+            [base.col_lower[globals_], np.tile(base.col_lower[local], n // 2)],
         ),
         np.concatenate(
-            [base.col_upper[globals_], np.tile(base.col_upper[local], blocks)],
+            [base.col_upper[globals_], np.tile(base.col_upper[local], n // 2)],
         ),
         keys,
     )
