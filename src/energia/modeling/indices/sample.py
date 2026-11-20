@@ -8,7 +8,7 @@ from functools import cached_property
 from itertools import chain
 from math import isfinite, prod
 from numbers import Real
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Literal, Self
 
 from gana import I as Idx
 from gana import P, V, inf, sigma, sup
@@ -639,16 +639,15 @@ class Sample(_Hash):
 
         self.program.renumber()
 
-    def opt(self, maximize: bool = False):
-        """
-        Optimize.
-
-        :param maximize: if maximization, defaults to False
-        :type maximize: bool, optional
-        """
+    def opt(
+        self,
+        maximize: bool = False,
+        *,
+        using: Literal["highs", "gurobi"] = "highs",
+    ) -> None:
+        """Set the sample objective and optimize it with HiGHS by default."""
         self.obj(maximize)
-        # optimize!
-        self.program.opt()
+        self.program.opt(using=using)
 
     def bounds(self):
         """Finds the bounds of the variable."""
@@ -922,12 +921,15 @@ class FuncOfSamples:
         setattr(self.program, f"ge_{self.F.name}", func)
         return func
 
-    def opt(self, maximize=False):
-        """
-        Optimize the function.
-
-        :param max: if maximization, defaults to False
-        :type max: bool, optional
-        """
-        setattr(self.program, f"min_{self.F.name}", inf(self.F))
-        self.program.opt(maximize=maximize)
+    def opt(
+        self,
+        maximize: bool = False,
+        *,
+        using: Literal["highs", "gurobi"] = "highs",
+    ) -> None:
+        """Optimize the combined expression with HiGHS by default."""
+        if maximize:
+            setattr(self.program, f"max_{self.F.name}", sup(self.F))
+        else:
+            setattr(self.program, f"min_{self.F.name}", inf(self.F))
+        self.program.opt(using=using)

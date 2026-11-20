@@ -3,7 +3,6 @@
 import operator
 
 import pytest
-from gurobipy import GRB
 
 from energia import Location, Model, Periods, Resource, Storage
 
@@ -19,9 +18,9 @@ def model():
     return m
 
 
-def maximum_inventory(inventory):
+def maximum_inventory(inventory, solution_record):
     inventory.opt(maximize=True)
-    assert inventory.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(inventory.program)["status"] == "optimal"
     return inventory.output(aslist=True)[0]
 
 
@@ -36,7 +35,7 @@ def maximum_inventory(inventory):
     ],
 )
 def test_locate_preserves_declared_inventory(
-    model, bind, amount, capacity_first, expected
+    model, bind, amount, capacity_first, expected, solution_record
 ):
     m = model
     capacity = m.battery.capacity(m.site, m.day)
@@ -48,15 +47,17 @@ def test_locate_preserves_declared_inventory(
         capacity == 10
     record = m.scenario[m.inventory][m.battery.stored][m.site][m.day].copy()
 
-    assert maximum_inventory(inventory) == pytest.approx(expected)
+    assert maximum_inventory(inventory, solution_record) == pytest.approx(expected)
     for _ in range(2):
         m.battery.locate(m.site)
         assert m.scenario[m.inventory][m.battery.stored][m.site][m.day] == record
-        assert maximum_inventory(inventory) == pytest.approx(expected)
+        assert maximum_inventory(inventory, solution_record) == pytest.approx(expected)
 
 
 @pytest.mark.parametrize("declare_lower_bound", [False, True])
-def test_locate_caps_inventory_at_capacity_by_default(model, declare_lower_bound):
+def test_locate_caps_inventory_at_capacity_by_default(
+    model, declare_lower_bound, solution_record
+):
     m = model
     m.battery.capacity(m.site, m.day) == 10
     inventory = m.battery.inventory(m.site, m.day)
@@ -65,7 +66,7 @@ def test_locate_caps_inventory_at_capacity_by_default(model, declare_lower_bound
 
     m.battery.locate(m.site)
     assert m.scenario[m.inventory][m.battery.stored][m.site][m.day]["ub"] == 1
-    assert maximum_inventory(inventory) == pytest.approx(10)
+    assert maximum_inventory(inventory, solution_record) == pytest.approx(10)
 
 
 @pytest.mark.parametrize("other", ["site", "period", "storage"])

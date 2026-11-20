@@ -3,7 +3,6 @@
 from itertools import permutations
 
 import pytest
-from gurobipy import GRB
 
 from energia import Currency, Model, Periods, Process, Resource
 
@@ -81,7 +80,7 @@ def test_conv(m):
 @pytest.mark.parametrize(
     "basis, second, third", list(permutations(("power", "fuel", "waste")))
 )
-def test_conversion_resource_order(basis, second, third):
+def test_conversion_resource_order(basis, second, third, solution_record):
     m = Model()
     m.hour = Periods()
     m.shift = 2 * m.hour
@@ -99,13 +98,13 @@ def test_conversion_resource_order(basis, second, third):
     m.locate(m.plant)
     m.usd.spend.opt()
 
-    assert m.program.formulation.Status == GRB.OPTIMAL
-    assert m.program.formulation.ObjVal == pytest.approx(36)
+    assert solution_record(m.program)["status"] == "optimal"
+    assert m.program.active_objective.X == pytest.approx(36)
     assert m.plant.operate(m.hour).output(aslist=True) == pytest.approx([2, 4])
     assert m.fuel.consume.output(aslist=True) == pytest.approx([12])
 
 
-def test_lagged_output_preserves_input_time():
+def test_lagged_output_preserves_input_time(solution_record):
     m = Model()
     m.hour = Periods()
     m.shift = 2 * m.hour
@@ -120,9 +119,9 @@ def test_lagged_output_preserves_input_time():
     m.locate(m.plant)
     m.usd.spend.opt()
 
-    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(m.program)["status"] == "optimal"
     assert m.fuel.consume(m.hour).output(aslist=True) == pytest.approx([2, 4])
-    assert m.program.formulation.ObjVal == pytest.approx(14)
+    assert m.program.active_objective.X == pytest.approx(14)
 
 
 def test_reusing_conversion_operands():
@@ -172,7 +171,7 @@ def test_conversion_coefficient_series():
     ids=["constant", "hourly"],
 )
 def test_repeated_fuel_terms_in_solved_model(
-    split, first, second, total, demand, expected_fuel, expected_cost
+    split, first, second, total, demand, expected_fuel, expected_cost, solution_record
 ):
     m = Model()
     m.hour = Periods()
@@ -188,6 +187,6 @@ def test_repeated_fuel_terms_in_solved_model(
     m.locate(m.plant)
     m.usd.spend.opt()
 
-    assert m.program.formulation.Status == GRB.OPTIMAL
+    assert solution_record(m.program)["status"] == "optimal"
     assert m.fuel.consume(m.hour).output(aslist=True) == pytest.approx(expected_fuel)
-    assert m.program.formulation.ObjVal == pytest.approx(expected_cost)
+    assert m.program.active_objective.X == pytest.approx(expected_cost)
