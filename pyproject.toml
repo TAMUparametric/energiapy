@@ -24,12 +24,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["gana>=1.4.0", "ppopt", "dill", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy", "scikit-learn", "vaelchi>=0.1.1,<0.2"]
+dependencies = ["gana[highs]>=1.4.0", "ppopt", "dill", "IPython", "matplotlib", "scipy", "pandas", "numpy", "gurobipy", "scikit-learn", "vaelchi>=0.1.1,<0.2"]
 
 [project.optional-dependencies]
-highs = ["gana[highs]>=1.4.0"]
-all = ["gana[highs]>=1.4.0", "pvlib", "windpowerlib", "h5pyd"]
-test = ["gana[highs]>=1.4.0", "coverage", "pytest", "pytest-cov", "hypothesis", "flake8"]
+highs = []
+all = ["pvlib", "windpowerlib", "h5pyd"]
+test = ["coverage", "pytest", "pytest-cov", "hypothesis", "flake8"]
 docs = [
     "sphinx>=8.2,<9",
     "sphinx-book-theme>=1.4,<1.5",

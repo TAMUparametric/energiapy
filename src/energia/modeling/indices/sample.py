@@ -643,9 +643,9 @@ class Sample(_Hash):
         self,
         maximize: bool = False,
         *,
-        using: Literal["gurobi", "highs"] = "gurobi",
+        using: Literal["highs", "gurobi"] = "highs",
     ) -> None:
-        """Set the sample objective and optimize it with the selected solver."""
+        """Set the sample objective and optimize it with HiGHS by default."""
         self.obj(maximize)
         self.program.opt(using=using)
 
@@ -925,9 +925,9 @@ class FuncOfSamples:
         self,
         maximize: bool = False,
         *,
-        using: Literal["gurobi", "highs"] = "gurobi",
+        using: Literal["highs", "gurobi"] = "highs",
     ) -> None:
-        """Optimize the combined expression with the selected solver."""
+        """Optimize the combined expression with HiGHS by default."""
         if maximize:
             setattr(self.program, f"max_{self.F.name}", sup(self.F))
         else:

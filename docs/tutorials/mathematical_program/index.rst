@@ -5,9 +5,8 @@ Mathematical Program
 Selecting a deterministic solver
 --------------------------------
 
-Install ``python -m pip install "energiapy[highs]"`` to use HiGHS for
-linear and mixed-integer models. Select the solver when setting a sample
-objective or when optimizing an objective you have already defined.
+Energia installs HiGHS and uses it by default for linear and mixed-integer
+models.
 
 .. code-block:: python
 
@@ -17,12 +16,12 @@ objective or when optimizing an objective you have already defined.
    model.labor = Resource(take=True, price=3)
    model.labor.release == 2
    model.cash.spend.obj()
-   model.opt(using="highs")
+   model.opt()
    assert model.program.active_objective.X == 6
    model.save(as_type="json", path="result.json")
 
-The shorthand ``model.cash.spend.opt(using="highs")`` sets and solves the
-objective in one call. Gurobi is the default for deterministic optimization.
+The shorthand ``model.cash.spend.opt()`` sets and solves the
+objective in one call. Pass ``using="gurobi"`` to either call to use Gurobi.
 Use ``model.solve()`` for multiparametric problems.
 
 .. toctree::

@@ -908,11 +908,11 @@ class Model:
         self.network.locate(*operations)
 
     # * Optimization
-    def opt(self, using: Literal["gurobi", "highs"] = "gurobi") -> None:
+    def opt(self, using: Literal["highs", "gurobi"] = "highs") -> None:
         """Optimize the active deterministic objective with the selected solver.
 
-        Install ``energiapy[highs]`` to use HiGHS. Results are available
-        through the usual sample output and model save methods.
+        HiGHS is the default. Pass ``using="gurobi"`` to use Gurobi.
+        Read results through sample output or the model save methods.
         """
         self.program.opt(using=using)
 

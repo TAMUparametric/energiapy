@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Install `energiapy[highs]` and use `model.opt(using="highs")` or `sample.opt(using="highs")` for deterministic LP and MILP models. This requires Gana 1.4.0 or newer.
+### Changed
+- `model.opt()`, `sample.opt()`, and combined sample objectives use HiGHS by default for deterministic LP and MILP models. Energia installs the solver with Gana 1.4.0 or newer. Pass `using="gurobi"` to select Gurobi.
 
 ## [2.2.0] - Unreleased
 
