@@ -132,5 +132,8 @@ objective comparisons, residuals, solver logs and full hourly schedules. The CLI
 does not overwrite that evidence.
 
 [Post-review verification](results/2026-11-20-quality/README.md) records the
-final code-quality refactor, unchanged annual results, and the separate existing
-Gurobi-specific test failure exposed by Gana 1.5.0 in unrestricted CI.
+final code-quality refactor, unchanged annual results, and the Gurobi-specific
+test failure exposed by Gana 1.5.0. The
+[approved fixture correction](results/2026-11-20-fixture/README.md) now makes all
+three reference solves explicitly use Gurobi, preserving every assertion; all
+210 tests pass with Gana 1.5.0.
