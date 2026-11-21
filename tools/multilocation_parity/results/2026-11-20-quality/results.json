@@ -1,0 +1,146 @@
+{
+  "hours": 8760,
+  "environment": {
+    "date_utc": "2026-11-20T23:17:44.694454+00:00",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "packages": {
+      "energiapy": "2.2.0",
+      "gana": "1.4.0",
+      "vaelchi": "0.1.1",
+      "highspy": "1.16.0",
+      "numpy": "2.5.5",
+      "scipy": "1.18.1",
+      "pandas": "3.1.1"
+    },
+    "script_sha256": {
+      "__init__.py": "8f42242f7ff08618aec0f0b392893e8d06ecb1353c4f3b41caabcef2914cf971",
+      "__main__.py": "18b04f39803928e57356de7d7fd24a48267735d967c95e03747b6c3745551412",
+      "assembly.py": "b6c77c75c74dc058da93e7a2eae19dc7b071d78b9aa8b2972003593aa0717b77",
+      "energia_model.py": "13331268db23545e8a0cc1bba6ec6b809c1d90ecb45d775f6f2a22b516efbcaf",
+      "inputs.py": "946dc3c28c89f4740939162368d3862f348082ba4c5f0262db9a040bed52c9c1",
+      "legacy.py": "5b21ae1f79ca74436bb2c46186b1610f46b41ae92b37490bac040d905802a33a",
+      "legacy_definitions.py": "7a6056250f343ebda2559c77e42052a40ad3cc729c19575790bdc9838bb37b59",
+      "linear.py": "7ba0c2d0451e845a41b2f943469bfca8bc40b6349791dc5f18d3ed2fba9a51e4",
+      "solver_start.py": "6401b3b787082a75090ed7c24754d3d316d94f536758b40631a14578993b762f"
+    },
+    "energia_source_sha256": "6f37654c8802354faa3024719f07b53267cc20629eca9ce981f24f73b533ddb7",
+    "solver_options": {
+      "delivery_solver": "simplex",
+      "cost_solver": "ipm with crossover and verified capacity reductions",
+      "threads": 1,
+      "warm_basis_strategy": "primal",
+      "ipm_crossover_threshold": 0.001
+    }
+  },
+  "provenance": {
+    "case": {
+      "repository": "cacodcar/kuru",
+      "commit": "db35908bd9056ef8f484c425bf2d2cb428677a83",
+      "path": "studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+      "blob_sha": "e40d5c1ae7bcdb74d20de905134e6bc3f51da122",
+      "url": "https://github.com/cacodcar/kuru/blob/db35908bd9056ef8f484c425bf2d2cb428677a83/studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+      "archived_cost": 1847843268.177,
+      "archived_delivery": 3202802043.034,
+      "archive_tolerance": 0.001
+    },
+    "legacy_implementation": {
+      "repository": "TAMUparametric/energiapy",
+      "commit": "c78c8902a7b45be4ed6d56a47341286271e855bf",
+      "tarball_url": "https://codeload.github.com/TAMUparametric/energiapy/tar.gz/c78c8902a7b45be4ed6d56a47341286271e855bf",
+      "tarball_sha256": "7eccb26670817b09eb9c88d8672c950a04bf447c29dbc78f4bbb1d47957636e4",
+      "note": "Pinned compatible historical implementation, not an asserted recovery of the original unrecorded runtime. COST adds demand automatically. The later v1.0.7 branch changes that behavior.",
+      "source_sha256": "cc56da8fda53cf08cb0d6e8b73c62bdcdc9308b4c38280d7d626db804fdad1ac"
+    },
+    "inputs": {
+      "ho_solar19.csv": {
+        "drive_id": "1HuKKcfbP-iqSuPvTLoT2RJFHRDTI8DTQ",
+        "sha256": "d7b19b3fd9ea375bbc9d6804795a25588e706bfd641426dbf1bddff69004dfcc",
+        "use": "2019 Houston hourly DNI and wind speed"
+      },
+      "sd_solar19.csv": {
+        "drive_id": "1otN2jrOzFPh76KO28F8EXV5Y1uvmGxml",
+        "sha256": "9897c8597e6d030b2df658a9bd56049ab153be1f26364317d2bbf07b468ff0f9",
+        "use": "2019 San Diego hourly DNI and wind speed"
+      },
+      "NYC_load.csv": {
+        "drive_id": "1XG454_OPyGsyX1akt7FDAEqLoPsFXdLK",
+        "sha256": "7952fb859afb01fabeabc9e0b30cc803f0608c93dbf0518c1f56050eff36a8a7",
+        "use": "2018 New York hourly load, normalized to peak 80 MW"
+      },
+      "Henry_Hub_Natural_Gas_Spot_Price_Daily.csv": {
+        "drive_id": "1zVsynRKIvTkFmSTdDdwpuO0o4m5NLJwt",
+        "sha256": "5621f529a17f947e880a36d28182852132cc27bf67d3c4dc0be0a2e218999ffd",
+        "use": "2020 days 1 through 365; forward fill, three-standard-deviation neighbour replacement, maximum normalization"
+      }
+    }
+  },
+  "cases": {
+    "delivery": {
+      "energia": {
+        "matrix_sha256": "ce9423e8dbe7671f4c22ab97fc3cd1ef4291a7a806402b222e16625dfd45b530",
+        "objective": -3202802043.033573,
+        "dual_bound": -3202802043.0335555,
+        "absolute_gap": 1.7642974853515625e-05,
+        "row_violation": 1.1641532182693481e-10,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 0.0,
+        "dual_residual": 2.8421709430404007e-12,
+        "columns": 1296508,
+        "rows": 1550548,
+        "nonzeros": 3153623
+      },
+      "independent": {
+        "matrix_sha256": "dfeb5a3fcc92ac422ce6c98e0237392c09b4ea0128d32b88b5c6f93c525bd929",
+        "objective": -3202802043.033573,
+        "dual_bound": -3202802043.03356,
+        "absolute_gap": 1.33514404296875e-05,
+        "row_violation": 1.1641532182693481e-10,
+        "bound_violation": 0.0,
+        "dual_sign_violation": 0.0,
+        "dual_residual": 0.0,
+        "columns": 289104,
+        "rows": 394200,
+        "nonzeros": 998831
+      },
+      "physical_projection": {
+        "row_violation": 1.1641532182693481e-10,
+        "bound_violation": 0.0
+      },
+      "feasible_cost_bound": null
+    },
+    "cost": {
+      "energia": {
+        "matrix_sha256": "ea0d3f8b07ceb3bf38b0977c799c735a77f77739c98b8c3725df548fc15243ee",
+        "objective": 1847843268.176695,
+        "dual_bound": 1847843268.1767137,
+        "absolute_gap": 1.8596649169921875e-05,
+        "row_violation": 1.9309664978095498e-11,
+        "bound_violation": 1.616857812088821e-10,
+        "dual_sign_violation": 3.2741809263825417e-11,
+        "dual_residual": 8.055940270423889e-08,
+        "columns": 1296508,
+        "rows": 1550548,
+        "nonzeros": 3153623
+      },
+      "independent": {
+        "matrix_sha256": "e4ff9928b027ce8040a6395c44e007150ca5bf33664568163c1f01b4969277e6",
+        "objective": 1847843268.1766977,
+        "dual_bound": 1847843268.1767054,
+        "absolute_gap": 7.62939453125e-06,
+        "row_violation": 2.7284841053187847e-11,
+        "bound_violation": 7.639755494892597e-11,
+        "dual_sign_violation": 4.656612873077393e-10,
+        "dual_residual": 1.0337680578231812e-07,
+        "columns": 289104,
+        "rows": 394200,
+        "nonzeros": 998831
+      },
+      "physical_projection": {
+        "row_violation": 1.9309664978095498e-11,
+        "bound_violation": 6.366462912410498e-11
+      },
+      "feasible_cost_bound": 11093401442.893427
+    }
+  }
+}

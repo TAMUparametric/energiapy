@@ -1,0 +1,42 @@
+{
+  "case": {
+    "repository": "cacodcar/kuru",
+    "commit": "db35908bd9056ef8f484c425bf2d2cb428677a83",
+    "path": "studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+    "blob_sha": "e40d5c1ae7bcdb74d20de905134e6bc3f51da122",
+    "url": "https://github.com/cacodcar/kuru/blob/db35908bd9056ef8f484c425bf2d2cb428677a83/studies/examples_old/multiperiod/ml-sp-milp.ipynb",
+    "archived_cost": 1847843268.177,
+    "archived_delivery": 3202802043.034,
+    "archive_tolerance": 0.001
+  },
+  "legacy_implementation": {
+    "repository": "TAMUparametric/energiapy",
+    "commit": "c78c8902a7b45be4ed6d56a47341286271e855bf",
+    "tarball_url": "https://codeload.github.com/TAMUparametric/energiapy/tar.gz/c78c8902a7b45be4ed6d56a47341286271e855bf",
+    "tarball_sha256": "7eccb26670817b09eb9c88d8672c950a04bf447c29dbc78f4bbb1d47957636e4",
+    "note": "Pinned compatible historical implementation, not an asserted recovery of the original unrecorded runtime. COST adds demand automatically. The later v1.0.7 branch changes that behavior.",
+    "source_sha256": "cc56da8fda53cf08cb0d6e8b73c62bdcdc9308b4c38280d7d626db804fdad1ac"
+  },
+  "inputs": {
+    "ho_solar19.csv": {
+      "drive_id": "1HuKKcfbP-iqSuPvTLoT2RJFHRDTI8DTQ",
+      "sha256": "d7b19b3fd9ea375bbc9d6804795a25588e706bfd641426dbf1bddff69004dfcc",
+      "use": "2019 Houston hourly DNI and wind speed"
+    },
+    "sd_solar19.csv": {
+      "drive_id": "1otN2jrOzFPh76KO28F8EXV5Y1uvmGxml",
+      "sha256": "9897c8597e6d030b2df658a9bd56049ab153be1f26364317d2bbf07b468ff0f9",
+      "use": "2019 San Diego hourly DNI and wind speed"
+    },
+    "NYC_load.csv": {
+      "drive_id": "1XG454_OPyGsyX1akt7FDAEqLoPsFXdLK",
+      "sha256": "7952fb859afb01fabeabc9e0b30cc803f0608c93dbf0518c1f56050eff36a8a7",
+      "use": "2018 New York hourly load, normalized to peak 80 MW"
+    },
+    "Henry_Hub_Natural_Gas_Spot_Price_Daily.csv": {
+      "drive_id": "1zVsynRKIvTkFmSTdDdwpuO0o4m5NLJwt",
+      "sha256": "5621f529a17f947e880a36d28182852132cc27bf67d3c4dc0be0a2e218999ffd",
+      "use": "2020 days 1 through 365; forward fill, three-standard-deviation neighbour replacement, maximum normalization"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from gana import inf
 
 from energia.library.examples.energy import supermarket
 
@@ -11,7 +12,8 @@ def m():
     _m = supermarket()
     _m.usd.spend.opt(using="gurobi")
     _m.co2_vent.release.opt(using="gurobi")
-    _m._.lb(sum(_m._.consume))
+    _m._.minimum_consumption = inf(sum(_m._.consume))
+    _m._.opt(using="gurobi")
     return _m
 
 

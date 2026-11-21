@@ -1,0 +1,42 @@
+{
+  "date_utc": "2026-11-21T00:23:47.003007+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "packages": {
+    "energiapy": "2.2.0",
+    "gana": "1.5.0",
+    "vaelchi": "0.1.1",
+    "highspy": "1.16.0",
+    "gurobipy": "14.0.0",
+    "pytest": "9.2.0",
+    "coverage": "7.17.4"
+  },
+  "tests": {
+    "passed": 210,
+    "failed": 0,
+    "duration_seconds": 58.52
+  },
+  "coverage": {
+    "covered_lines": 3583,
+    "num_statements": 4087,
+    "percent_covered": 86.10076455596942,
+    "percent_covered_display": "86",
+    "missing_lines": 504,
+    "excluded_lines": 267,
+    "percent_statements_covered": 87.66821629557133,
+    "percent_statements_covered_display": "88",
+    "num_branches": 1014,
+    "num_partial_branches": 73,
+    "covered_branches": 809,
+    "missing_branches": 205,
+    "percent_branches_covered": 79.78303747534517,
+    "percent_branches_covered_display": "80"
+  },
+  "statement_percent": 87.66821629557133,
+  "branch_percent": 79.78303747534517,
+  "coverage_gate": "passed, unchanged statement floor 83.75 and branch floor 70.55",
+  "test_file_sha256": "31f8852434416902e651641dd43034f92468ff5d3b047bc0867743a2e1fa4fb7",
+  "fixture_patch_sha256": "3585aa3c9e1829d2bfcbbe85f5401db2884e703f32723dd6880c340bc065921f",
+  "base_commit": "bd3eff2020ed04a99b71100ed33096b63619fd1e",
+  "existing_test_functions_and_assertions": "AST-identical to base; only the approved fixture and inf import changed"
+}

@@ -105,13 +105,45 @@ The full legacy multi-location study is a different formulation:
 The saved Gurobi outputs in
 `ml-sp-milp.ipynb <https://github.com/cacodcar/kuru/blob/db35908bd9056ef8f484c425bf2d2cb428677a83/studies/examples_old/multiperiod/ml-sp-milp.ipynb>`_
 record a minimum annual cost of 1,847,843,268.177 and maximum annual New York
-electricity delivery of 3,202,802,043.034 MWh. An earlier separate HiGHS
-reconstruction reported agreement with these values, preserving the implemented
-lossless rail balance. That earlier reconstruction is not part of this notebook
-or its CI check and was not rerun for this correction. The archived values are
-reference results, not outputs of the representative-day example. Reproducing
-that full-year verification requires the original hourly inputs, implementation
-revision, and reconstruction scripts.
+electricity delivery of 3,202,802,043.034 MWh. The repository now includes a
+`reproducible annual audit <https://github.com/TAMUparametric/energiapy/tree/main/tools/multilocation_parity>`_
+with the four original hourly/daily input files, SHA-256 provenance, the source
+notebook commit, and a compatible historical implementation pin.
+
+From the repository root::
+
+   python -m pip install -e . -r tools/multilocation_parity/requirements.txt
+   python -m tools.multilocation_parity /tmp/multilocation-full
+
+The annual audit solves two formulations with HiGHS: the actual Energia/Gana
+matrix and independently written physical balance equations. Investment
+variables are shared across the year; all 8,760 hours and inter-hour inventory
+links are retained. To make model construction manageable, the Energia matrix
+is assembled from two-hour exports, with all five inventories carried between
+blocks. This is one simultaneous annual optimization, not representative periods
+or independently solved blocks.
+
+Regression tests compare the assembled equations, objective coefficients and
+bounds against directly built Energia models for 6, 24 and 48 hours. A separate
+48-hour check runs the pinned 2023 Pyomo implementation. The original notebook
+does not record its library commit, so the pin identifies a compatible baseline,
+not a recovered original runtime. The later ``v1.0.7`` branch changes automatic
+demand handling and is not interchangeable with it.
+
+The full-year command requires each objective to agree with the printed archive
+within 0.001. It also checks every matrix row and variable bound, dual signs,
+stationarity, the primal-dual gap, and the Energia hourly solution against the
+independent equations. The script records package/source hashes and writes
+solver logs, hourly schedules and capacity tables to the requested output
+directory. The
+`recorded 2026-11-20 run <https://github.com/TAMUparametric/energiapy/tree/main/tools/multilocation_parity/results/2026-11-20>`_
+includes both full-year objective comparisons, residuals, logs and schedules.
+The Legacy multi-location parity workflow runs the 48-hour checks on PRs; a
+manual full-year dispatch performs the annual check and retains its artifacts.
+
+These annual results use the source's implemented lossless rail equations.
+They must not be compared with the representative-day notebook's explicit-loss
+objectives above.
 
 Demand mappings and solution differences
 ----------------------------------------

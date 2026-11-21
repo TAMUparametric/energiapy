@@ -1,0 +1,18 @@
+{
+  "energia-False": {
+    "matrix_sha256": "ce9423e8dbe7671f4c22ab97fc3cd1ef4291a7a806402b222e16625dfd45b530",
+    "keys_sha256": "a75a249fa11949d1bf94274818a2f516e781517aa952de9368638fd9784ae2da"
+  },
+  "independent-False": {
+    "matrix_sha256": "dfeb5a3fcc92ac422ce6c98e0237392c09b4ea0128d32b88b5c6f93c525bd929",
+    "keys_sha256": "090ffcd1bffe3230576d5ad98c726d17b7de63ea11b1d09abb4ac18163d8d59b"
+  },
+  "energia-True": {
+    "matrix_sha256": "ea0d3f8b07ceb3bf38b0977c799c735a77f77739c98b8c3725df548fc15243ee",
+    "keys_sha256": "a75a249fa11949d1bf94274818a2f516e781517aa952de9368638fd9784ae2da"
+  },
+  "independent-True": {
+    "matrix_sha256": "e4ff9928b027ce8040a6395c44e007150ca5bf33664568163c1f01b4969277e6",
+    "keys_sha256": "090ffcd1bffe3230576d5ad98c726d17b7de63ea11b1d09abb4ac18163d8d59b"
+  }
+}
