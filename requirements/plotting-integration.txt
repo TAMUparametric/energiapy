@@ -1,3 +1,3 @@
 # Candidate for Gana 1.6.0, paired with Energia's plotting integration.
 # Remove this PR-only constraint after publishing and verifying Gana 1.6.0.
-gana @ git+https://github.com/cacodcar/gana.git@e250cfd094bcea2339199295b8c6bba23dbb61dc
+gana @ git+https://github.com/cacodcar/gana.git@afbd1c1453f9094307bf16ea27989bbe7c76e7ed
