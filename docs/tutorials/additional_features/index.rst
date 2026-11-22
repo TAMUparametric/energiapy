@@ -7,5 +7,6 @@ Additional Features
    :caption: Additional Features
    :hidden:
 
+   manuscript_plotting
    fetch_nsrdb_data
    plotting

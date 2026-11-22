@@ -57,6 +57,7 @@ Decision-making with Energia
 
    publication_history
    changelog
+   plotting-release
    license
 
 

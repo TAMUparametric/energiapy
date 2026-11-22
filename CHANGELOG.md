@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - Unreleased
+
+### Added
+- Samples, aspects and models return composable Gana plots for profiles, scatter,
+  grouped/stacked bars, bands, intervals and areas. Select registered result
+  domains without declaring variables or reapplying aggregation weights.
+- Preserve complete time coordinates, sliced offsets, physical labels, declared
+  units and explicit solution numbers. Reuse Gana's default theme, panel layouts
+  and manuscript PDF/SVG/PNG export.
+
+### Compatibility
+- Requires Gana 1.6.0 or newer within the 1.x series. Publish and verify that Gana
+  release before merging and publishing this Energia release; see
+  `docs/plotting-release.md` for the paired validation and release order.
+- `Sample.line()` and `Sample.bar()` now return plot descriptions. Call `show()`,
+  `render()` or `save()` explicitly. Positional style arguments remain accepted.
+  `Model.draw()` still displays immediately and preserves multiparametric dispatch.
+
+
 ### Changed
 - `model.opt()`, `sample.opt()`, and combined sample objectives use HiGHS by default for deterministic LP and MILP models. Energia installs the solver with Gana 1.4.0 or newer. Pass `using="gurobi"` to select Gurobi.
 

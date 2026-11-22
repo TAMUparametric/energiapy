@@ -20,6 +20,7 @@ from ...components.temporal.modes import Modes
 from ...components.temporal.periods import Periods
 from ...dimensions.space import Space
 from ...dimensions.time import Time
+from ...plotting import QuantityPlots
 from ...utils.dictionary import merge_tree_levels
 from ..constraints.balance import Balance as BalCons
 from ..constraints.vmap import Map as MapCons
@@ -55,7 +56,7 @@ _INDEX_FIELDS = {
 
 
 @dataclass
-class Aspect:
+class Aspect(QuantityPlots):
     r"""
     Represent a facet of the modeled system.
 

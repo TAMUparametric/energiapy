@@ -14,6 +14,7 @@ from gana import I as Idx
 from gana import P, V, inf, sigma, sup
 
 from ..._core._hash import _Hash
+from ...plotting import QuantityPlots
 from ...utils.dictionary import merge_trees
 from ..constraints.bind import Bind
 
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
 # ------------------------------------------------------------------------------
 
 
-class Sample(_Hash):
+class Sample(_Hash, QuantityPlots):
     """
     Sets a bound on a variable (V) within a particular domain.
 
@@ -692,50 +693,6 @@ class Sample(_Hash):
         ):
             cons: C = getattr(self.program, c)
             cons.show(descriptive)
-
-    def bar(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a bar chart."""
-        v = self.V()
-        v.bar(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
-
-    def line(
-        self,
-        font_size: float = 16,
-        fig_size: tuple[float, float] = (12, 6),
-        linewidth: float = 0.7,
-        color: str = "blue",
-        grid_alpha: float = 0.3,
-        usetex: bool = True,
-        str_idx_lim: int = 10,
-    ):
-        """Draws the variable as a line chart."""
-        v = self.V()
-        v.line(
-            font_size=font_size,
-            fig_size=fig_size,
-            linewidth=linewidth,
-            color=color,
-            grid_alpha=grid_alpha,
-            usetex=usetex,
-            str_idx_lim=str_idx_lim,
-        )
 
     # ---------------------------------------------------------------------------
     #               Dunders
