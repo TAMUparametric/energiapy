@@ -10,9 +10,14 @@ From the repository root, using Python 3.12:
 
 ```bash
 python -m venv .venv
-.venv/bin/python -m pip install -e . -r tools/multilocation_parity/requirements.txt
+.venv/bin/python -m pip install -e . -r tools/multilocation_parity/current-requirements.txt
 .venv/bin/python -m tools.multilocation_parity /tmp/multilocation-full
 ```
+
+The current check uses Energia's declared Gana dependency with the recorded
+numerical stack. `requirements.txt` remains the frozen historical environment,
+including Gana 1.4.0, and is retained by `legacy-requirements.txt`. Candidate
+Gana constraints apply only to the current check, never the historical one.
 
 The output contains `results.json`, four HiGHS logs, hourly schedules and
 capacity tables for both Energia solutions. The command fails if either

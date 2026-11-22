@@ -1,0 +1,105 @@
+{
+  "dispatch": [
+    {
+      "label": "Wind operate",
+      "x": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "values": [
+        100.00000000000003,
+        88.8888888888889,
+        55.55555555555555,
+        67.49999999999999
+      ],
+      "unit": null,
+      "n_sol": 0
+    },
+    {
+      "label": "Solar operate",
+      "x": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "values": [
+        41.88271604938267,
+        88.88888888888889,
+        100.0,
+        0.0
+      ],
+      "unit": null,
+      "n_sol": 0
+    }
+  ],
+  "capacity": [
+    {
+      "label": "Wind capacity",
+      "x": [
+        0
+      ],
+      "values": [
+        100.0
+      ],
+      "unit": null,
+      "n_sol": 0
+    },
+    {
+      "label": "Solar capacity",
+      "x": [
+        0
+      ],
+      "values": [
+        100.0
+      ],
+      "unit": null,
+      "n_sol": 0
+    }
+  ],
+  "inventory": [
+    {
+      "label": "Inventory",
+      "x": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "values": [
+        6.8827160493827035,
+        27.160493827160504,
+        0.0,
+        0.0
+      ],
+      "unit": null,
+      "n_sol": 0
+    }
+  ],
+  "cost": [
+    {
+      "label": "usd spend / Wind",
+      "x": [
+        0
+      ],
+      "values": [
+        15285.27777777778
+      ],
+      "unit": "USD",
+      "n_sol": 0
+    },
+    {
+      "label": "usd spend / Solar",
+      "x": [
+        0
+      ],
+      "values": [
+        20769444.44444444
+      ],
+      "unit": "USD",
+      "n_sol": 0
+    }
+  ]
+}

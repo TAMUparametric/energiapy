@@ -58,6 +58,7 @@ from ..modeling.parameters.instruction import Instruction
 from ..modeling.variables.control import Control
 from ..modeling.variables.recipe import Recipe
 from ..modeling.variables.states import Consequence, State, Stream
+from ..plotting import ModelPlots
 from .ations.graph import Graph
 from .ations.program import Program
 from .ations.scenario import Scenario
@@ -84,7 +85,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Model:
+class Model(ModelPlots):
     """
     An abstract representation of an energy system.
 
@@ -877,11 +878,9 @@ class Model:
         :param n_sol: Solution number to draw. Defaults to 0.
         :type n_sol: int, optional
         """
-        if variable is not None:
-            self.program.draw(variable=variable.V(), n_sol=n_sol)
-
-        else:
-            self.program.draw(n_sol=n_sol)
+        if variable is None or n_sol in self.program.sol_types["mp"]:
+            return self.program.draw(n_sol=n_sol)
+        return self.line(variable, n_sol=n_sol).show()
 
     # * III Solution
     def output(self, n_sol: int = 0, slack: bool = True, compare: bool = False):

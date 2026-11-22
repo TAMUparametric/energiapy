@@ -3,11 +3,22 @@ on: [pull_request, push]
 permissions:
   contents: read
 
+# Validate the paired plotting PR before the required Gana release exists.
+# Main/release installs continue to use published packages.
+env:
+  PIP_CONSTRAINT: ${{ (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')) && format('{0}/requirements/plotting-integration.txt', github.workspace) || '' }}
+
 jobs:
   sphinx:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare pinned Gana build toolchain
+        if: (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main'))
+        run: |
+          rustup toolchain install 1.88.0 --profile minimal
+          rustup default 1.88.0
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
