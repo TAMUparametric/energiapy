@@ -27,6 +27,10 @@ python -m pytest tests/plotting_test.py
 python tools/plotting_gallery.py /tmp/energia-figures
 ```
 
+The multi-location check keeps its historical dependency pins intact. Its
+current environment follows Energia's Gana requirement; the separate historical
+environment clears the candidate constraint and retains Gana 1.4.0.
+
 ## Authorized merge/publication order
 
 1. Review the paired evidence and approve Gana's merge.
@@ -71,7 +75,9 @@ Gana candidate: `e250cfd094bcea2339199295b8c6bba23dbb61dc`
   source and install together without dependency conflicts.
 - All 12 case-study notebooks' code and assertions passed in independent Python
   processes. This environment cannot start Jupyter kernels because socket binds
-  are blocked; the normal notebook workflow remains enabled in CI.
+  are blocked; the normal notebook workflow also passed in hosted CI.
+- The 48-hour multi-location comparison passed against the candidate. This
+  verifies the short integration case, not a repeat of the full-year audit.
 - The gallery uses the default Gana theme and was inspected in colour/grayscale.
   Individual PDFs measure 3.5 × 2.6 inches. The default Latin Modern PDF fonts
   embed as valid Type 3 outlines; no universal journal font compliance is claimed.
