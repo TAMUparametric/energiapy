@@ -68,8 +68,8 @@ Gana candidate: `e250cfd094bcea2339199295b8c6bba23dbb61dc`
 
 - Energia: 232 tests passed on Python 3.12 and 3.13, including 22 new plotting
   tests. Existing tests, fixtures and coverage thresholds are unchanged.
-- Statement/branch coverage: 88.29%/81.04% on Python 3.12 and
-  87.93%/79.93% on Python 3.13; both exceed the configured floors.
+- Statement/branch coverage: 88.24%/81.01% on both Python 3.12 and 3.13;
+  both exceed the configured floors.
 - Types, changed-file Ruff checks, strict Flake8 errors, complexity, Sphinx and
   distribution metadata checks passed. Built wheels match the tested Python
   source and install together without dependency conflicts.
@@ -78,6 +78,7 @@ Gana candidate: `e250cfd094bcea2339199295b8c6bba23dbb61dc`
   are blocked; the normal notebook workflow also passed in hosted CI.
 - The 48-hour multi-location comparison passed against the candidate. This
   verifies the short integration case, not a repeat of the full-year audit.
+  Hosted CI also passed the comparison with the pinned historical implementation.
 - The gallery uses the default Gana theme and was inspected in colour/grayscale.
   Individual PDFs measure 3.5 × 2.6 inches. The default Latin Modern PDF fonts
   embed as valid Type 3 outlines; no universal journal font compliance is claimed.

@@ -113,20 +113,28 @@ def _belongs(ids, members):
     )
 
 
-def _rows(aspect, domain, time_positions, coordinates, selected, *, n_sol):
-    """Select existing rows without creating a Gana variable projection."""
+def _domain_values(aspect, domain, n_sol):
+    """Read registered rows without creating a Gana variable projection."""
     variable = vars(aspect.program).get(aspect.name)
     if variable is None:
         message = "The selected aspect has no registered variable"
         raise ValueError(message)
     saved = snapshot(variable, n_sol=n_sol)
     members = tuple(_members(index) for index in domain.__dict__["I"])
+    return (
+        (key, value)
+        for key, value in zip(saved.coordinates, saved.values)
+        if _belongs(tuple(map(id, key)), members)
+    )
+
+
+def _rows(time_axis, values, selected):
+    """Group selected temporal rows by their remaining physical coordinates."""
+    time_positions, coordinates = time_axis
     lookup = {key: n for n, key in enumerate(coordinates)}
     groups = {}
-    for key, value in zip(saved.coordinates, saved.values):
+    for key, value in values:
         ids = tuple(map(id, key))
-        if not _belongs(ids, members):
-            continue
         time = tuple(ids[n] for n in time_positions)
         position = lookup[time]
         if position in selected:
@@ -138,7 +146,8 @@ def _rows(aspect, domain, time_positions, coordinates, selected, *, n_sol):
 
 
 def records(source, *, n_sol=0):
-    """Return Gana series for one registered Energia result domain.
+    """
+    Return Gana series for one registered Energia result domain.
 
     The complete temporal tuple becomes an ordered horizontal axis. Remaining
     coordinates identify series. Values retain their stored basis: occurrence
@@ -146,16 +155,23 @@ def records(source, *, n_sol=0):
     Explicitly select time and space when more than one registered domain matches.
     """
     aspect, domain, requested = _resolve(source)
-    time_positions, coordinates = _time_axis(domain)
+    time_axis = _time_axis(domain)
     periods = None if requested is None else requested.periods
-    selected = _period_positions(periods, len(coordinates))
-    groups = _rows(aspect, domain, time_positions, coordinates, selected, n_sol=n_sol)
+    selected = _period_positions(periods, len(time_axis[1]))
+    groups = _rows(time_axis, _domain_values(aspect, domain, n_sol), selected)
     if not groups:
         message = "The selection contains no registered result coordinates"
         raise ValueError(message)
+    order = {position: n for n, position in enumerate(selected)}
     return tuple(
-        _series(source, aspect, domain, category, rows, selected=selected, n_sol=n_sol)
-        for category, rows in groups.items()
+        _series(
+            source,
+            aspect,
+            domain,
+            sorted(rows, key=lambda row: order[row[0]]),
+            n_sol=n_sol,
+        )
+        for rows in groups.values()
     )
 
 
@@ -181,9 +197,7 @@ def _label(aspect, domain, key, n_sol):
     return label
 
 
-def _series(source, aspect, domain, category, rows, *, selected, n_sol):
-    order = {position: n for n, position in enumerate(selected)}
-    rows = sorted(rows, key=lambda row: order[row[0]])
+def _series(source, aspect, domain, rows, *, n_sol):
     label = _label(aspect, domain, rows[0][3], n_sol)
     return Series(
         x=tuple(row[0] for row in rows),
@@ -194,7 +208,7 @@ def _series(source, aspect, domain, category, rows, *, selected, n_sol):
             id(aspect.model),
             _category(domain),
             id(domain.space),
-            category[-1] if domain.modes is not None else None,
+            id(rows[0][3][-1]) if domain.modes is not None else None,
             n_sol,
         ),
         label=label,
