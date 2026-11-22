@@ -57,7 +57,7 @@ separate work. Existing notebooks and manuscript results are unchanged.
 
 ## Integration evidence
 
-Gana candidate: `afbd1c1453f9094307bf16ea27989bbe7c76e7ed`
+Gana candidate: `47cf21acc7f78771d5116297fcc32514b53e25bd`
 ([PR #71](https://github.com/cacodcar/gana/pull/71)).
 
 - Gana: all configured quality gates passed on Python 3.12 and 3.13;
