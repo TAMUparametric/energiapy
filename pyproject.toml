@@ -18,6 +18,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["modeling", "optimization", "energy systems", "ems", "multiscale"]
 classifiers = [
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",

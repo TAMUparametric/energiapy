@@ -17,20 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preserve complete time coordinates, sliced offsets, physical labels, declared
   units and explicit solution numbers. Reuse Gana's default theme, panel layouts
   and manuscript PDF/SVG/PNG export.
+- All 12 case-study notebooks include interpreted result figures, with examples
+  of dispatch, inventory, transport, cash flow, trade-offs and supplied intervals.
 
 ### Compatibility
-- Requires Gana 1.6.0 or newer within the 1.x series. Publish and verify that Gana
-  release before merging and publishing this Energia release; see
-  `docs/plotting-release.md` for the paired validation and release order.
+- Supports Python 3.12, 3.13 and 3.14. Use Python 3.12 or 3.13 on Intel Macs
+  while the Numba dependency lacks Python 3.14 binary wheels for that platform.
+- Requires the published Gana 1.6.0 or newer within the 1.x series. PR, main and
+  release checks install the declared dependency from PyPI. See
+  `docs/plotting-release.md` for validation and the remaining release steps.
 - `Sample.line()` and `Sample.bar()` now return plot descriptions. Call `show()`,
   `render()` or `save()` explicitly. Positional style arguments remain accepted.
   `Model.draw()` still displays immediately and preserves multiparametric dispatch.
 
 
 ### Changed
-- `model.opt()`, `sample.opt()`, and combined sample objectives use HiGHS by default for deterministic LP and MILP models. Energia installs the solver with Gana 1.4.0 or newer. Pass `using="gurobi"` to select Gurobi.
+- `model.opt()`, `sample.opt()`, and combined sample objectives use HiGHS by default for deterministic LP and MILP models. Energia installs the solver through Gana. Pass `using="gurobi"` to select Gurobi.
 
-## [2.2.0] - Unreleased
+## [2.2.0] - 2026-11-19
 
 ### Changed
 - Clustering is maintained in Vaelchi. Energia depends on `vaelchi>=0.1.1,<0.2`
