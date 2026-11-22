@@ -42,8 +42,11 @@ Your code in Energia will be written in these. It is good practice to have dedic
 Getting Python
 ---------------
 
-Energia is compatible with Python 3.12 and above. Python can be downloaded from the `official website <https://www.python.org/downloads/>`_. 
+Energia supports Python 3.12, 3.13 and 3.14. Python can be downloaded from the `official website <https://www.python.org/downloads/>`_.
 It is also available through the Microsoft Store on Windows, Homebrew on Mac, and various Linux package managers.
+
+On Intel Macs, use Python 3.12 or 3.13: the Numba dependency does not provide
+Python 3.14 binary wheels for that platform. The examples below use Python 3.13.
 
 
 Setting up an Environment

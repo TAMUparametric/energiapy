@@ -12,28 +12,17 @@ on:
     branches: [ "main"]
   workflow_call:
 
-# Validate the paired plotting PR before the required Gana release exists.
-# Main/release installs continue to use published packages.
-env:
-  PIP_CONSTRAINT: ${{ (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')) && format('{0}/requirements/plotting-integration.txt', github.workspace) || '' }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.12", "3.13", "3.14"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Prepare pinned Gana build toolchain
-        if: (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main'))
-        run: |
-          rustup toolchain install 1.88.0 --profile minimal
-          rustup default 1.88.0
 
       - name: Set up Python
         uses: actions/setup-python@v5

@@ -1,61 +1,94 @@
-# Coordinated plotting release
+# Plotting release validation
 
-Energia 2.3.0 requires `gana[highs]>=1.6.0,<2`. Gana 1.5.0 cannot provide
-this adapter contract. Gana owns chart construction, rendering, composition,
-the default theme and export. Energia owns registered-domain selection,
-physical labels/units and temporal interpretation.
+Energia 2.3.0 requires `gana[highs]>=1.6.0,<2`. Gana owns chart construction,
+rendering, composition, the default theme and export. Energia owns registered
+result-domain selection, physical labels/units and temporal interpretation.
 
-## Alignment checks before either merge
+[Gana 1.6.0](https://github.com/cacodcar/gana/releases/tag/1.6.0) is published on
+PyPI. Energia's PR, main and release jobs install the declared released
+dependency; no integration constraint or Rust build toolchain is needed.
 
-- Keep Gana PR #71 and the companion Energia PR open until both heads pass.
-- Verify both supported Python versions (3.12 and 3.13), existing tests,
-  coverage floors, types, complexity, lint, docs and package checks.
-- Test installed wheels together outside both checkouts; run `pip check`, solve
-  the bundled example, inspect the plotted values and export PDF/SVG/PNG.
-- Inspect individual 3.5-inch figures and the 7.2-inch gallery in colour and
-  grayscale. Keep declared units, time coordinates, missing values and solution
-  selection unchanged. Publisher-specific font requirements remain explicit.
+## Supported interpreters
 
-`requirements/plotting-integration.txt` pins the tested Gana commit. Feature-branch and PR jobs
-apply it as an installation constraint; main and release jobs resolve the
-published dependency normally. The distribution metadata contains a released
-version requirement, not a Git URL. To reproduce integration locally:
+Package CI runs the full test suite, coverage gates, distribution builds,
+installed-wheel solve and PDF/SVG/PNG export on Python 3.12, 3.13 and 3.14.
+Documentation, type checks and the recorded complexity baseline retain their
+configured Python 3.12 environment.
 
-```sh
-python -m pip install -c requirements/plotting-integration.txt -e '.[test,docs]'
-python -m pytest tests/plotting_test.py
-python tools/plotting_gallery.py /tmp/energia-figures
-```
+Use Python 3.12 or 3.13 on Intel Macs while Numba does not supply Python 3.14
+binary wheels for that platform. Python 3.14 compatibility is validated on
+Linux; this does not establish support for newer or free-threaded interpreters.
 
-The multi-location check keeps its historical dependency pins intact. Its
-current environment follows Energia's Gana requirement; the separate historical
-environment clears the candidate constraint and retains Gana 1.4.0.
+## Release preparation
 
-## Authorized merge/publication order
+- Preserve the declared Gana and Vaelchi ranges and the existing quality floors.
+- Include the result figures from PR #370 in all 12 case-study notebooks, keeping
+  their model inputs, assertions and previously saved outputs.
+- Run the configured checks against released dependencies. Execute notebook
+  copies outside the source tree and inspect plots without replacing saved results.
+- Build the source distribution and wheel, check their metadata, and test the
+  installed wheel outside the checkout with `pip check`, `tools/wheel_smoke.py`
+  and `tools/plotting_gallery.py`.
 
-1. Review the paired evidence and approve Gana's merge.
-2. Merge and release Gana 1.6.0 using its existing build/publish workflows.
-   Verify PyPI wheels, source distribution, release assets and documentation.
-3. Remove the temporary PR constraint wiring and integration pin from Energia.
-   Re-run Energia's full required checks using **released Gana 1.6.0 from PyPI**.
-   Rebuild and install Energia's wheel in a clean environment.
-4. Approve and merge Energia only after the released-dependency checks pass.
-   Set the final changelog dates and release Energia 2.3.0 with its existing
-   release workflow. Verify PyPI, assets and documentation.
+The multi-location comparison keeps its historical dependency pins and source
+hashes intact. Its current environment follows Energia's declared dependencies;
+its separate historical environment retains Gana 1.4.0.
 
-The staged package versions do not authorize a merge, tag or publication.
-Do not enable auto-merge. A Gana change after the pinned integration commit
-requires refreshing the pin and repeating affected integration checks.
+## Remaining publication steps
 
-## Initial scope
+1. Review and authorize the release-preparation PR after its checks pass.
+2. Merge the approved head, set the final 2.3.0 changelog date, and verify checks
+   on the release commit.
+3. Publish GitHub release `2.3.0` to trigger `.github/workflows/release.yml`.
+   That workflow validates the supported Python matrix and publishes the
+   validated distributions to PyPI.
+4. Attach the validated wheel and source archive to the GitHub release. Verify
+   their hashes against PyPI, the release notes, and the documentation build.
 
-The bindings cover profiles, scatter, grouped/stacked bars, areas, supplied
-bands/intervals, composition and export. They deliberately require a unique
-registered domain and perform no implicit physical aggregation. RTNs, heatmaps,
-automatic flow reconciliation and cross-scenario result collections remain
-separate work. Existing notebooks and manuscript results are unchanged.
+Release preparation does not publish, tag or merge the changes.
 
-## Integration evidence
+## Published-dependency evaluation — 2026-11-22
+
+Before this preparation, Energia main `c689683cef5da65def90d2097816b981420d916d`
+was tested with published Gana 1.6.0, whose release commit is
+`24be6807eb419ca2b84178e5a36488bf42bb1bc5`.
+
+- All 232 tests passed on Python 3.12 and 3.13 in
+  [package CI](https://github.com/TAMUparametric/energiapy/actions/runs/45007826269).
+- All 232 tests passed against installed distributions on Python 3.14. Statement
+  and branch coverage were 88.19% and 80.82%, above the unchanged floors.
+- Fresh installed-wheel solves, dependency checks and PDF/SVG/PNG exports passed.
+- All 12 case studies passed in
+  [fresh hosted kernels](https://github.com/TAMUparametric/energiapy/actions/runs/45007826287).
+- Documentation and model type checks passed against the published dependency.
+
+These checks establish the released dependency contract. The release-preparation
+PR separately validates the added notebook figures and Python 3.14 CI entry.
+
+## Release-preparation checks — 2026-11-22
+
+The source at `528f299769210ce87047b9be27338685351df868` passes the following
+local checks with Gana 1.6.0 and Vaelchi 0.1.1 installed from PyPI:
+
+| Python | Tests | Statement coverage | Branch coverage |
+|---|---:|---:|---:|
+| 3.12.14 | 232 passed | 88.24% | 81.01% |
+| 3.14.10 | 232 passed | 88.19% | 80.82% |
+
+- All 12 notebooks, including the added plotting cells and their original
+  assertions, pass in separate Python 3.14/IPython processes. Local kernel
+  startup is blocked by workspace networking; CI executes fresh Jupyter kernels.
+- Strict Sphinx, configured Mypy, Radon and Flake8 error checks pass on Python 3.12.
+- Source and wheel builds pass strict Twine checks. All 99 packaged Python files
+  match the source. A fresh Python 3.14 environment installs the built wheel,
+  passes `pip check`, solves the smoke model and exports the PDF/SVG/PNG gallery
+  outside the checkout.
+- Workflow YAML, interpreter/version metadata, notebook structure and whitespace
+  checks pass. Notebook contents match PR #370 exactly.
+
+The required hosted checks must also pass on the final PR head before merge.
+
+## Earlier candidate validation
 
 Gana candidate: `47cf21acc7f78771d5116297fcc32514b53e25bd`
 ([PR #71](https://github.com/cacodcar/gana/pull/71)).
@@ -82,6 +115,3 @@ Gana candidate: `47cf21acc7f78771d5116297fcc32514b53e25bd`
 - The gallery uses the default Gana theme and was inspected in colour/grayscale.
   Individual PDFs measure 3.5 × 2.6 inches. The default Latin Modern PDF fonts
   embed as valid Type 3 outlines; no universal journal font compliance is claimed.
-
-The published-package check in release step 3 remains required: local sibling
-builds establish integration with the pinned candidate, not availability on PyPI.
