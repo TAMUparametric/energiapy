@@ -65,6 +65,29 @@ was tested with published Gana 1.6.0, whose release commit is
 These checks establish the released dependency contract. The release-preparation
 PR separately validates the added notebook figures and Python 3.14 CI entry.
 
+## Release-preparation checks — 2026-11-22
+
+The source at `528f299769210ce87047b9be27338685351df868` passes the following
+local checks with Gana 1.6.0 and Vaelchi 0.1.1 installed from PyPI:
+
+| Python | Tests | Statement coverage | Branch coverage |
+|---|---:|---:|---:|
+| 3.12.14 | 232 passed | 88.24% | 81.01% |
+| 3.14.10 | 232 passed | 88.19% | 80.82% |
+
+- All 12 notebooks, including the added plotting cells and their original
+  assertions, pass in separate Python 3.14/IPython processes. Local kernel
+  startup is blocked by workspace networking; CI executes fresh Jupyter kernels.
+- Strict Sphinx, configured Mypy, Radon and Flake8 error checks pass on Python 3.12.
+- Source and wheel builds pass strict Twine checks. All 99 packaged Python files
+  match the source. A fresh Python 3.14 environment installs the built wheel,
+  passes `pip check`, solves the smoke model and exports the PDF/SVG/PNG gallery
+  outside the checkout.
+- Workflow YAML, interpreter/version metadata, notebook structure and whitespace
+  checks pass. Notebook contents match PR #370 exactly.
+
+The required hosted checks must also pass on the final PR head before merge.
+
 ## Earlier candidate validation
 
 Gana candidate: `47cf21acc7f78771d5116297fcc32514b53e25bd`
