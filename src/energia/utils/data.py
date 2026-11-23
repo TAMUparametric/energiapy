@@ -96,49 +96,6 @@ def make_henry_price_df(
     return df[["CH4", "scales"]]
 
 
-def remove_outliers(
-    data: pd.DataFrame,
-    sd_cuttoff: int = 2,
-    mean_range: int = 1,
-) -> pd.DataFrame:
-    """
-    Removes outliers up to a chosen number of standard deviations.
-
-    Outliers are replaced with the mean of data points on both sides of the point.
-
-    Parameters
-    ----------
-    data : :class:`pandas.DataFrame`
-        Input data.
-    sd_cuttoff : :class:`int`, optional
-        Remove data points that are beyond this many standard deviations. Defaults to ``2``.
-    mean_range : :class:`int`, optional
-        Number of neighboring data points on each side to average over when replacing outliers. Defaults to ``1``.
-
-    Returns
-    -------
-    :class:`pandas.DataFrame`
-        DataFrame with outliers replaced by local means.
-
-    """
-    data_mean, data_std = data.mean(), data.std()
-    # identify outliers
-    cut_off = data_std * sd_cuttoff
-    lower, upper = data_mean - cut_off, data_mean + cut_off
-    for i in range(len(data)):
-        x = data.iloc[i].values[0]
-        if x < float(lower.iloc[0]) or x > float(upper.iloc[0]):
-            data.iloc[i] = (
-                (
-                    sum(data.iloc[i - (j + 1)] for j in range(mean_range))
-                    + sum(data.iloc[i + (j + 1)] for j in range(mean_range))
-                )
-                / 2
-                * mean_range
-            )
-    return data
-
-
 # def get_data(file_name: str) -> dict:
 #     """gets data from energia json database
 

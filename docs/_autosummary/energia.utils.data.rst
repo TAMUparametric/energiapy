@@ -9,5 +9,4 @@ energia.utils.data
    .. autosummary::
    
       make_henry_price_df
-      remove_outliers
    

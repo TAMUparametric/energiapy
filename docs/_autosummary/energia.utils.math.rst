@@ -10,8 +10,6 @@ energia.utils.math
    
       erf
       exp
-      find_euclidean_distance
-      generate_connectivity_matrix
       norm_constant
       normalize
       sqrt
