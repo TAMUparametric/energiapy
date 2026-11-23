@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Use Vaelchi 0.3.x for list/interval normalization, DataFrame scaling, and
+  NSRDB access. Existing `energia.utils.math.normalize`,
+  `energia.utils.scaling.scaling`, and `energia.utils.nsrdb.fetch_nsrdb_data`
+  imports remain valid. Model binding and existing tests retain their APIs.
+- NSRDB access loads h5pyd when called and closes the remote file after reading.
+  The `energiapy[all]` extra continues to provide h5pyd. The Henry Hub converter
+  and its energy-specific conversion remain unchanged.
+
+
 ### Removed
 - Remove the unused `find_euclidean_distance` and
   `generate_connectivity_matrix` definitions from `energia.utils.math`.
