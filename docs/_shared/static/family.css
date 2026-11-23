@@ -1,0 +1,10 @@
+.family-nav { margin-block: 1rem; font-size: 0.9rem; }
+.family-nav .family-heading { font-weight: 700; margin-bottom: 0.4rem; }
+.family-nav ul { list-style: none; padding: 0; margin: 0; }
+.family-nav li { margin-block: 0.45rem; }
+.family-nav .family-current { font-weight: 700; }
+.family-nav .family-current span { font-weight: 400; }
+.family-nav .family-purpose { display: block; font-size: 0.85em; }
+.family-nav .family-note { font-size: 0.8em; margin-top: 0.65rem; }
+.family-nav a { text-decoration: underline; text-underline-offset: 0.15em; }
+.family-nav a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

@@ -1,0 +1,14 @@
+# Family documentation baseline 1. Runtime/scientific packages stay local.
+sphinx>=8.2,<9
+sphinx-book-theme>=1.4,<1.5
+myst-nb
+sphinxcontrib-bibtex
+sphinx-copybutton
+sphinx-togglebutton
+sphinx-thebe
+sphinx-design
+sphinx-examples
+sphinx-tabs
+sphinxext-opengraph
+nbconvert
+nbformat

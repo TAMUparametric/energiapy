@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "source": "cacodcar/gana:docs/_shared",
+  "sha256": {
+    "README.md": "4f79acddddcba121582b191a46e6b562aa0db717b28744783047df05d66d51a2",
+    "browser-check.cjs": "ec5e4b7a45aebf9550c42db20cc2323e224918e6f68d3f9280067db3065d6273",
+    "check.py": "4d09877125d78c0c497cc090f9072b0ddd2d5d5c4f19f657587e4e1ffc6d6d52",
+    "constraints.txt": "f1424420c807b83fd85898817f790d87aa872ec48cdb419419aed4e1772a2451",
+    "family_docs.py": "f3a07886caeabeb9851bd294ec73ea10f4522defd13ca94acd00140bef0cabf9",
+    "inventories/energia.inv": "0ad608828ab1ff7c5fe649afc13e1767ea10bd279be42e69d57afe7b8c7ddd92",
+    "inventories/gana.inv": "83ae939273ce0cca6dbf77d5aad011f3763eb62c6853b86856f90ca82e9baa91",
+    "inventories/vaelchi.inv": "9ced4d819084a3b855d66c861ca548e5b664c0f7864770f85b0a8c064b714d1e",
+    "requirements.in": "ae4c157a1baf3c1a65749ccf292bd61c4376b782072d240a12948ebaf3fe95a6",
+    "static/family.css": "1f3b91e2263b634150adc31742303873381f252bc4bd2bbab2a34bde4e7ddf1f",
+    "templates/family-nav.html": "46c32892ab11aa356bef3b2b79681abbaf4bd18af1f800bcc90a608c54b0dc52",
+    "templates/sections/header.html": "206d717f6f282ae100b6a7f16155a8ab7492af11a5796e04797a3a45d090700c"
+  }
+}

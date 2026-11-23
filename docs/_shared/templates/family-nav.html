@@ -1,0 +1,16 @@
+<nav class="family-nav" aria-label="Package family">
+  <p class="family-heading">Package family</p>
+  <ul>
+    {% for item in family_links %}
+    <li>
+      {% if item.current %}
+      <span class="family-current">{{ item.name }} <span>(current)</span></span>
+      {% else %}
+      <a href="{{ item.url }}">{{ item.name }}</a>
+      {% endif %}
+      <span class="family-purpose">{{ item.purpose }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="family-note">Links open development documentation. Check each package’s installation requirements for compatibility.</p>
+</nav>

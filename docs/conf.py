@@ -3,18 +3,9 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
 import sys
 from datetime import datetime
-
-for x in os.walk("../src"):
-    sys.path.insert(0, x[0])
-
-sys.path.insert(0, os.path.abspath("."))
-sys.path.insert(0, os.path.abspath("../src/energia/*"))
-sys.path.insert(0, os.path.abspath("../src"))
-sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("../../"))
+from pathlib import Path
 
 sys.setrecursionlimit(10000)
 
@@ -175,7 +166,6 @@ autosummary_context = {
 }
 
 
-templates_path = ['_templates']
 
 exclude_patterns = [
     '_build',
@@ -200,24 +190,14 @@ autodoc_member_order = 'bysource'
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_book_theme'
-html_static_path = ['_static']
-html_css_files = ['custom.css']
-html_copy_source = True
-html_last_updated_fmt = ""
 # myst_nb registers the myst-nb parser for both Markdown and notebooks.
 source_suffix = {".rst": 'restructuredtext', ".md": 'myst-nb', ".ipynb": 'myst-nb'}
-html_context = {
-    # ...
-    "default_mode": "auto"
-}
 
 suppress_warnings = [
     "ref.python",  # suppress all ambiguous cross-reference warnings in Python domain
 ]
 
 # thebe_config = {"codemirror-theme": "ayu-dark"} # does not work
-nb_execution_mode = "off"
 
 
 # -----# Bibtex configuration-------------------------------------------------------
@@ -248,3 +228,10 @@ def include_model_operator(app, what, name, obj, skip, options):
 
 def setup(app):
     app.connect("autodoc-skip-member", include_model_operator)
+
+
+# Import only local build configuration; package APIs come from the installation.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "_shared"))
+from family_docs import configure
+
+configure(globals(), Path(__file__).resolve().parent, incompatible=("vaelchi",))
