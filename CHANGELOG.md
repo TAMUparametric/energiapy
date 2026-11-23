@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Remove the unused `find_euclidean_distance` and
+  `generate_connectivity_matrix` definitions from `energia.utils.math`.
+  Their existing implementations remain in `vaelchi.functions.legacy`.
+- Move the unused `energia.utils.data.remove_outliers` function to
+  `vaelchi.functions.legacy.remove_outliers`. The port preserves its historical
+  behaviour and is introduced in Vaelchi's next release. Install that release
+  before switching external imports; Energia itself does not call it.
+  Model normalization, tested DataFrame scaling, NSRDB access and the Henry Hub
+  converter retain their current entry points.
+
 ## [2.3.0] - 2026-11-22
 
 ### Added

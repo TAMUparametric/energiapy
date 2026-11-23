@@ -3,8 +3,6 @@
 from itertools import batched
 from math import erf, exp, pi, sqrt
 
-import numpy
-
 
 def norm_constant(p, mu, sigma) -> float:
     """
@@ -21,55 +19,6 @@ def norm_constant(p, mu, sigma) -> float:
     """
     x = mu + erf(1 / sqrt(2) * p) * sigma * sqrt(2)
     return 1 / (sigma * sqrt(2 * pi)) * exp(-((x - mu) ** 2) / (2 * sigma**2))
-
-
-def find_euclidean_distance(a: list, b: list) -> float:
-    """
-    Finds euclidean distances between two cluster nodes.
-
-    :param a: coordinates of cluster node a
-    :type a: list
-    :param b: coordinates of cluster node b
-    :type b: list
-
-    :returns: euclidean distance
-    :rtype: float
-    """
-    distance_ = [(a - b) ** 2 for a, b in zip(a, b)]
-    return sum(distance_)
-
-
-def generate_connectivity_matrix(scale_len) -> numpy.array:
-    """
-    Generates a connectivity matrix to maintain chronology [..1,0,1..].
-
-    :param scale_len: length of the scale
-    :type scale_len: int
-
-    :returns: connectivity matrix
-    :rtype: numpy.array
-
-    .. admonition:: Example
-
-        .. code-block:: python
-
-            from energia.utils.math import generate_connectivity_matrix
-
-            neighbors = generate_connectivity_matrix(3)
-            assert neighbors.tolist() == [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
-    """
-    connect_ = numpy.zeros((scale_len, scale_len), dtype=int)
-    for i_ in range(len(connect_)):
-        if i_ == 0:
-            # connect_[i,364] = 1 #uncomment these to generate a cyclic matrix
-            connect_[i_, 1] = 1
-        elif i_ == scale_len - 1:
-            connect_[i_, scale_len - 2] = 1
-            # connect_[i,0] = 1
-        else:
-            connect_[i_, i_ - 1] = 1
-            connect_[i_, i_ + 1] = 1
-    return connect_
 
 
 def normalize(data: list, how: str = "max") -> list:
