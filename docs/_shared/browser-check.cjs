@@ -53,10 +53,10 @@ const server = http.createServer((request, response) => {
     for (const width of [390, 768]) {
       await page.setViewportSize({ width, height: 844 });
       await page.locator('.primary-toggle').click();
-      assert.equal(await page.locator('#pst-primary-sidebar-checkbox').isChecked(), true);
+      assert.equal(await page.locator('#pst-primary-sidebar-modal').evaluate(dialog => dialog.open), true);
       assert.equal(await page.locator('.family-nav').isVisible(), true);
-      await page.locator('label.overlay-primary').click({ position: { x: width - 10, y: 200 } });
-      assert.equal(await page.locator('#pst-primary-sidebar-checkbox').isChecked(), false);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !document.getElementById('pst-primary-sidebar-modal').open);
     }
     console.log('Passed: family navigation, theme modes/persistence/system changes, keyboard menu, mobile sidebar.');
   } finally {

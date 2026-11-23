@@ -3,7 +3,7 @@
   "source": "cacodcar/gana:docs/_shared",
   "sha256": {
     "README.md": "4f79acddddcba121582b191a46e6b562aa0db717b28744783047df05d66d51a2",
-    "browser-check.cjs": "897d43c4bb02f826e5103c30558307e243ac5515de4823faed7de25d0a4e596f",
+    "browser-check.cjs": "ec5e4b7a45aebf9550c42db20cc2323e224918e6f68d3f9280067db3065d6273",
     "check.py": "4d09877125d78c0c497cc090f9072b0ddd2d5d5c4f19f657587e4e1ffc6d6d52",
     "constraints.txt": "f1424420c807b83fd85898817f790d87aa872ec48cdb419419aed4e1772a2451",
     "family_docs.py": "f3a07886caeabeb9851bd294ec73ea10f4522defd13ca94acd00140bef0cabf9",
