@@ -1,0 +1,3 @@
+
+# Sphinx inventories contain a compressed binary payload.
+docs/_shared/inventories/*.inv binary

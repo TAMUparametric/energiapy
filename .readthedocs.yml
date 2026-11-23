@@ -1,24 +1,12 @@
-# .readthedocs.yaml
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-# Required
 version: 2
-
-# Set the version of Python and other tools you might need
 build:
-  os: ubuntu-22.04
+  os: ubuntu-24.04
   tools:
     python: "3.13"
-    
-
-python:
-  install:
-    - method: pip
-      path: . 
-      extra_requirements:
-        - docs
-
-# Build documentation in the "docs/" directory with Sphinx
+  jobs:
+    post_install:
+      - python -m pip install -c docs/_shared/constraints.txt -e '.[docs]'
+      - python docs/_shared/check.py
 sphinx:
   configuration: docs/conf.py
+  fail_on_warning: true

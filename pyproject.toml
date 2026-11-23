@@ -34,19 +34,17 @@ test = ["coverage", "pytest", "pytest-cov", "hypothesis", "flake8"]
 docs = [
     "sphinx>=8.2,<9",
     "sphinx-book-theme>=1.4,<1.5",
-    "nbsphinx",          
-    "nbconvert",
-    "nbformat",
-    "sphinx_mdinclude",     
-    "myst-nb", 
-    "sphinxcontrib-bibtex",
+    "myst-nb",
     "sphinx-copybutton",
     "sphinx-togglebutton",
-    "sphinx-thebe",
     "sphinx-design",
-    "sphinx-examples",          
     "sphinx-tabs",
+    "sphinx-thebe",
+    "sphinx-examples",
     "sphinxext-opengraph",
+    "sphinxcontrib-bibtex",
+    "nbconvert",
+    "nbformat",
 ]
 
 [project.urls]
